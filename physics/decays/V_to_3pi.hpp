@@ -16,7 +16,7 @@
 #include "isobar.hpp"
 #include "kinematics.hpp"
 
-namespace iteratedOKT { namespace V_to_3pi
+namespace iterateKT { namespace V_to_3pi
 {
     // Isobar id's
     static const int kP_wave = 0;
@@ -40,6 +40,6 @@ namespace iteratedOKT { namespace V_to_3pi
         inline complex prefactor(channel stu, complex s, complex t, complex u){ return 1.; };
     };
 
-}; /* namespace iteratedOKT */ }; // namespace V_to_3pi
+}; /* namespace iterateKT */ }; // namespace V_to_3pi
 
 #endif // V_TO_3PI_HPP

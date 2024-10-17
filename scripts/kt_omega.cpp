@@ -16,11 +16,11 @@
 #include "constants.hpp"
 #include "decays/V_to_3pi.hpp"
 
-using namespace iteratedOKT;
+using namespace iterateKT;
 
 void kt_omega()
 {
-    using namespace iteratedOKT;
+    using namespace iterateKT;
 
     // Set up general kinematics so everything knows masses
     kinematics omega = new_kinematics(M_OMEGA, M_PION);

@@ -15,7 +15,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace iteratedOKT
+namespace iterateKT
 {
     struct data_set
     {

@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "isobar.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     class amplitude
     {

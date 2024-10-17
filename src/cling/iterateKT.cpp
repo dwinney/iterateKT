@@ -32,12 +32,12 @@ int main(int argc, char **argv)
     argv = new_argv.data();
     argc += 2;    
 
-    TRint * app = new TRint( "iteratedOKT", &argc, argv);
+    TRint * app = new TRint( "iterateKT", &argc, argv);
     TString env = gSystem->Getenv("ITERATEDOKT");
     
-    if (env.Length() == 0) std::cout << "Environment variable ITERATEDOKT not set!" << std::endl;
+    if (env.Length() == 0) std::cout << "Environment variable ITERATEKT not set!" << std::endl;
     
-    app->ProcessLine(".x $ITERATEDOKT/src/cling/Load.C");
+    app->ProcessLine(".x $ITERATEKT/src/cling/Load.C");
     app->ProcessLine(Form(".x %s", macroName.Data()));
     app->Terminate(0);
 

@@ -1,21 +1,21 @@
 # BUILD LIBRARY 
 file(GLOB SRC "*.cpp" ) 
-include_directories($ENV{ITERATEDOKT}/src)
+include_directories($ENV{ITERATEKT}/src)
 
-ROOT_GENERATE_DICTIONARY(G__ITERATEDOKT
-    LINKDEF ITERATEDOKTLinkDef.h
+ROOT_GENERATE_DICTIONARY(G__ITERATEKT
+    LINKDEF ITERATEKTLinkDef.h
 )
-add_library(ITERATEDOKT SHARED ${SRC} G__ITERATEDOKT.cxx )
-target_link_libraries( ITERATEDOKT ROOT::Core ROOT::MathMore )
-target_link_libraries( ITERATEDOKT Boost::boost)
+add_library(ITERATEKT SHARED ${SRC} G__ITERATEKT.cxx )
+target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore )
+target_link_libraries( ITERATEKT Boost::boost)
 
-install( TARGETS ITERATEDOKT
+install( TARGETS ITERATEKT
          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libITERATEDOKT_rdict.pcm    
+install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libITERATEKT_rdict.pcm    
          DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # BUILD EXECUTABLE
-add_executable( iteratedOKT "cling/iteratedOKT.cpp" )
-target_link_libraries( iteratedOKT ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
-target_link_libraries( iteratedOKT ITERATEDOKT )
+add_executable( iterateKT "cling/iterateKT.cpp" )
+target_link_libraries( iterateKT ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
+target_link_libraries( iterateKT ITERATEKT )

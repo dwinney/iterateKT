@@ -14,7 +14,7 @@
 
 #include <TColor.h>
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // Give each jpacColor a ROOT TColor index name so it may be called globally after its initialized
     enum class jpacColor: Int_t { Blue   = 2001, Red      = 2002, Green = 2003,

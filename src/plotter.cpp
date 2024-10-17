@@ -10,7 +10,7 @@
 
 #include "plotter.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // Set up the colors we can use
     void plotter::initialize_colors()

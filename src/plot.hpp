@@ -31,7 +31,7 @@
 #include "data_set.hpp"
 #include "colors.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     class plotter;
 

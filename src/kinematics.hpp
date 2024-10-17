@@ -16,7 +16,7 @@
 #include <memory>
 #include "utilities.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // Forward declare amplitude for the typedef below
     class raw_kinematics;

@@ -21,7 +21,7 @@
 
 #include "constants.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // ---------------------------------------------------------------------------
     // Out of the box std::complex<double> doesnt play well with ints. Here we explicitly
@@ -355,10 +355,10 @@ namespace iteratedOKT
     {
        // Find the correct data file using the top level repo directory
         std::string top_dir;
-        char const * env = std::getenv("iteratedOKT");
+        char const * env = std::getenv("iterateKT");
         if ( env == NULL || std::string(env) == "" )
         {
-            return error("main_dir(): Cannot find environment variable iteratedOKT!", "");
+            return error("main_dir(): Cannot find environment variable ITERATEKT!", "");
         }
         return std::string(env);  
     };

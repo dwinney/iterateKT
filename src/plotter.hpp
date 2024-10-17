@@ -24,7 +24,7 @@
 #include <TLatex.h>
 #include <string>
 
-namespace iteratedOKT
+namespace iterateKT
 {    
     // The plotter object is the basic structure for setting up a plot in ROOT 
     // using the JPAC style.

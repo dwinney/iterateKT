@@ -15,7 +15,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // We need a way to differentiate different channels
     // since isobars describe physics in one channel
@@ -88,6 +88,6 @@ namespace iteratedOKT
         unsigned int _option = 0;
     };
 
-}; // namespace iteratedOKT
+}; // namespace iterateKT
 
 #endif // ISOBAR_HPP

@@ -14,7 +14,7 @@
 #include <complex>
 #include <limits>
 
-namespace iteratedOKT
+namespace iterateKT
 {
     using complex = std::complex<double>;
 
@@ -67,6 +67,6 @@ namespace iteratedOKT
     template<>
     inline complex identity() { return 1; };
 
-}; // iteratedOKT
+}; // iterateKT
 
 #endif // CONSTANTS_HPP

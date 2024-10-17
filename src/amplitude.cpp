@@ -11,7 +11,7 @@
 
 #include "amplitude.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // -----------------------------------------------------------------------
     // Evaluating an amplitude just sums isobars and their associated prefactors
@@ -47,4 +47,4 @@ namespace iteratedOKT
         return result;
     };
 
-}; // namespace iteratedOKT
+}; // namespace iterateKT

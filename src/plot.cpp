@@ -11,7 +11,7 @@
 #include "plot.hpp"
 #include "colors.hpp"
 
-namespace iteratedOKT
+namespace iterateKT
 {
     // ---------------------------------------------------------------------------
     // Outputting function, generates plot and saves it to file
