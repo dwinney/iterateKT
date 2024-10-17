@@ -16,6 +16,8 @@
 #include "constants.hpp"
 #include "decays/V_to_3pi.hpp"
 
+#include "plotter.hpp"
+
 using namespace iterateKT;
 
 void kt_omega()
@@ -30,6 +32,18 @@ void kt_omega()
 
     // We need to load our amplitude with our isobars 
     A.add_isobar<V_to_3pi::P_wave>();
+
+    // Test our pwave
+    isobar pwave = A.get_isobar(V_to_3pi::kP_wave);
+
+    // -----------------------------------------------------------------------
+    
+    plotter plotter;
+
+    plot p = plotter.new_plot();
+    p.add_curve({-1, 2}, [&](double s){ return std::real(pwave->omnes(s, 0));} );
+    p.add_curve({-1, 2}, [&](double s){ return std::imag(pwave->omnes(s, 0));} );
+    p.save("test.pdf");
 
     print("FIN");
 }; 

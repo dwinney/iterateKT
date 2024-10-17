@@ -47,8 +47,11 @@ namespace iterateKT
         // Retrieve an isobar with index i
         inline isobar get_isobar(unsigned int i)
         { 
-            if (i > _isobars.size()) return error("amplitude::get_isobar", "Index out of scope!", nullptr);
-            return _isobars[i]; 
+            for (auto f : _isobars)
+            {
+                if (i == f->id()) return f;
+            } 
+            return error("amplitude::get_isobar", "Index out of scope!", nullptr);
         };
 
         // Load up a new isobar
@@ -67,7 +70,6 @@ namespace iterateKT
 
         // Options flag
         int _option;
-
     };
 }; // namespace iterateOKT
 

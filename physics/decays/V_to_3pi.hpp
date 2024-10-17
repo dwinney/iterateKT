@@ -15,18 +15,19 @@
 
 #include "isobar.hpp"
 #include "kinematics.hpp"
+#include "phaseshifts/GKPY.hpp"
 
 namespace iterateKT { namespace V_to_3pi
 {
     // Isobar id's
     static const int kP_wave = 0;
 
-    // The P-wave is the dominant isobar here
+    // The P-wave is the dominant isobar
     class P_wave : public raw_isobar
     {
+        // -----------------------------------------------------------------------
         public: 
         
-        // -----------------------------------------------------------------------
         // Constructor 
         P_wave(kinematics xkin) : raw_isobar(xkin)
         {};
@@ -34,7 +35,8 @@ namespace iterateKT { namespace V_to_3pi
         // Virtual functions
         inline unsigned int id() { return kP_wave; };
 
-        inline double phaseshift(double s){ return 0.; };
+        // Use GKPY phase shift, smoothly extrapolated to pi 
+        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
 
         // The prefactors are trivial for the J = 1
         inline complex prefactor(channel stu, complex s, complex t, complex u){ return 1.; };

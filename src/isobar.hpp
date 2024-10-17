@@ -15,6 +15,8 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
 namespace iterateKT
 {
     // We need a way to differentiate different channels
@@ -53,15 +55,19 @@ namespace iterateKT
         virtual unsigned int id() = 0;
 
         // Elastic phase shift which provides the intial guess
-        virtual double phaseshift(double s) = 0;
+        virtual double phase_shift(double s) = 0;
 
         // In the full amplitude, user must define the prefactor associated with
         // each channel. This is where symmetries, kinematic factors, and angular polynomials,
         // are implemented;
-        virtual complex prefactor(channel stu_chan, complex s, complex t, complex u) = 0;
+        virtual complex prefactor(channel chan, complex s, complex t, complex u) = 0;
 
-        // -----------------------------------------------------------------------
-        // 
+        // ----------------------------------------------------------------------- 
+        // Things related to dispersion integrals and such
+
+        // Evaluate the Omnes function (on the first sheet) for the given phaseshift. 
+        // This is the homogenous solution and the start of our iterative procedure
+        complex omnes(double x, complex ieps = IEPS);
 
         // Evaluate the actual amplitude piece which usually involves a dispersion integral
         virtual inline complex evaluate(complex x){ return 0.; };
@@ -86,6 +92,18 @@ namespace iterateKT
         // Simple id 
         unsigned int _id = 0;
         unsigned int _option = 0;
+
+        // -----------------------------------------------------------------------
+        protected:
+
+        // Integrator settings
+        int _integrator_depth = 5;
+
+        // Interpolation settings
+        double _interp_energy_low  = 5;    // interpolate from sth to this value
+        int _interp_points_low     = 200;  // interpolate the above interval with this many points
+        double _interp_energy_high = 1000; // then from _interp_energy_low to _interp_energy_high 
+        int _interp_points_high    = 200;  // with this many points
     };
 
 }; // namespace iterateKT

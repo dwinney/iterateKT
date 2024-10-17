@@ -39,6 +39,8 @@ namespace iterateKT
     const double M_RHO       = 0.77526;
     const double M_OMEGA     = 0.78265;
     const double M_PHI       = 1.01956;
+    const double M_F2        = 1.2754;
+    const double M_B1        = 1.229;
 
     // ------------------------------------------------------------------------------
     // NaN's, 0, and 1 for throwing errors with custom data types

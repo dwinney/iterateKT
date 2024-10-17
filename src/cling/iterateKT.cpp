@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     argc += 2;    
 
     TRint * app = new TRint( "iterateKT", &argc, argv);
-    TString env = gSystem->Getenv("ITERATEDOKT");
+    TString env = gSystem->Getenv("ITERATEKT");
     
     if (env.Length() == 0) std::cout << "Environment variable ITERATEKT not set!" << std::endl;
     
