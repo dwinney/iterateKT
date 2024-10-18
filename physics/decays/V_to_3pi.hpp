@@ -29,11 +29,12 @@ namespace iterateKT { namespace V_to_3pi
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin) : raw_isobar(xkin)
+        P_wave(kinematics xkin, int nsub) : raw_isobar(xkin, nsub)
         {};
 
         // Virtual functions
-        inline unsigned int id() { return kP_wave; };
+        inline unsigned int  id() { return kP_wave;  };
+        inline std::string name() { return "P-wave"; };
 
         // Use GKPY phase shift, smoothly extrapolated to pi 
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };

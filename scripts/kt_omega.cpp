@@ -31,18 +31,19 @@ void kt_omega()
     amplitude A(omega);
 
     // We need to load our amplitude with our isobars 
-    A.add_isobar<V_to_3pi::P_wave>();
+    A.add_isobar<V_to_3pi::P_wave>(1);
 
     // Test our pwave
     isobar pwave = A.get_isobar(V_to_3pi::kP_wave);
 
+    double e = 0.1;
     // -----------------------------------------------------------------------
     
     plotter plotter;
 
     plot p = plotter.new_plot();
-    p.add_curve({-1, 2}, [&](double s){ return std::real(pwave->omnes(s, 0));} );
-    p.add_curve({-1, 2}, [&](double s){ return std::imag(pwave->omnes(s, 0));} );
+    p.add_curve({-1, 2}, [&](double s){ return std::real(pwave->omnes(s+I*e));} );
+    p.add_curve({-1, 2}, [&](double s){ return std::imag(pwave->omnes(s+I*e));} );
     p.save("test.pdf");
 
     print("FIN");

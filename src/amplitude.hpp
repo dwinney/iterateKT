@@ -27,7 +27,7 @@ namespace iterateKT
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
         amplitude(kinematics xkin)
-        : _kin(xkin)
+        : _kinematics(xkin)
         {};
 
         // Evaluate the full amplitude. This will 
@@ -56,14 +56,14 @@ namespace iterateKT
 
         // Load up a new isobar
         template<class T>
-        inline void add_isobar(){ _isobars.push_back(new_isobar<T>(_kin)); };
+        inline void add_isobar(int nsub){ _isobars.push_back(new_isobar<T>(_kinematics, nsub)); };
 
         // -----------------------------------------------------------------------
 
         private:
 
         // Kinematics object, contains all masses, angles, etc
-        kinematics _kin;
+        kinematics _kinematics;
 
         // Store isobars here to be called later
         std::vector<isobar> _isobars;

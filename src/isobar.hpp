@@ -1,5 +1,6 @@
 // The decay amplitude is decomposed into terms of one-variable functions
-// These are given by the isobar class below
+// These are given by the isobar class below. These will contain collections of
+// iterations which contain the solutions at each step
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -14,6 +15,7 @@
 #include <memory>
 #include "utilities.hpp"
 #include "kinematics.hpp"
+#include "iteration.hpp"
 
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
@@ -32,9 +34,9 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin)
+    inline isobar new_isobar(kinematics kin, int nsub)
     {
-        auto x = std::make_shared<A>(kin);
+        auto x = std::make_shared<A>(kin, nsub);
         return std::static_pointer_cast<raw_isobar>(x);
     };
 
@@ -44,15 +46,18 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin)
-        : _kin(xkin)
-        {};
+        raw_isobar(kinematics xkin, int nsub) : _kinematics(xkin)
+        { 
+            set_max_subtraction(nsub); 
+            initialize();
+        };
 
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
 
         // Each isobar should have an identifying int (suggest implementing this with enums)
-        virtual unsigned int id() = 0;
+        virtual unsigned int id()  = 0;
+        virtual std::string name() = 0; // as well as a string name for human readable id
 
         // Elastic phase shift which provides the intial guess
         virtual double phase_shift(double s) = 0;
@@ -67,10 +72,17 @@ namespace iterateKT
 
         // Evaluate the Omnes function (on the first sheet) for the given phaseshift. 
         // This is the homogenous solution and the start of our iterative procedure
-        complex omnes(double x, complex ieps = IEPS);
+        complex omnes(complex x);
 
-        // Evaluate the actual amplitude piece which usually involves a dispersion integral
-        virtual inline complex evaluate(complex x){ return 0.; };
+        // Output a basis_function from a given iteration
+        // Without an iter_id we just take the latest iteration
+        complex basis_function(unsigned int iter_id, unsigned int basis_id, complex x);
+        complex basis_function(unsigned int basis_id, complex x);
+
+        // Evaluate the full isobar combining the basis functions and coefficients
+        // Specify an iter_id or just eval the latest one
+        complex evaluate(unsigned int iter_id, complex s);
+        complex evaluate(complex s);
 
         // -----------------------------------------------------------------------
         // Utilities
@@ -79,31 +91,48 @@ namespace iterateKT
         inline uint option(){ return _option; };
         virtual inline void set_option(uint x){ _option = x; };
 
- 
-        // -----------------------------------------------------------------------
-        private:
-
-        // Kinematics instance
-        kinematics _kin;
-
-        // Isobars name
-        std::string _name = "isobar";
-
-        // Simple id 
-        unsigned int _id = 0;
-        unsigned int _option = 0;
-
         // -----------------------------------------------------------------------
         protected:
 
         // Integrator settings
-        int _integrator_depth = 5;
+        int    _integrator_depth   = 15;
+        double _infinitesimal      = 1E-5;
 
         // Interpolation settings
         double _interp_energy_low  = 5;    // interpolate from sth to this value
-        int _interp_points_low     = 200;  // interpolate the above interval with this many points
+        int    _interp_points_low  = 200;  // interpolate the above interval with this many points
         double _interp_energy_high = 1000; // then from _interp_energy_low to _interp_energy_high 
-        int _interp_points_high    = 200;  // with this many points
+        int    _interp_points_high = 200;  // with this many points
+
+        // -----------------------------------------------------------------------
+        private:
+
+        // Kinematics instance
+        kinematics _kinematics;
+
+        // Saved vector of iterations
+        std::vector<iteration> _iterations;
+
+        // Simple id 
+        unsigned int _option = 0;
+
+        // Number of subtractions
+        unsigned int _max_sub = 1;
+        void set_max_subtraction(int n)
+        {
+            std::string message = "Isobar initiated with 0 subtraction will be ignored and initialized with 1 instead.";
+            _max_sub = (n == 0) ? error(message, 1) : n;
+
+            // Initialize each subtraction coefficient to 0
+            for (int i = 0; i < n; i++) _subtraction_coeffs.push_back(0.); 
+        };
+
+        // Initialize the 'zeroth' iteration by evaluating just the omnes function
+        inline void initialize(){ _iterations.push_back(new_iteration(_max_sub)); };
+
+        // Subtraction coefficients
+        std::vector<complex> _subtraction_coeffs;
+
     };
 
 }; // namespace iterateKT
