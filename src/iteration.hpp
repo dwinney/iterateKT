@@ -15,6 +15,7 @@
 #include <Math/Interpolator.h>
 #include "utilities.hpp"
 #include "kinematics.hpp"
+#include "settings.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -31,9 +32,10 @@ namespace iterateKT
     { 
         return std::make_shared<raw_iteration>(nsub); 
     };
-    inline iteration new_iteration(unsigned int nsub, std::array<std::vector<double>,3>& disc)
+
+    inline iteration new_iteration(unsigned int nsub, std::array<std::vector<double>,3>& disc, settings sets)
     { 
-        return std::make_shared<raw_iteration>(nsub, disc); 
+        return std::make_shared<raw_iteration>(nsub, disc, sets); 
     };
 
     class raw_iteration
@@ -50,8 +52,8 @@ namespace iterateKT
         // disc[0] = s
         // disc[1] = Re(discT)
         // disc[2] = Im(discT)
-        raw_iteration(unsigned int n, std::array<std::vector<double>,3>& disc) 
-        : _n(n), _zeroth(false), _disc_data(disc)
+        raw_iteration(unsigned int n, std::array<std::vector<double>,3> disc, settings sets) 
+        : _n(n), _zeroth(false), _settings(sets), _disc_data(disc)
         {
             _sth = disc[0].front(); _upper = disc[0].back();
             _re_disc.SetData(disc[0], disc[1]);
@@ -70,6 +72,8 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         private:
+
+        settings _settings;
 
         // threshold
         double _sth, _upper;

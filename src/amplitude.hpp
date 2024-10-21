@@ -33,6 +33,9 @@ namespace iterateKT
         // Evaluate the full amplitude. This will 
         complex operator()(complex s, complex t, complex u);
 
+        // Calculate one iteration of the KT equations
+        void iterate();
+        
         // -----------------------------------------------------------------------
         // Utilities
 
@@ -47,10 +50,7 @@ namespace iterateKT
         // Retrieve an isobar with index i
         inline isobar get_isobar(unsigned int i)
         { 
-            for (auto f : _isobars)
-            {
-                if (i == f->id()) return f;
-            } 
+            for (auto f : _isobars) if (i == f->id()) return f;
             return error("amplitude::get_isobar", "Index out of scope!", nullptr);
         };
 

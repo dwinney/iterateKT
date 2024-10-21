@@ -16,7 +16,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "iteration.hpp"
-
+#include "settings.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -34,9 +34,9 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin, int nsub)
+    inline isobar new_isobar(kinematics kin, int nsub, settings sets = settings() )
     {
-        auto x = std::make_shared<A>(kin, nsub);
+        auto x = std::make_shared<A>(kin, nsub, sets);
         return std::static_pointer_cast<raw_isobar>(x);
     };
 
@@ -46,7 +46,7 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin, int nsub) : _kinematics(xkin)
+        raw_isobar(kinematics xkin, int nsub, settings sets) : _kinematics(xkin), _settings(sets)
         { 
             set_max_subtraction(nsub); 
             initialize();
@@ -94,15 +94,16 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         protected:
 
-        // Integrator settings
-        int    _integrator_depth   = 15;
-        double _infinitesimal      = 1E-5;
+        friend class amplitude;
 
-        // Interpolation settings
-        double _interp_energy_low  = 5;    // interpolate from sth to this value
-        int    _interp_points_low  = 200;  // interpolate the above interval with this many points
-        double _interp_energy_high = 1000; // then from _interp_energy_low to _interp_energy_high 
-        int    _interp_points_high = 200;  // with this many points
+        // Take in an array of isobars and use their current state to calculate the next disc
+        std::array<std::vector<double>,3> calculate_next(std::vector<isobar> previous);
+
+        // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
+        inline void save_iteration(std::array<std::vector<double>,3> disc)
+        {
+            _iterations.push_back(new_iteration(_max_sub, disc, _settings));
+        }
 
         // -----------------------------------------------------------------------
         private:
@@ -110,11 +111,14 @@ namespace iterateKT
         // Kinematics instance
         kinematics _kinematics;
 
+        // Integrator and interpolator settings
+        settings _settings;
+
+        // Overal option flag 
+        int _option = 0;
+
         // Saved vector of iterations
         std::vector<iteration> _iterations;
-
-        // Simple id 
-        unsigned int _option = 0;
 
         // Number of subtractions
         unsigned int _max_sub = 1;

@@ -24,7 +24,8 @@ namespace iterateKT
         double high = std::numeric_limits<double>::infinity();
         
         // If we're sufficiently far from the real axis just do the integral naively
-        if (imag(s) > _infinitesimal) 
+        double eps = _settings._infinitesimal;
+        if (imag(s) > eps) 
         {
             auto fdx = [this, s](double x)
             {
@@ -34,7 +35,7 @@ namespace iterateKT
                 integrand /= (x-s); 
                 return integrand;
             };
-            complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, low, high, _integrator_depth, 1.E-9, NULL);
+            complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._integrator_depth, 1.E-9, NULL);
             return exp(integral/M_PI);
         }
 
@@ -42,19 +43,18 @@ namespace iterateKT
         // to properly handle the Principle Value and ieps perscription
 
         double  RHCs = phase_shift(real(s));
-        complex ieps = I*_infinitesimal;
-        auto fdx = [this,s,RHCs,ieps](double x)
+        auto fdx = [this,s,RHCs,eps](double x)
         {
             complex integrand;
             integrand  = phase_shift(x) - RHCs;
             integrand *= (s/x); // One subtraction
-            integrand /= (x-(s+ieps)); 
+            integrand /= (x-(s+I*eps)); 
             return integrand;
         };
 
         complex logarithm, integral, result;
-        integral  = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, low, high, _integrator_depth, 1.E-9, NULL);
-        logarithm = are_equal(s, _kinematics->sth(), 1E-5) ? 0 : RHCs * log(1.-(s+ieps) / low);
+        integral  = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._integrator_depth, 1.E-9, NULL);
+        logarithm = are_equal(s, _kinematics->sth(), 1E-5) ? 0 : RHCs * log(1.-(s+I*eps) / low);
         result = (integral-logarithm)/M_PI;
     
         return exp(result);
@@ -89,6 +89,29 @@ namespace iterateKT
     complex raw_isobar::evaluate(complex s)
     {
         return evaluate(_iterations.size()-1, s);
+    };
+
+
+    // ----------------------------------------------------------------------- 
+    // Take the saved interpolation settings and output the necessary arrays
+    
+    std::array<std::vector<double>,3> raw_isobar::calculate_next(std::vector<isobar> previous)
+    {
+        // Interpolation in three different regions
+        double low  = _kinematics->sth();
+        double mid  = _settings._interp_energy_low;
+        double high = _settings._interp_energy_high;
+
+        int N_low  = _settings._interp_points_low;
+        int N_high = _settings._interp_points_high;
+
+        // First region is [low, mid]
+        for (int i = 0; i < N_low; i++)
+        {
+            double s = low + (mid - high)*double(i)/double(N_low-1);
+        };
+
+        return {};
     };
 
 };
