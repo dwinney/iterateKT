@@ -18,7 +18,8 @@ namespace iterateKT
     {
         settings(){};
 
-        int    _integrator_depth   = 15;
+        int    _dispersion_integrator_depth = 15;
+        int    _angular_integrator_depth   = 15;
         double _infinitesimal      = 1E-5;
 
         // Interpolation settings
@@ -26,6 +27,9 @@ namespace iterateKT
         int    _interp_points_low  = 200;  // interpolate the above interval with this many points
         double _interp_energy_high = 1000; // then from _interp_energy_low to _interp_energy_high 
         int    _interp_points_high = 200;  // with this many points
+
+        // Amount to offset the middle point between interpolation regions
+        double _interp_offset = 1;
     };
 }; // namespace iterateKT
 

@@ -29,18 +29,24 @@ namespace iterateKT { namespace V_to_3pi
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin, int nsub) : raw_isobar(xkin, nsub)
+        P_wave(kinematics xkin, int nsub, settings sets) : raw_isobar(xkin, nsub, sets)
         {};
 
         // Virtual functions
         inline unsigned int  id() { return kP_wave;  };
         inline std::string name() { return "P-wave"; };
 
+        // momentum power is j-lambda = j-1. So for P wave we have no momentum factors
+        inline int momentum_power(){ return 1; };
+
         // Use GKPY phase shift, smoothly extrapolated to pi 
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
 
         // The prefactors are trivial for the J = 1
         inline complex prefactor(channel stu, complex s, complex t, complex u){ return 1.; };
+
+        // Since the prefactors are trivial, the kernel also is
+        inline complex kernel(int iso_id, complex s, complex t){ return 1.; };
     };
 
 }; /* namespace iterateKT */ }; // namespace V_to_3pi

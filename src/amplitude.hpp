@@ -15,6 +15,7 @@
 #include <memory>
 #include "kinematics.hpp"
 #include "utilities.hpp"
+#include "basis_grid.hpp"
 #include "isobar.hpp"
 
 namespace iterateKT

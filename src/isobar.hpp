@@ -17,6 +17,7 @@
 #include "kinematics.hpp"
 #include "iteration.hpp"
 #include "settings.hpp"
+#include "basis_grid.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -59,6 +60,10 @@ namespace iterateKT
         virtual unsigned int id()  = 0;
         virtual std::string name() = 0; // as well as a string name for human readable id
 
+        // The power (p q)^n that appears in angular momentum barrier factor
+        // This determines the type of matching required at pseudothreshold
+        virtual int momentum_power() = 0;
+
         // Elastic phase shift which provides the intial guess
         virtual double phase_shift(double s) = 0;
 
@@ -66,6 +71,9 @@ namespace iterateKT
         // each channel. This is where symmetries, kinematic factors, and angular polynomials,
         // are implemented;
         virtual complex prefactor(channel chan, complex s, complex t, complex u) = 0;
+
+        // Kernel which appears in the angular average
+        virtual complex kernel(int iso_id, complex s, complex t) = 0;
 
         // ----------------------------------------------------------------------- 
         // Things related to dispersion integrals and such
@@ -97,12 +105,22 @@ namespace iterateKT
         friend class amplitude;
 
         // Take in an array of isobars and use their current state to calculate the next disc
-        std::array<std::vector<double>,3> calculate_next(std::vector<isobar> previous);
+        basis_grid calculate_next(std::vector<isobar> previous_list);
+
+        // Use the specified kernel to calculate the angualar average
+        // over the pinocchio path
+        complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous_list);
+
+        // Calculate the angular integral along a straight line either above or below the cut
+        complex linear_segment_above(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list);
+        complex linear_segment_below(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list);
+        // Calculate the integral along the curved secment of pinocchio's head
+        complex curved_segment      (unsigned int basis_id, double s, std::vector<isobar> previous_list);
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
-        inline void save_iteration(std::array<std::vector<double>,3> disc)
+        inline void save_iteration(basis_grid & grid)
         {
-            _iterations.push_back(new_iteration(_max_sub, disc, _settings));
+            _iterations.push_back(new_iteration(_max_sub, grid, _settings));
         }
 
         // -----------------------------------------------------------------------

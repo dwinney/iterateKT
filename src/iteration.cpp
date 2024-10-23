@@ -13,10 +13,10 @@
 namespace iterateKT
 {
     // The discontinuity of the inhomogenous contribution
-    complex raw_iteration::discontinuity(double s)
+    complex raw_iteration::ksf_discontinuity(unsigned int i, double s)
     {
         if (s <= _sth || s >= _upper) return 0.;
-        return _re_disc.Eval(s) + I*_im_disc.Eval(s);
+        return _re_disc[i]->Eval(s) + I*_im_disc[i]->Eval(s);
     };
 
     // Evaluate the `basis' function. This deviates from the typical 
@@ -35,33 +35,33 @@ namespace iterateKT
         double eps = _settings._infinitesimal;
         if (imag(s) > eps) 
         {
-            auto fdx = [this, s](double x)
+            auto fdx = [this,i,s](double x)
             {
                 complex integrand;
-                integrand  = discontinuity(x)/M_PI;
+                integrand  = ksf_discontinuity(i, x)/M_PI;
                 integrand *= pow(s/x, _n); 
                 integrand /= (x-s); 
                 return integrand;
             };
-            complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _sth, _upper, _settings._integrator_depth, 1.E-9, NULL);
+            complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _sth, _upper, _settings._dispersion_integrator_depth, 1.E-9, NULL);
             return polynomial + integral;
         }
 
         // If we're close to the real axis, we split the integration in two parts
         // to properly handle the Principle Value and ieps perscription
 
-        complex RHCs = discontinuity(real(s));
-        auto fdx = [this,s,RHCs,eps](double x)
+        complex RHCs = ksf_discontinuity(i, real(s));
+        auto fdx = [this,s,RHCs,eps,i](double x)
         {
             complex integrand;
-            integrand  = (discontinuity(x) - RHCs)/M_PI;
+            integrand  = (ksf_discontinuity(i, x) - RHCs)/M_PI;
             integrand *= pow(s/x, _n);
             integrand /= (x-(s+I*eps)); 
             return integrand;
         };
 
         complex logarithm, integral;
-        integral  = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _sth, _upper, _settings._integrator_depth, 1.E-9, NULL);
+        integral  = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _sth, _upper, _settings._dispersion_integrator_depth, 1.E-9, NULL);
         logarithm = are_equal(s, _sth, 1E-5) ? 0 : - RHCs/M_PI * log(1.-(s+I*eps)/_sth);
         return polynomial + integral + logarithm;
     };

@@ -49,9 +49,31 @@ namespace iterateKT
         inline double m2(){ return m()*m(); };
         inline double M2(){ return M()*M(); };
         
-        // Threshold & pseudo-threshold
+        // Threshold & pseudo-threshold and final state threshold
         inline double sth() { return 4.*m2(); };
-        inline double pth() { return (M()+m())*(M()+m()); };
+        inline double pth() { return (M()-m())*(M()-m()); };
+        inline double rth() { return (M()+m())*(M()+m()); };
+
+        // Sum of masses squared
+        // s + t + u = Sigma (note no factor of 3!)
+        inline double Sigma(){ return M2() + 3*m2(); };
+
+        // Special points along the pinnochio path
+        inline double A(){ return sth(); };
+        inline double B(){ return (M2()-m2())/2; };
+        inline double C(){ return pth(); };
+        inline double D(){ return rth(); };
+
+        // Analytic continuation of barrier factor along real line
+        complex kacser(double s);
+
+        // Bounds of integration in the complex plane
+        complex s_plus (double s);
+        complex s_minus(double s);
+
+        // Reformulation of the curved area in terms of angular variable phi
+        complex phi_plus (double s);
+        complex phi_minus(double s);
 
         // -----------------------------------------------------------------------
         private: 

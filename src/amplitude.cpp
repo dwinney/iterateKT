@@ -57,7 +57,7 @@ namespace iterateKT
 
         // To not advance to the next iteration before looping over all isobars
         //  we save the "next" discontinuities here first
-        std::vector<std::array<std::vector<double>,3>> next;
+        std::vector<basis_grid> next;
 
         // Each isobar takes full list of other isobars with which to calculate angular avgs
         for (auto previous : _isobars) next.push_back( previous->calculate_next(_isobars) );

@@ -16,6 +16,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
+#include "basis_grid.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -33,9 +34,9 @@ namespace iterateKT
         return std::make_shared<raw_iteration>(nsub); 
     };
 
-    inline iteration new_iteration(unsigned int nsub, std::array<std::vector<double>,3>& disc, settings sets)
+    inline iteration new_iteration(unsigned int n, basis_grid & grid, settings sets) 
     { 
-        return std::make_shared<raw_iteration>(nsub, disc, sets); 
+        return std::make_shared<raw_iteration>(n, grid, sets); 
     };
 
     class raw_iteration
@@ -49,15 +50,27 @@ namespace iterateKT
 
         // Constructor for other iterations
         // We need to provide vectors of the discontinuity on the real line
-        // disc[0] = s
-        // disc[1] = Re(discT)
-        // disc[2] = Im(discT)
-        raw_iteration(unsigned int n, std::array<std::vector<double>,3> disc, settings sets) 
-        : _n(n), _zeroth(false), _settings(sets), _disc_data(disc)
+        raw_iteration(unsigned int n, basis_grid dat, settings sets) 
+        : _n(n), _zeroth(false), _settings(sets)
         {
-            _sth = disc[0].front(); _upper = disc[0].back();
-            _re_disc.SetData(disc[0], disc[1]);
-            _im_disc.SetData(disc[0], disc[2]);
+            _sth = dat._s_list.front(); _upper = dat._s_list.back();
+
+            for (int i = 0; i < n; i++)
+            {
+                _re_disc.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
+                _im_disc.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
+            };
+        };
+
+        // Clean up manual pointers
+        ~raw_iteration()
+        {
+            if (_zeroth) return;
+            for (int i = 0; i < _n; i++)
+            {
+                delete _re_disc[i];
+                delete _im_disc[i];
+            };
         };
 
         // ----------------------------------------------------------------------- 
@@ -67,15 +80,17 @@ namespace iterateKT
         // s^i + dispersion(s)
         complex basis_function(unsigned int i, complex x);
 
-        // This is the discontinutiy which gets dispersed above
-        complex discontinuity(double x);
+        // This is the kinematic-singularity-free part of the discontinutiy which gets dispersed 
+        // over. 
+        complex ksf_discontinuity(unsigned int i, double x);
 
         // -----------------------------------------------------------------------
         private:
 
+        // integration and interpolation settings
         settings _settings;
 
-        // threshold
+        // thresholds
         double _sth, _upper;
 
         // Number of basis functions
@@ -85,8 +100,7 @@ namespace iterateKT
         bool _zeroth = false;
 
         // The saved data and interpolation of the discontinuity
-        std::array<std::vector<double>,3> _disc_data;
-        ROOT::Math::Interpolator _re_disc, _im_disc;
+        std::vector<ROOT::Math::Interpolator*> _re_disc, _im_disc;
     };
 
 }; // namespace iterateKT
