@@ -150,23 +150,20 @@ namespace iterateKT
             case 0: 
             case 3:
             {
-                double sp = std::real(_kinematics->s_plus(s));
-                double sm = std::real(_kinematics->s_minus(s));
+                double sp = std::real(_kinematics->t_plus(s));
+                double sm = std::real(_kinematics->t_minus(s));
                 return linear_segment_above(basis_id, {sp, sm}, s, previous);
             };
             // s+ is above cut but s- is below cut
             case 1:
             {
-                double sp = std::real(_kinematics->s_plus(s));
-                double sm = std::real(_kinematics->s_minus(s));
+                double sp = std::real(_kinematics->t_plus(s));
+                double sm = std::real(_kinematics->t_minus(s));
                 return linear_segment_above(basis_id, {_kinematics->sth(), sp}, s, previous)
                      + linear_segment_below(basis_id, {sm, _kinematics->sth()}, s, previous);
             };
             // In the curved "egg" portion
-            case 2:
-            {
-                return curved_segment(basis_id, s, previous);
-            };
+            case 2: return curved_segment(basis_id, s, previous);
         };
 
         return NaN<complex>();
@@ -208,22 +205,25 @@ namespace iterateKT
     };
 
     // Integrate along the curved segment of pinnochio's head
-    complex raw_isobar::curved_segment(unsigned int basis_id, double s, std::vector<isobar> previous)
+    complex raw_isobar::curved_segment(unsigned int basis_id, double s, std::vector<isobar> previous_list)
     {
         //  sum over all the previous isobars with their appropriate kernels
         complex ieps = I*_settings._infinitesimal;
-        // auto fdx = [this,previous_list,s,ieps,basis_id](double phi)
-        // {
-        //     complex sum = 0;
-        //     for (auto previous : previous_list) 
-        //     {
-        //         complex t = this->_kinematics->egg(phi);
-        //         sum += kernel(previous->id(),s,t)*previous->basis_function(basis_id, t);
-        //         sum *= this->_kinematics->egg_jacobian(phi);
-        //     };
-        //     return sum;
-        // };
-        return 0.;
+        auto fdx = [this,previous_list,s,ieps,basis_id](double phi)
+        {
+            complex sum = 0;
+            for (auto previous : previous_list) 
+            {
+                complex t = this->_kinematics->t_curve(phi);
+                sum += kernel(previous->id(),s,t)*previous->basis_function(basis_id, t);
+                sum *= this->_kinematics->jacobian(phi);
+            };
+            return sum;
+        };
+        return boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _kinematics->phi_minus(s), 
+                                                                                 _kinematics->phi_plus(s), 
+                                                                                 _settings._angular_integrator_depth, 
+                                                                                 1.E-9, NULL);
     };
 
 }; // namespace iterateKT

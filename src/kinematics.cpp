@@ -15,40 +15,93 @@
 namespace iterateKT
 {
     // -----------------------------------------------------------------------
-    complex raw_kinematics::kacser(double s)
+    complex raw_kinematics::kacser(complex s)
     {
-        if (s < sth()) return error("kinematics::kacser", "Trying to evaluate Kacser below threshold!", NaN<complex>());
-        double kappa = std::abs(csqrt(1-sth()/s)*csqrt(pth()-s)*csqrt(rth()-s));
+        complex kappa = csqrt(1-sth()/s)*csqrt(pth()-s)*csqrt(rth()-s);
+        if (std::real(s) < sth() || !is_zero(std::imag(s))) return kappa;
         
         // Handle the continuation piecewise
-        int region = (s >= pth()) + (s > rth());
+        int region = (std::real(s) >= pth()) + (std::real(s) > rth());
         switch (region)
         {
-            case 0: return +  kappa;
-            case 1: return +I*kappa;
-            case 2: return -  kappa;
+            case 0: return +  std::abs(kappa);
+            case 1: return +I*std::abs(kappa);
+            case 2: return -  std::abs(kappa);
         };
+        return NaN<complex>();
     };
 
     // Bounds of integration
-    complex raw_kinematics::s_plus(double s)
+    complex raw_kinematics::t_plus(double s)
     {
         return (Sigma() - s + kacser(s))/2;
     };
-    complex raw_kinematics::s_minus(double s)
+    complex raw_kinematics::t_minus(double s)
     {
         return (Sigma() - s - kacser(s))/2;
     };
 
-    // Bounds of integration in terms of phi
-    complex raw_kinematics::phi_plus(double s)
+    // -----------------------------------------------------------------------
+    // These methods are related to the curved section of pinocchios head
+
+    complex raw_kinematics::t_curve(double phi)
     {
+        if (!_initialized) return radius(phi)*exp(I*phi);
+        return _re_tphi.Eval(phi)+I*_im_tphi.Eval(phi);
+    };
+
+    complex raw_kinematics::jacobian(double phi)
+    {
+        if (!_initialized) initialize();
+        return _re_tphi.Deriv(phi)+I*_im_tphi.Deriv(phi);
+    };
+
+    void raw_kinematics::initialize()
+    {
+        std::vector<double> phi, re, im;
+        for (int i = 0; i < _n_interp; i++)
+        {
+            double phi_i = (2*PI)*double(i)/double(_n_interp-1);
+            complex tprime = t_curve(phi_i);
+
+            phi.push_back(phi_i);
+            re.push_back( std::real(tprime) );
+            im.push_back( std::imag(tprime) );
+        };
+
+        _re_tphi.SetData(phi, re);
+        _im_tphi.SetData(phi, im);
+        _initialized = true;
+    };
+
+    // Bounds of integration in terms of phi
+    double raw_kinematics::phi_plus(double s)
+    {
+        if (s >= rth() || s <= pth()) return error("kinematics::phi_plus", 
+                                                   "Outside egg region!", NaN<double>());
         double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m();
         return acos(cosine);
     };
-    complex raw_kinematics::phi_minus(double s)
+    double raw_kinematics::phi_minus(double s)
     {
         return 2*PI - phi_plus(s);
     };
+
+    // The radius of integratoin path t along the curved section
+    double raw_kinematics::theta(double phi)
+    {
+        double arg = cos(phi)*m()*(M2()-m2());
+        arg *= arg;
+        arg *= 2/pow(Sigma()/3, 3.);
+        return acos(arg-1)/3;
+    };
+
+    double raw_kinematics::radius(double phi)
+    {
+        double cosphi   = cos(phi);
+        if (is_zero(cosphi)) return (M2() - m2())*m()/Sigma();
+        if (cosphi < 0) return (Sigma()/3)*(1-2*cos(theta(phi)))/2/cosphi;
+        else return (Sigma()/3)*(1+2*cos(theta(phi)+PI/3.))/2/cosphi;
+    };  
 
 }; // namespace iterateKT

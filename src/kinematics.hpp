@@ -15,6 +15,7 @@
 
 #include <memory>
 #include "utilities.hpp"
+#include <Math/Interpolator.h>
 
 namespace iterateKT
 {
@@ -37,7 +38,9 @@ namespace iterateKT
 
         raw_kinematics(double m_parent, double m_daughter)
         : _m_parent(m_parent), _m_daughter(m_daughter)
-        {};
+        {
+            initialize();
+        };
 
         // -----------------------------------------------------------------------
         // Getters for masses
@@ -65,19 +68,29 @@ namespace iterateKT
         inline double D(){ return rth(); };
 
         // Analytic continuation of barrier factor along real line
-        complex kacser(double s);
+        complex kacser (complex s);
 
         // Bounds of integration in the complex plane
-        complex s_plus (double s);
-        complex s_minus(double s);
+        complex t_plus (double s);
+        complex t_minus(double s);
+        complex t_curve (double phi);
+        complex jacobian(double phi);
 
         // Reformulation of the curved area in terms of angular variable phi
-        complex phi_plus (double s);
-        complex phi_minus(double s);
+        double phi_plus (double s);
+        double phi_minus(double s);
+        double theta(double cosphi);
+        double radius(double phi);
 
         // -----------------------------------------------------------------------
         private: 
         
+        // Set up an interpolation of the phi contour so that we can take derivatives
+        void initialize();
+        bool _initialized = false;
+        int  _n_interp    = 100;
+        ROOT::Math::Interpolator _re_tphi, _im_tphi;
+
         // Masses
         double _m_parent = 0, _m_daughter = 0;
     };

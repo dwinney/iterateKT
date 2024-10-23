@@ -62,7 +62,7 @@ namespace iterateKT
 
         // The power (p q)^n that appears in angular momentum barrier factor
         // This determines the type of matching required at pseudothreshold
-        virtual int momentum_power() = 0;
+        virtual int singularity_power() = 0;
 
         // Elastic phase shift which provides the intial guess
         virtual double phase_shift(double s) = 0;
@@ -104,6 +104,12 @@ namespace iterateKT
 
         friend class amplitude;
 
+        // Kinematics instance
+        kinematics _kinematics;
+
+        // Integrator and interpolator settings
+        settings _settings;
+
         // Take in an array of isobars and use their current state to calculate the next disc
         basis_grid calculate_next(std::vector<isobar> previous_list);
 
@@ -125,12 +131,6 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         private:
-
-        // Kinematics instance
-        kinematics _kinematics;
-
-        // Integrator and interpolator settings
-        settings _settings;
 
         // Overal option flag 
         int _option = 0;

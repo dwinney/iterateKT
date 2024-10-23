@@ -42,8 +42,8 @@ void kt_omega()
     plotter plotter;
 
     plot p = plotter.new_plot();
-    p.add_curve({-1, 2}, [&](double s){ return std::real(pwave->omnes(s+I*e));} );
-    p.add_curve({-1, 2}, [&](double s){ return std::imag(pwave->omnes(s+I*e));} );
+    p.add_curve({EPS, 1.0}, [&](double s){ return std::real(pwave->basis_function(0,s+IEPS));} );
+    p.add_curve({EPS, 1.0}, [&](double s){ return std::imag(pwave->basis_function(0,s+IEPS));} );
     p.save("test.pdf");
 
     print("FIN");

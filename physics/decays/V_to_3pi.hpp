@@ -36,8 +36,10 @@ namespace iterateKT { namespace V_to_3pi
         inline unsigned int  id() { return kP_wave;  };
         inline std::string name() { return "P-wave"; };
 
-        // momentum power is j-lambda = j-1. So for P wave we have no momentum factors
-        inline int momentum_power(){ return 1; };
+        // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
+        // which lead to pseudo threshold singularities
+        // The TOTAL singularity power is always +1 from this (one factor from the jacobian)
+        inline int singularity_power(){ return 2; };
 
         // Use GKPY phase shift, smoothly extrapolated to pi 
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
@@ -46,7 +48,15 @@ namespace iterateKT { namespace V_to_3pi
         inline complex prefactor(channel stu, complex s, complex t, complex u){ return 1.; };
 
         // Since the prefactors are trivial, the kernel also is
-        inline complex kernel(int iso_id, complex s, complex t){ return 1.; };
+        inline complex kernel(int iso_id, complex s, complex t)
+        { 
+            // Only P-wave allowed in the cross channel
+            if (iso_id != V_to_3pi::kP_wave) return NaN<complex>();
+
+            complex k  = _kinematics->kacser(s);
+            complex kz = 2*t-_kinematics->Sigma()+s;
+            return 3*(k*k - kz*kz); // We've multiplied by k^2 which is why singularity_power() = 2
+        };
     };
 
 }; /* namespace iterateKT */ }; // namespace V_to_3pi
