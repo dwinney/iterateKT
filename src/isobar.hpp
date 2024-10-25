@@ -18,6 +18,7 @@
 #include "iteration.hpp"
 #include "settings.hpp"
 #include "basis_grid.hpp"
+#include <Math/Interpolator.h>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -92,6 +93,17 @@ namespace iterateKT
         complex evaluate(unsigned int iter_id, complex s);
         complex evaluate(complex s);
 
+        // Use the specified kernel to calculate the angualar average
+        // over the pinocchio path
+        complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous_list);
+
+        // Given a phase shift, this is the LHC piece (numerator)
+        inline double LHC(double s)
+        { 
+            if (!_lhc_interpolated) interpolate_lhc();
+            return (s >= _kinematics->sth()) ? _lhc.Eval(s) : NaN<double>(); 
+        };
+
         // -----------------------------------------------------------------------
         // Utilities
 
@@ -112,10 +124,6 @@ namespace iterateKT
 
         // Take in an array of isobars and use their current state to calculate the next disc
         basis_grid calculate_next(std::vector<isobar> previous_list);
-
-        // Use the specified kernel to calculate the angualar average
-        // over the pinocchio path
-        complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous_list);
 
         // Calculate the angular integral along a straight line either above or below the cut
         complex linear_segment_above(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list);
@@ -150,7 +158,14 @@ namespace iterateKT
         };
 
         // Initialize the 'zeroth' iteration by evaluating just the omnes function
-        inline void initialize(){ _iterations.push_back(new_iteration(_max_sub)); };
+        void initialize();
+        std::vector<double> _s_list;
+        complex _ieps;
+
+        // Not properly initialized until lhc interpolation is saved
+        void interpolate_lhc();
+        ROOT::Math::Interpolator _lhc;
+        bool _lhc_interpolated = false;
 
         // Subtraction coefficients
         std::vector<complex> _subtraction_coeffs;

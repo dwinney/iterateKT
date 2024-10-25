@@ -45,7 +45,7 @@ namespace iterateKT
         public:
 
         // Default constructor for the zeroth iteration, just need to specify number of subs
-        raw_iteration(unsigned int n) : _zeroth(true)
+        raw_iteration(unsigned int n) : _n(n), _zeroth(true)
         {};
 
         // Constructor for other iterations

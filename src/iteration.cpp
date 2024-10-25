@@ -23,7 +23,7 @@ namespace iterateKT
     // defintion by not including the overall factor of the omnes function
     complex raw_iteration::basis_function(unsigned int i, complex s)
     {
-        if (i > _n - 1) return error("Requested invalid basis function!", NaN<complex>());
+        if (i > _n - 1) return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n)+")!", NaN<complex>());
 
         // First term is just the polynomial
         complex polynomial = std::pow(s, i);

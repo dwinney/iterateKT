@@ -21,7 +21,7 @@ namespace iterateKT { namespace V_to_3pi
 {
     // Isobar id's
     static const int kP_wave = 0;
-
+    
     // The P-wave is the dominant isobar
     class P_wave : public raw_isobar
     {
@@ -30,7 +30,9 @@ namespace iterateKT { namespace V_to_3pi
         
         // Constructor 
         P_wave(kinematics xkin, int nsub, settings sets) : raw_isobar(xkin, nsub, sets)
-        {};
+        {
+            _settings._angular_integrator_depth = 10;
+        };
 
         // Virtual functions
         inline unsigned int  id() { return kP_wave;  };

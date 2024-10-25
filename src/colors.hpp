@@ -32,6 +32,47 @@ namespace iterateKT
                                                      jpacColor::Orange, jpacColor::Purple, jpacColor::Brown, 
                                                      jpacColor::Pink,   jpacColor::Gold,   jpacColor::Aqua, 
                                                      jpacColor::Grey,   jpacColor::DarkGrey };
+
+                                                     
+    struct entry_style
+    {
+        jpacColor _color      = jpacColor::DarkGrey;  // Color code 
+        int  _style           = 0;                    // Either linestyle or markerstyle code
+        bool _add_to_legend   = true;                 // Whether to add this curve to the legend
+        std::string _label    = "";                   // Label to add to Legend
+        std::string _draw_opt = "L";                // string which enters ROOT::Draw() 
+    };
+
+    inline entry_style dashed(jpacColor color, std::string id = "")
+    {
+        entry_style dashed;
+        dashed._color = color;
+        dashed._style = kDashed;
+        dashed._label = id;
+        dashed._add_to_legend = (dashed._label != "");
+        return dashed;
+    };
+
+    inline entry_style solid(jpacColor color, std::string id = "")
+    {
+        entry_style dashed;
+        dashed._color = color;
+        dashed._style = kSolid;
+        dashed._label = id;
+        dashed._add_to_legend = (dashed._label != "");
+        return dashed;
+    };
+
+    inline entry_style dotted(jpacColor color, std::string id = "")
+    {
+        entry_style dotted;
+        dotted._color = color;
+        dotted._style = kDotted;
+        dotted._label = id;
+        dotted._add_to_legend = (dotted._label != "");
+        return dotted;
+    };
+
 };
 
 

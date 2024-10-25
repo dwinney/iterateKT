@@ -14,6 +14,7 @@
 #define KINEMATICS_HPP
 
 #include <memory>
+#include "TMath.h"
 #include "utilities.hpp"
 #include <Math/Interpolator.h>
 
@@ -79,7 +80,6 @@ namespace iterateKT
         // Reformulation of the curved area in terms of angular variable phi
         double phi_plus (double s);
         double phi_minus(double s);
-        double theta(double cosphi);
         double radius(double phi);
 
         // -----------------------------------------------------------------------
@@ -90,6 +90,7 @@ namespace iterateKT
         bool _initialized = false;
         int  _n_interp    = 100;
         ROOT::Math::Interpolator _re_tphi, _im_tphi;
+        ROOT::Math::Interpolator _re_jac,  _im_jac;
 
         // Masses
         double _m_parent = 0, _m_daughter = 0;

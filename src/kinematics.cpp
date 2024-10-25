@@ -52,8 +52,7 @@ namespace iterateKT
 
     complex raw_kinematics::jacobian(double phi)
     {
-        if (!_initialized) initialize();
-        return _re_tphi.Deriv(phi)+I*_im_tphi.Deriv(phi);
+        return _re_jac.Eval(phi)+I*_im_jac.Eval(phi);
     };
 
     void raw_kinematics::initialize()
@@ -71,37 +70,50 @@ namespace iterateKT
 
         _re_tphi.SetData(phi, re);
         _im_tphi.SetData(phi, im);
+
+        phi.clear(); re.clear(); im.clear();
+        for (int i = 0; i < _n_interp; i++)
+        {
+            double phi_i = (2*PI)*double(i)/double(_n_interp-1);
+            complex jacobian_i = _re_tphi.Deriv(phi_i) + I*_im_tphi.Deriv(phi_i);
+
+            phi.push_back(phi_i);
+            re.push_back( std::real(jacobian_i) );
+            im.push_back( std::imag(jacobian_i) );
+        };
+
+        _re_jac.SetData(phi, re);
+        _im_jac.SetData(phi, im);
         _initialized = true;
     };
 
     // Bounds of integration in terms of phi
     double raw_kinematics::phi_plus(double s)
     {
-        if (s >= rth() || s <= pth()) return error("kinematics::phi_plus", 
+        if (s > rth() || s < pth()) return error("kinematics::phi_plus", 
                                                    "Outside egg region!", NaN<double>());
-        double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m();
-        return acos(cosine);
+        double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m()/2;
+        if (!are_equal(std::abs(cosine), 1)) return TMath::ACos(cosine);
+        return (cosine > 0) ? 0 : PI;
     };
     double raw_kinematics::phi_minus(double s)
     {
         return 2*PI - phi_plus(s);
     };
 
-    // The radius of integratoin path t along the curved section
-    double raw_kinematics::theta(double phi)
-    {
-        double arg = cos(phi)*m()*(M2()-m2());
-        arg *= arg;
-        arg *= 2/pow(Sigma()/3, 3.);
-        return acos(arg-1)/3;
-    };
-
     double raw_kinematics::radius(double phi)
     {
         double cosphi   = cos(phi);
+        
+        // Calculate angle in theta
+        double arg = cos(phi)*m()*(M2()-m2());
+        arg *= arg;
+        arg *= 2/pow(Sigma()/3, 3.);
+        double theta = acos(arg-1)/3;
+
         if (is_zero(cosphi)) return (M2() - m2())*m()/Sigma();
-        if (cosphi < 0) return (Sigma()/3)*(1-2*cos(theta(phi)))/2/cosphi;
-        else return (Sigma()/3)*(1+2*cos(theta(phi)+PI/3.))/2/cosphi;
+        if (cosphi < 0) return (Sigma()/3)*(1-2*cos(theta))/2/cosphi;
+        else return (Sigma()/3)*(1+2*cos(theta+PI/3.))/2/cosphi;
     };  
 
 }; // namespace iterateKT
