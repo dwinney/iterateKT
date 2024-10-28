@@ -51,20 +51,25 @@ namespace iterateKT
         std::array<int,4> as, bs, cs;
         switch (n)
         {
-            // S-waves
-            case 1: 
+            case 1:  // S-waves
             {
                 as = {+15, -12, +4, 8};
                 bs = { -5,  +8, -4, 4};
                 cs = { +3,  -4, +4, 8};
                 break;
             };
-            // P-waves
-            case 3: 
+            case 3:  // P-waves
             {
                 as = {+35, -20, +4, 8};
                 bs = {-21, +16, -4, 4};
                 cs = {+15, -12, +4, 8};
+                break;
+            };
+            case 5: // D-waves
+            {
+                as = {+63, -28, +4, 8};
+                bs = {-45, +24, -4, 4};
+                cs = {+35, -20, +4, 8};
                 break;
             };
             default : 

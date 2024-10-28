@@ -36,11 +36,6 @@ namespace iterateKT
 {
     class plotter;
     
-    enum curve_type { 
-                      sigma_s,      sigma_w,      sigma_Egam,       // Integrated cross-sections as functions of s, W, and Egam
-                      dsigmadt_s,   dsigmadt_w,   dsigmadt_Egam,    // Differential x-sections as function of t at fixed s, W, Egam
-                    };
-
     // Each entry represents a curve to draw as a TGraph
     struct plot_entry 
     {

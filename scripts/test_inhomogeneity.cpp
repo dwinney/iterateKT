@@ -73,7 +73,7 @@ void test_inhomogeneity()
     p1.set_ranges({0,1.2}, {-0.1, 0.15});
     p1.add_curve({A, 1.2}, [&](double s){ return std::real(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Blue, "Real"));
     p1.add_curve({A, 1.2}, [&](double s){ return std::imag(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p1.set_labels("#it{s} [GeV^{2}]", "#tilde{F}_{0}");
+    p1.set_labels("#it{s} [GeV^{2}]", "#tilde{F}^{1}_{0}");
     p1.add_vertical({A, D});
 
     plot p2 = plotter.new_plot();
@@ -81,26 +81,24 @@ void test_inhomogeneity()
     p2.set_ranges({0,1.2}, {-0.01, 0.04});
     p2.add_curve({A, 1.2}, [&](double s){ return std::real(first->ksf_inhomogeneity(1, s)); }, solid(jpacColor::Blue, "Real"));
     p2.add_curve({A, 1.2}, [&](double s){ return std::imag(first->ksf_inhomogeneity(1, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p2.set_labels("#it{s} [GeV^{2}]", "#tilde{F}_{1}");
+    p2.set_labels("#it{s} [GeV^{2}]", "#tilde{F}^{1}_{1}");
     p2.add_vertical({A, D});
 
     plot p3 = plotter.new_plot();
-    p3.color_offset(2);
     p3.set_legend(0.45, 0.6);
     p3.set_curve_points(200);
     p3.set_ranges({0,1.2}, {-0.3, 0.6});
-    p3.add_curve({A, 1.2}, [&](double s){ return std::real(first->full_inhomogeneity(0, s)); }, solid(jpacColor::Blue, "Real"));
-    p3.add_curve({A, 1.2}, [&](double s){ return std::imag(first->full_inhomogeneity(0, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p3.set_labels("#it{s} [GeV^{2}]", "#tilde{F}_{0} / #nu^{3}");
+    p3.add_curve({A, 1.2}, [&](double s){ return std::real(first->full_inhomogeneity(0, s)); }, solid(jpacColor::Green, "Real"));
+    p3.add_curve({A, 1.2}, [&](double s){ return std::imag(first->full_inhomogeneity(0, s)); }, solid(jpacColor::Orange,  "Imaginary"));
+    p3.set_labels("#it{s} [GeV^{2}]", "#tilde{F}^{1}_{0} / #nu^{3}");
     p3.add_vertical({A, D});
 
     plot p4 = plotter.new_plot();
-    p4.color_offset(2);
     p4.set_legend(0.45, 0.6);
     p4.set_ranges({0,1.2}, {-0.01, 0.17});
-    p4.add_curve({A, 1.2}, [&](double s){ return std::real(first->full_inhomogeneity(1, s)); }, solid(jpacColor::Blue, "Real"));
-    p4.add_curve({A, 1.2}, [&](double s){ return std::imag(first->full_inhomogeneity(1, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p4.set_labels("#it{s} [GeV^{2}]", "#tilde{F}_{1} / #nu^{3}");
+    p4.add_curve({A, 1.2}, [&](double s){ return std::real(first->full_inhomogeneity(1, s)); }, solid(jpacColor::Green, "Real"));
+    p4.add_curve({A, 1.2}, [&](double s){ return std::imag(first->full_inhomogeneity(1, s)); }, solid(jpacColor::Orange,  "Imaginary"));
+    p4.set_labels("#it{s} [GeV^{2}]", "#tilde{F}^{1}_{1} / #nu^{3}");
     p4.add_vertical({A, D});
 
     plotter.combine({2,2}, {p1,p2,p3,p4}, "inhomogeneity.pdf");
