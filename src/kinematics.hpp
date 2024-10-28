@@ -71,6 +71,10 @@ namespace iterateKT
         // Analytic continuation of barrier factor along real line
         complex kacser (complex s);
 
+        // Kacser with removed singularities at regular thresholds removed
+        // xi is the radius of validity to remove the singularities analytically
+        complex nu (double s, double xi = EPS);
+
         // Bounds of integration in the complex plane
         complex t_plus (double s);
         complex t_minus(double s);

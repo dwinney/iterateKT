@@ -97,6 +97,9 @@ namespace iterateKT
         // over the pinocchio path
         complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous_list);
 
+        // Take in an array of isobars and use their current state to calculate the next disc
+        basis_grid calculate_next(std::vector<isobar> previous_list);
+        
         // Given a phase shift, this is the LHC piece (numerator)
         inline double LHC(double s)
         { 
@@ -111,6 +114,9 @@ namespace iterateKT
         inline uint option(){ return _option; };
         virtual inline void set_option(uint x){ _option = x; };
 
+        // Grab a pointer to a specific iteration of an isobar
+        iteration get_iteration(uint id){ return _iterations[id];};
+
         // -----------------------------------------------------------------------
         protected:
 
@@ -122,19 +128,16 @@ namespace iterateKT
         // Integrator and interpolator settings
         settings _settings;
 
-        // Take in an array of isobars and use their current state to calculate the next disc
-        basis_grid calculate_next(std::vector<isobar> previous_list);
-
-        // Calculate the angular integral along a straight line either above or below the cut
-        complex linear_segment_above(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list);
-        complex linear_segment_below(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list);
+        // Calculate the angular integral along a straight line
+        // Bounds arguments should be {t_minus, t_plus, ieps perscription}
+        complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> previous_list);
         // Calculate the integral along the curved secment of pinocchio's head
         complex curved_segment      (unsigned int basis_id, double s, std::vector<isobar> previous_list);
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
         inline void save_iteration(basis_grid & grid)
         {
-            _iterations.push_back(new_iteration(_max_sub, grid, _settings));
+            _iterations.push_back(new_iteration(_max_sub, singularity_power()+1, grid, _kinematics, _settings));
         }
 
         // -----------------------------------------------------------------------

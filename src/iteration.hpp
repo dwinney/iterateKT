@@ -17,6 +17,7 @@
 #include "kinematics.hpp"
 #include "settings.hpp"
 #include "basis_grid.hpp"
+#include "kinematics.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -34,9 +35,9 @@ namespace iterateKT
         return std::make_shared<raw_iteration>(nsub); 
     };
 
-    inline iteration new_iteration(unsigned int n, basis_grid & grid, settings sets) 
+    inline iteration new_iteration(unsigned int sub, unsigned int sing, basis_grid & grid, kinematics kin, settings sets) 
     { 
-        return std::make_shared<raw_iteration>(n, grid, sets); 
+        return std::make_shared<raw_iteration>(sub, sing, grid, kin, sets); 
     };
 
     class raw_iteration
@@ -45,20 +46,19 @@ namespace iterateKT
         public:
 
         // Default constructor for the zeroth iteration, just need to specify number of subs
-        raw_iteration(unsigned int n) : _n(n), _zeroth(true)
+        raw_iteration(unsigned int n) : _n_subtraction(n), _zeroth(true)
         {};
 
         // Constructor for other iterations
         // We need to provide vectors of the discontinuity on the real line
-        raw_iteration(unsigned int n, basis_grid dat, settings sets) 
-        : _n(n), _zeroth(false), _settings(sets)
+        raw_iteration(unsigned int n, unsigned int sing, basis_grid & dat, kinematics kin, settings sets) 
+        : _zeroth(false), _n_subtraction(n), _n_singularity(sing),
+          _kinematics(kin), _settings(sets)
         {
-            _sth = dat._s_list.front(); _upper = dat._s_list.back();
-
             for (int i = 0; i < n; i++)
             {
-                _re_disc.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
-                _im_disc.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
+                _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
+                _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
             };
         };
 
@@ -66,11 +66,8 @@ namespace iterateKT
         ~raw_iteration()
         {
             if (_zeroth) return;
-            for (int i = 0; i < _n; i++)
-            {
-                delete _re_disc[i];
-                delete _im_disc[i];
-            };
+            for (int i = 0; i < _re_inhom.size(); i++) delete _re_inhom[i];
+            for (int i = 0; i < _im_inhom.size(); i++) delete _im_inhom[i];
         };
 
         // ----------------------------------------------------------------------- 
@@ -80,9 +77,12 @@ namespace iterateKT
         // s^i + dispersion(s)
         complex basis_function(unsigned int i, complex x);
 
-        // This is the kinematic-singularity-free part of the discontinutiy which gets dispersed 
-        // over. 
-        complex ksf_discontinuity(unsigned int i, double x);
+        // This is the kinematic-singularity-free part of the discontinutiy (missing 1/kappa factors)
+        complex ksf_inhomogeneity(unsigned int i, double x);
+
+        // This is the full inhomogenerity which is regular at regular thresholds
+        // This is not valid near pseudo threshold!
+        complex full_inhomogeneity(unsigned int i, double x);
 
         // -----------------------------------------------------------------------
         private:
@@ -91,16 +91,20 @@ namespace iterateKT
         settings _settings;
 
         // thresholds
-        double _sth, _upper;
+        kinematics _kinematics;
 
         // Number of basis functions
-        unsigned int _n = 1;
+        unsigned int _n_subtraction  = 1;
+        unsigned int _n_singularity  = 3;
 
         // Whether this is the homogeneous solution with a trivial integral
         bool _zeroth = false;
 
         // The saved data and interpolation of the discontinuity
-        std::vector<ROOT::Math::Interpolator*> _re_disc, _im_disc;
+        std::vector<ROOT::Math::Interpolator*> _re_inhom, _im_inhom;
+
+        // Calculate the expansion coefficients
+        std::array<complex, 3> expansion_coefficients(unsigned int i, double s, bool expand_below);
     };
 
 }; // namespace iterateKT

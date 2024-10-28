@@ -128,20 +128,20 @@ namespace iterateKT
         return evaluate(_iterations.size()-1, s);
     };
 
-
     // ----------------------------------------------------------------------- 
     // Take the saved interpolation settings and output the necessary arrays
     
     basis_grid raw_isobar::calculate_next(std::vector<isobar> previous)
     {
         basis_grid output;
+        output._s_list = _s_list;
         // Sum over basis functions
         for (int i = 0; i < _max_sub; i++)
         {
             std::vector<double> re, im;
             for (auto s : _s_list)
             {
-                complex ksf_disc = LHC(s)*pinocchio_integral(i, s, previous);
+                complex ksf_disc = LHC(s)*pinocchio_integral(i,s,previous)/pow(s,_max_sub);
                 re.push_back( std::real(ksf_disc) );
                 im.push_back( std::imag(ksf_disc) );
             };
@@ -168,15 +168,15 @@ namespace iterateKT
             {
                 double sp = std::real(_kinematics->t_plus(s));
                 double sm = std::real(_kinematics->t_minus(s));
-                return linear_segment_above(basis_id, {sp, sm}, s, previous);
+                return linear_segment(basis_id, {sm, sp, +1}, s, previous);
             };
             // s+ is above cut but s- is below cut
             case 1:
             {
                 double sp = std::real(_kinematics->t_plus(s));
                 double sm = std::real(_kinematics->t_minus(s));
-                return linear_segment_above(basis_id, {sp, _kinematics->sth()}, s, previous)
-                     + linear_segment_below(basis_id, {_kinematics->sth(), sm}, s, previous);
+                return linear_segment(basis_id, {_kinematics->sth(), sp, +1}, s, previous)  //+ieps
+                     + linear_segment(basis_id, {sm, _kinematics->sth(), -1}, s, previous); //-ieps
             };
             // In the curved "egg" portion
             case 2: return curved_segment(basis_id, s, previous);
@@ -186,30 +186,15 @@ namespace iterateKT
     };
 
     // Integrate along a linear segment +ieps above the real axis
-    complex raw_isobar::linear_segment_above(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list)
+    complex raw_isobar::linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> previous_list)
     {
         //  sum over all the previous isobars with their appropriate kernels
-        auto fdx = [this,previous_list,s,basis_id](double t)
+        double pm = bounds[2];
+        auto fdx = [this,previous_list,s,basis_id,pm](double t)
         {
             complex sum = 0;
             for (auto previous : previous_list) 
-            sum+=kernel(previous->id(),s,t)*previous->basis_function(basis_id,t+_ieps);
-            return sum;
-        };
-        return boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], 
-                                                                                 bounds[1], 
-                                                                                 _settings._angular_integrator_depth, 
-                                                                                 1.E-9, NULL);
-    };
-    // Same as above except with -ieps
-    complex raw_isobar::linear_segment_below(unsigned int basis_id, std::array<double,2> bounds, double s, std::vector<isobar> previous_list)
-    {
-        //  sum over all the previous isobars with their appropriate kernels
-        auto fdx = [this,previous_list,s,basis_id](double t)
-        {
-            complex sum = 0;
-            for (auto previous : previous_list) 
-            sum+=kernel(previous->id(),s,t)*previous->basis_function(basis_id,t-_ieps);
+            sum+=kernel(previous->id(),s,t)*previous->basis_function(basis_id,t+pm*_ieps);
             return sum;
         };
         return boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], 
@@ -239,5 +224,4 @@ namespace iterateKT
                                                                                  _settings._angular_integrator_depth, 
                                                                                  1.E-9, NULL);
     };
-
 }; // namespace iterateKT

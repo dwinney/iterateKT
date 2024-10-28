@@ -15,6 +15,9 @@
 namespace iterateKT
 {
     // -----------------------------------------------------------------------
+    // Momentum barrier factors
+
+    // Full kacser function = 4p*q
     complex raw_kinematics::kacser(complex s)
     {
         complex kappa = csqrt(1-sth()/s)*csqrt(pth()-s)*csqrt(rth()-s);
@@ -31,7 +34,34 @@ namespace iterateKT
         return NaN<complex>();
     };
 
-    // Bounds of integration
+    // Kacser with removed singularities at regular thresholds removed
+    // xi is the radius of validity to remove the singularities analytically
+    complex raw_kinematics::nu(double s, double xi)
+    {
+        double Sth = sth();
+        double Rth = rth();
+        if (s < Sth) return NaN<double>();
+
+        int region; 
+        region = (s >= Sth + xi)  // 1
+               + (s >= Rth - xi)  // 2
+               + (s >= Rth)       // 3
+               + (s >= Rth + xi); // 4
+
+        switch (region)
+        {
+            case 0: return sqrt(Rth - s)/sqrt(s);
+            case 1: return sqrt(Rth - s)*sqrt(1 - Sth/s);
+            case 2: return   sqrt(1 - Sth/s);
+            case 3: return I*sqrt(1 - Sth/s);
+            case 4: return I*sqrt(s - Rth)*sqrt(1 - Sth/s);
+            default : return NaN<double>();
+        };
+    };
+
+    // -----------------------------------------------------------------------
+    // Bounds of angular integration
+
     complex raw_kinematics::t_plus(double s)
     {
         return (Sigma() - s + kacser(s))/2;

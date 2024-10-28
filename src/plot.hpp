@@ -154,6 +154,7 @@ namespace iterateKT
             new_vert._linestyle = style[1];   
             _vlines.push_back(new_vert);
         };
+        inline void add_vertical(std::vector<double> xvals){ for (auto x : xvals) add_vertical(x); };
 
         inline void add_horizontal(double y_val, std::array<int, 2> style = {kBlack, kSolid})
         {
@@ -163,6 +164,7 @@ namespace iterateKT
             new_horiz._linestyle = style[1];   
             _hlines.push_back(new_horiz);
         };
+        inline void add_horizontal(std::vector<double> yvals){ for (auto y : yvals) add_horizontal(y); };
 
         // -----------------------------------------------------------------------
         // OPTION SETTERS

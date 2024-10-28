@@ -57,7 +57,7 @@ namespace iterateKT
 
         // Load up a new isobar
         template<class T>
-        inline void add_isobar(int nsub){ _isobars.push_back(new_isobar<T>(_kinematics, nsub)); };
+        inline void add_isobar(int nsub, settings sets = settings()){ _isobars.push_back(new_isobar<T>(_kinematics, nsub, sets)); };
 
         // Access the full vector of isobar pointers
         inline std::vector<isobar> get_isobars(){return _isobars;};
