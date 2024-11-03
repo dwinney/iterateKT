@@ -26,7 +26,7 @@ namespace iterateKT
     // nu given by n_singularity
     complex raw_iteration::half_regularized_integrand(unsigned int i, double s)
     {
-        if (s < _sth)     return NaN<double>();
+        if (s < _sth)     return 0.;
         if (_initialized) return _re_halfreg[i]->Eval(s) + I*_im_halfreg[i]->Eval(s);
 
         // If no interpolation is saved yet, calculate divide by nu explicitly
@@ -104,7 +104,7 @@ namespace iterateKT
     // This is only a function of the integration variable (no cauchy kernel)
     complex raw_iteration::regularized_integrand(unsigned int i, double s)
     {
-        if (s < _sth)     return NaN<double>();
+        if (s < _sth)    return 0.;;
 
         // xi is the interval around pth we expand around
         int             n = _n_singularity;
@@ -126,7 +126,7 @@ namespace iterateKT
             return subtracted/pow(k, n);
         };
 
-        return (below_pth) ? ecs[1]+ecs[2]*sqrt(_pth-s) : I*(ecs[1]+ecs[2]*sqrt(s-_pth));
+        return (below_pth) ? ecs[1]+ecs[2]*sqrt(_pth-s) : ecs[1]+ecs[2]*sqrt(s-_pth);
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -172,7 +172,7 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        if (!expand_below) { b *= -1; };
+        if (!expand_below) { b *= -1; c *= I; d *= I; };
         return {b, c, d};
     };
 
@@ -185,22 +185,28 @@ namespace iterateKT
 
         // First term is just the polynomial
         complex polynomial = std::pow(s, i);
+        complex sn         = std::pow(s, _n_subtraction);
+
         // if this is the homogeneous contribution then we return this
         if (_zeroth) return polynomial;
 
         // Now we need to evaluate the inhomogenous integral
 
-        // bool no_problem =   (std::real(s) <= _sth - _settings._matching_interval 
-        //                   || std::imag(s) >         _settings._infinitesimal);
-        // if (no_problem) return polynomial + disperse_with_pth(i, s, {_sth, _cutoff});
+        double xi = _settings._matching_interval;
+        bool no_problem =   (std::real(s) <= _sth - xi
+                          || std::imag(s) >         _settings._infinitesimal);
+        if (no_problem) return polynomial + sn*disperse_with_pth(i, s, {_sth, _cutoff});
+        
+        bool too_close = are_equal(std::real(s), _pth, xi);
+        if (too_close) return 0.;
 
-        // double p    = (sth + pth)/2;
-
-        // bool below_pth  = (std::real(s) <= _pth);
-        // if (below_pth)  return polynomial + disperse_below_pth(i, s);
-
-        // return polynomial + disperse_above_pth(i, s);
-        return 0;
+        double p    = (std::real(s) + _pth)/2;
+        bool below_pth  = (p <= _pth);
+        if (below_pth)  return polynomial + sn*disperse_with_cauchy(i, s, {_sth, p})
+                                          + sn*disperse_with_pth   (i, s, {p, _cutoff});
+        
+        return polynomial  + sn*disperse_with_pth   (i, s, {_sth, p})
+                           + sn*disperse_with_cauchy(i, s, {p, _cutoff});
     };
 
     // -----------------------------------------------------------------------
@@ -213,9 +219,10 @@ namespace iterateKT
 
         double x   = bounds[0], y = bounds[1], z = _pth;
 
-        complex argx = (csqrt(z-s)+csqrt(z-x))/(csqrt(z-s)-csqrt(z-x));
-        complex argy = csqrt(y-z)/csqrt(z-s);
-        complex Q1 = (log(argx)-2*I*atan(argy))/csqrt(z-s);
+        complex k = (std::real(s) < z) ? csqrt(z-s) : +I*csqrt(s-z);
+        complex argx = (k+csqrt(z-x))/(k-csqrt(z-x));
+        complex argy = csqrt(y-z)/k;
+        complex Q1 = (log(argx)-2*I*atan(argy))/k;
 
         if (n == 1) return Q1;
 
@@ -234,10 +241,11 @@ namespace iterateKT
         
         int pm = (std::imag(s) >= 0) ? +1 : -1;
         double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
+        complex k = (std::real(s) < z) ? csqrt(z-s) : +I*csqrt(s-z);
 
-        complex argx = (csqrt(z-x)+csqrt(z-s))/(csqrt(z-x)-csqrt(z-s));
-        complex argy = (csqrt(z-s)-csqrt(z-y))/(csqrt(z-s)+csqrt(z-y));
-        complex R1 = (log(argx)+log(argy)+I*pm*PI)/csqrt(z-s);
+        complex argx = (csqrt(z-x)+k)/(csqrt(z-x)-k);
+        complex argy = (k-csqrt(z-y))/(k+csqrt(z-y));
+        complex R1 = (log(argx)+log(argy)/* +I*pm*PI */)/k;
 
         if (n == 1) return R1;
 
@@ -252,31 +260,34 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluate the integral in different forms depending on where s is
 
-    // If s is away from the singularities, just disperse naively
+    // This is the integral which contains and handles the pth singularity
     complex raw_iteration::disperse_with_pth(unsigned int i, complex s, std::array<double,2> bounds)
     {
+        bool below = (std::real(s) < _pth);
+        auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
+        complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
+                                                                                        _settings._dispersion_integrator_depth, 1.E-9, NULL);
 
-        return 0.;
-
-        // int n = _n_singularity;
-        // complex N  = _num_pth[i], Np = _dnum_pth[i];
-        // auto fdx = [this,i,n,N,Np,s](double x)
-        // {
-        //     complex subtract = /* (n>1) ? N + Np*(_pth-x) : */ N;
-        //     complex integrand;
-        //     integrand  = numerator(i,x) - subtract;
-        //     integrand /= pow(csqrt(_pth-x+IEPS), n)*(x-s); 
-        //     return integrand;
-        // };
-        // complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, _sth, _cutoff, 
-        //                                                                                 _settings._dispersion_integrator_depth, 1.E-9, NULL);
-        // std::array<double,2> bds = {_sth, _cutoff};
-
-        // return integral + N*Q(n,s,bds)/*  + Np*Q(n-2,s,bds) */;
+        int n = _n_singularity;
+        complex a = half_regularized_integrand(i, std::real(s));
+        complex b = pthreshold_expansion(i, below)[0];
+        return integral + a*R(n,s,bounds) + b*R(n-2,s,bounds);
     };
 
+    // This is the integral which contains and handles the cauchy singularity
     complex raw_iteration::disperse_with_cauchy(unsigned int i, complex s, std::array<double,2> bounds)
     {
-        return 0.;
+        int n = _n_singularity;
+
+        complex a = half_regularized_integrand(i, std::real(s));
+        auto fdx = [this,i,s,a,n](double x)
+        { 
+            complex kx = (x <= _pth) ? csqrt(_pth - x) : +I*csqrt(x-_pth);
+            return (half_regularized_integrand(i,x) - a)/(x-s)/pow(kx,n); 
+        };
+        complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
+                                                                                        _settings._dispersion_integrator_depth, 1.E-9, NULL);
+
+        return integral + a*R(n,s,bounds);
     };
 }; // namespace iterateKT
