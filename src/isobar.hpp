@@ -132,7 +132,7 @@ namespace iterateKT
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}
         complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> previous_list);
         // Calculate the integral along the curved secment of pinocchio's head
-        complex curved_segment      (unsigned int basis_id, double s, std::vector<isobar> previous_list);
+        complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> previous_list);
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
         inline void save_iteration(basis_grid & grid)

@@ -18,7 +18,8 @@ namespace iterateKT
     {
         public: 
 
-        timer(){};
+        timer(bool messages = true) : _messages(messages)
+        {};
 
         ~timer()
         {
@@ -27,24 +28,25 @@ namespace iterateKT
 
         inline void start()  
         { 
-            print("Timer started!");
+            if (_messages) print("Timer started!");
             _start = std::chrono::high_resolution_clock::now(); 
             _lap   = _start;
             _started = true;
         };
         inline void stop()   
         { 
-            print("Timer stopped!");
+            if (_messages) print("Timer stopped!");
             _end   = std::chrono::high_resolution_clock::now(); 
             _started = false;
         };
-        inline void lap(std::string message = "")
+        inline auto lap(std::string message = "")
         {
             auto now = std::chrono::high_resolution_clock::now();
             auto x = std::chrono::duration_cast< std::chrono::seconds>(now - _lap).count();
             std::string extra = (message == "") ? "" : " (" + message + ")";
-            print("Lap time" + extra + ": " + std::to_string(x) + "s!");
+            if (_messages) print("Lap time" + extra + ": " + std::to_string(x) + "s!");
             _lap = now;
+            return x;
         };
         inline auto elapsed()
         {
@@ -56,7 +58,8 @@ namespace iterateKT
 
         private: 
         
-        bool _started = false;
+        bool _messages = true;
+        bool _started  = false;
         std::chrono::time_point<std::chrono::high_resolution_clock> _start, _end, _lap;
 
 

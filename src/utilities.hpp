@@ -161,6 +161,11 @@ namespace iterateKT
         return (std::abs(a) < tol);
     };
 
+    inline bool is_odd(int a)
+    {
+        return (a%2 == 1);
+    };
+
     // ---------------------------------------------------------------------------
     // ERROR Messages
     
