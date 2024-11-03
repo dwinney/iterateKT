@@ -11,6 +11,7 @@
 #define TIMER_HPP
 
 #include <chrono>
+#include "utilities.hpp"
 
 namespace iterateKT
 {
