@@ -146,8 +146,8 @@ namespace iterateKT
             };
             case 3:  // P-waves
             {
-                bs = {-6, +5, -2};
-                cs = {+8, -8, +4};
+                bs = {+6, -5, +2};
+                cs = {-8, +8, -4};
                 ds = {+3, -3, +2};
                 break;
             };
@@ -172,7 +172,7 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        if (!expand_below) { c *= -1; };
+        if (!expand_below) { b *= -1; };
         return {b, c, d};
     };
 
