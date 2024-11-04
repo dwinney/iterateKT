@@ -144,8 +144,8 @@ namespace iterateKT
         bool _initialized = false;
 
         // Calculate the expansion coefficients
-        std::array<complex, 3> rthreshold_expansion(unsigned int i, double s, bool expand_below);
-        std::array<complex, 3> pthreshold_expansion(unsigned int i, bool expand_below);
+        std::array<complex, 3> rthreshold_expansion(unsigned int i, double s, double eps);
+        std::array<complex, 3> pthreshold_expansion(unsigned int i, double eps);
     };
 
 }; // namespace iterateKT

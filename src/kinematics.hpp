@@ -73,7 +73,7 @@ namespace iterateKT
 
         // Kacser with removed singularities at regular thresholds removed
         // xi is the radius of validity to remove the singularities analytically
-        complex nu (double s, double xi = EPS);
+        complex nu (double s, std::array<double,3> xi = {EPS, EPS, EPS});
 
         // Bounds of integration in the complex plane
         complex t_plus (double s);

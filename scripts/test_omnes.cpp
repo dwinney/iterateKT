@@ -22,19 +22,20 @@ using namespace iterateKT;
 void test_omnes()
 {
     using namespace iterateKT;
+    using namespace V_to_3pi;
 
     // Set up general kinematics so everything knows masses
     kinematics omega = new_kinematics(M_OMEGA, M_PION);
 
     // Set up our amplitude 
-    amplitude A(omega);
+    amplitude A = new_amplitude<isoscalar>(omega);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    A.add_isobar<V_to_3pi::P_wave>(2);
+    A->add_isobar<P_wave>(2);
 
     // Isolate our pwave
-    isobar pwave = A.get_isobar(V_to_3pi::kP_wave);
+    isobar pwave = A->get_isobar(kP_wave);
 
     // -----------------------------------------------------------------------
     

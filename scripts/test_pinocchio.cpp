@@ -22,7 +22,7 @@ using namespace iterateKT;
 void test_pinocchio()
 {
     using namespace iterateKT;
-    using V_to_3pi::kP_wave;
+    using namespace V_to_3pi;
 
     // Set up general kinematics so everything knows masses
     kinematics omega = new_kinematics(M_OMEGA, M_PION);
@@ -35,15 +35,15 @@ void test_pinocchio()
 
 
     // Set up our amplitude 
-    amplitude amplitude(omega);
+    amplitude amplitude = new_amplitude<isoscalar>(omega);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude.add_isobar<V_to_3pi::P_wave>(2);
-    auto previous = amplitude.get_isobars();
+    amplitude->add_isobar<V_to_3pi::P_wave>(2, P_wave::default_settings());
+    auto previous = amplitude->get_isobars();
 
     // Isolate our pwave
-    isobar pwave = amplitude.get_isobar(kP_wave);
+    isobar pwave = amplitude->get_isobar(kP_wave);
 
     // -----------------------------------------------------------------------
     

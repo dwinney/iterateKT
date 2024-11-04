@@ -20,19 +20,38 @@
 
 namespace iterateKT
 {
-    class amplitude
+    // Forward declare for the typedef below
+    class raw_amplitude;
+
+    // Define isobars only as pointers
+    using amplitude  = std::shared_ptr<raw_amplitude>;
+
+    // This function serves as our "constructor"
+    template<class A>
+    inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude" )
+    {
+        auto x = std::make_shared<A>(kin, id);
+        return std::static_pointer_cast<raw_amplitude>(x);
+    };
+
+    class raw_amplitude
     {
         // -----------------------------------------------------------------------
         public:
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        amplitude(kinematics xkin)
-        : _kinematics(xkin)
+        raw_amplitude(kinematics xkin, std::string id)
+        : _kinematics(xkin), _id(id)
         {};
 
         // Evaluate the full amplitude. This will 
         complex operator()(complex s, complex t, complex u);
+
+        // Need to specify how to combine the isobars into the full amplitude
+        virtual complex s_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex t_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex u_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
 
         // Calculate one iteration of the KT equations
         void iterate();
@@ -57,7 +76,7 @@ namespace iterateKT
 
         // Load up a new isobar
         template<class T>
-        inline void add_isobar(int nsub, settings sets = settings()){ _isobars.push_back(new_isobar<T>(_kinematics, nsub, sets)); };
+        inline void add_isobar(int nsub, settings sets = T::default_settings()){ _isobars.push_back(new_isobar<T>(_kinematics, nsub, sets)); };
 
         // Access the full vector of isobar pointers
         inline std::vector<isobar> get_isobars(){return _isobars;};
@@ -74,6 +93,9 @@ namespace iterateKT
 
         // Options flag
         int _option;
+
+        // Id string to identify the amplitude with
+        std::string _id = "amplitude";
     };
 }; // namespace iterateOKT
 

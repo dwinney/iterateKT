@@ -16,14 +16,14 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluating an amplitude just sums isobars and their associated prefactors
     // in each channel.
-    complex amplitude::operator()(complex s, complex t, complex u)
+    complex raw_amplitude::operator()(complex s, complex t, complex u)
     {
         complex result = 0;
 
         // S_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = f->prefactor(S_CHANNEL, s, t, u);
+            complex term = s_channel_prefactor(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(s);
         };
@@ -31,7 +31,7 @@ namespace iterateKT
         // T_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = f->prefactor(T_CHANNEL, s, t, u);
+            complex term = t_channel_prefactor(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(t);
         };
@@ -39,7 +39,7 @@ namespace iterateKT
         // U_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = f->prefactor(U_CHANNEL, s, t, u);
+            complex term = u_channel_prefactor(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(u);
         };
@@ -50,7 +50,7 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Calculate one iteration of the KT equations for each of the isobars
     // which have been initialized
-    void amplitude::iterate()
+    void raw_amplitude::iterate()
     {
         if (_isobars.size() == 0)
         { warning("amplitude::iterate()", "No isobars have been initialized!"); return; }

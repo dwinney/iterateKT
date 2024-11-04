@@ -30,25 +30,27 @@ namespace iterateKT
         if (_initialized) return _re_halfreg[i]->Eval(s) + I*_im_halfreg[i]->Eval(s);
 
         // If no interpolation is saved yet, calculate divide by nu explicitly
-        double   xi = _settings._matching_interval;
-        complex nus = pow(_kinematics->nu(s,xi), _n_singularity);
-        bool close_to_sth = are_equal(s, _sth, xi);
-        bool close_to_rth = are_equal(s, _rth, xi);
+        int   n = _n_singularity;
+        auto xi = _settings._matching_intervals;
+
+        bool close_to_sth = are_equal(s, _sth, xi[0]);
+        bool close_to_rth = are_equal(s, _rth, xi[2]);
+        complex nus = pow(_kinematics->nu(s, xi), n);
 
         // if we're not near any threshold just divide like normal
-        if (!(close_to_sth || close_to_rth)) return ksf_inhomogeneity(i, s)/nus;
-        
-        double eps = _settings._expansion_eps;
-        double s_exp = (close_to_sth) ? _sth : _rth;
-        // The only time we expand below (i.e. s_exp - eps) is if s \simeq rth
-        bool expand_below = (close_to_rth) && (s <= _rth);
+        if (!close_to_sth && !close_to_rth) return ksf_inhomogeneity(i, s)/nus;
 
-        std::array<complex,3> ecs = rthreshold_expansion(i, s_exp, expand_below);
+        double s_exp = (close_to_sth) ? _sth : _rth;
+        double eps   = (close_to_sth) ? _settings._expansion_offsets[0] : _settings._expansion_offsets[2];
+        // The only time we expand below (i.e. s_exp - eps) is if s \simeq rth
+        if ((close_to_rth) && (s <= _rth)) eps *= -1;
+
+        std::array<complex,3> ecs = rthreshold_expansion(i, s_exp, eps);
         return (ecs[0]+ecs[1]*(s-s_exp)+ecs[2]*pow(s-s_exp,2))/nus;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
-    std::array<complex,3> raw_iteration::rthreshold_expansion(unsigned int i, double s, bool expand_below)
+    std::array<complex,3> raw_iteration::rthreshold_expansion(unsigned int i, double s, double e)
     {
         // These coefficients only depend on the order of the singularity
         int n = _n_singularity;
@@ -83,9 +85,6 @@ namespace iterateKT
            };
         };
 
-        // Need up to second derivative
-        double e = _settings._expansion_eps;
-        if (expand_below) e *= -1;
         double s_exp = s+e;
         complex f    = _re_inhom[i]->Eval(s_exp)   + I*_im_inhom[i]->Eval(s_exp);
         complex fp   = _re_inhom[i]->Deriv(s_exp)  + I*_im_inhom[i]->Deriv(s_exp);
@@ -95,7 +94,7 @@ namespace iterateKT
         complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(std::abs(e), n/2.+1.));
         complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(std::abs(e), n/2.+2.));
 
-        if (expand_below) b *= -1;
+        if (e < 0) b *= -1;
         return {a,b,c};
     };
 
@@ -104,18 +103,19 @@ namespace iterateKT
     // This is only a function of the integration variable (no cauchy kernel)
     complex raw_iteration::regularized_integrand(unsigned int i, double s)
     {
-        if (s < _sth)    return 0.;;
+        if (s < _sth)    return 0.;
 
         // xi is the interval around pth we expand around
         int             n = _n_singularity;
-        double         xi = _settings._matching_interval;
+        double         xi = _settings._matching_intervals[1];
         bool close_to_pth = are_equal( s, _pth, xi);
         bool    below_pth = (s <= _pth);
 
         // Momentum factor we will be dividing out
-        complex k = (below_pth) ? sqrt(_pth-s) : +I*sqrt(s-_pth);
+        double        eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
+        complex k  = (below_pth) ? sqrt(_pth-s) : I*sqrt(s-_pth);
         // Expansion coefficients
-        std::array<complex,3> ecs = pthreshold_expansion(i, below_pth);
+        std::array<complex,3> ecs = pthreshold_expansion(i, eps);
 
         // if we're not near any threshold just divide like normal
         if (!close_to_pth)
@@ -126,14 +126,15 @@ namespace iterateKT
             return subtracted/pow(k, n);
         };
 
-        return (below_pth) ? ecs[1]+ecs[2]*sqrt(_pth-s) : ecs[1]+ecs[2]*sqrt(s-_pth);
+        return (below_pth) ? ecs[1]+ecs[2]*sqrt(_pth-s) : I*(ecs[1]+ecs[2]*sqrt(s-_pth));
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
-    std::array<complex,3> raw_iteration::pthreshold_expansion(unsigned int i, bool expand_below)
+    std::array<complex,3> raw_iteration::pthreshold_expansion(unsigned int i, double e)
     {
         // These coefficients only depend on the order of the singularity
         int n = _n_singularity;
+
         std::array<int,3> bs, cs, ds;
         switch (n)
         {
@@ -159,8 +160,6 @@ namespace iterateKT
         };
 
         // Need up to second derivative
-        double e = _settings._expansion_eps;
-        if (expand_below) e *= -1;
         double s_exp = _pth+e;
 
         complex fpth = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
@@ -172,7 +171,7 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        if (!expand_below) { b *= -1; c *= I; d *= I; };
+        if (e >= 0) { b *= -1; };
         return {b, c, d};
     };
 
@@ -192,21 +191,23 @@ namespace iterateKT
 
         // Now we need to evaluate the inhomogenous integral
 
-        double xi = _settings._matching_interval;
+        // If we're sufficiently far from pth we can just integrate without issue
+        double xi = _settings._matching_intervals[1];
         bool no_problem =   (std::real(s) <= _sth - xi
-                          || std::imag(s) >         _settings._infinitesimal);
-        if (no_problem) return polynomial + sn*disperse_with_pth(i, s, {_sth, _cutoff});
+                          || !is_zero(std::imag(s), _settings._infinitesimal));
+        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _cutoff});
         
         bool too_close = are_equal(std::real(s), _pth, xi);
         if (too_close) return 0.;
 
         double p    = (std::real(s) + _pth)/2;
         bool below_pth  = (p <= _pth);
-        if (below_pth)  return polynomial + sn*disperse_with_cauchy(i, s, {_sth, p})
-                                          + sn*disperse_with_pth   (i, s, {p, _cutoff});
+        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, std::real(s), {_sth, p})
+                                          + sn/PI*disperse_with_pth   (i, std::real(s), {p, _cutoff});
         
-        return polynomial  + sn*disperse_with_pth   (i, s, {_sth, p})
-                           + sn*disperse_with_cauchy(i, s, {p, _cutoff});
+        return polynomial  + sn/PI*disperse_with_pth   (i, std::real(s), {_sth, p})
+                           + sn/PI*disperse_with_cauchy(i, std::real(s), {p, _cutoff});
+        return 0.;
     };
 
     // -----------------------------------------------------------------------
@@ -218,11 +219,9 @@ namespace iterateKT
         if (!is_odd(n)) return NaN<complex>();
 
         double x   = bounds[0], y = bounds[1], z = _pth;
-
-        complex k = (std::real(s) < z) ? csqrt(z-s) : +I*csqrt(s-z);
-        complex argx = (k+csqrt(z-x))/(k-csqrt(z-x));
-        complex argy = csqrt(y-z)/k;
-        complex Q1 = (log(argx)-2*I*atan(argy))/k;
+        complex argx = (csqrt(z-s)+csqrt(z-x))/(csqrt(z-s)-csqrt(z-x));
+        complex argy = csqrt(y-z)/csqrt(z-s);
+        complex Q1 = (log(argx)-2*I*atan(argy))/csqrt(z-s);
 
         if (n == 1) return Q1;
 
@@ -235,17 +234,17 @@ namespace iterateKT
 
         
     // R functions DO have the Cauchy singularity
-    complex raw_iteration::R(int n, complex s, std::array<double,2> bounds)
+    complex raw_iteration::R(int n, complex sc, std::array<double,2> bounds)
     {
         if (!is_odd(n)) return NaN<complex>();
         
-        int pm = (std::imag(s) >= 0) ? +1 : -1;
-        double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
-        complex k = (std::real(s) < z) ? csqrt(z-s) : +I*csqrt(s-z);
+        int pm   = (std::imag(sc) >= 0) ? +1 : -1;
+        double s = std::real(sc);
 
-        complex argx = (csqrt(z-x)+k)/(csqrt(z-x)-k);
-        complex argy = (k-csqrt(z-y))/(k+csqrt(z-y));
-        complex R1 = (log(argx)+log(argy)/* +I*pm*PI */)/k;
+        double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
+        complex argx = (csqrt(z-x)+csqrt(z-s))/(csqrt(z-x)-csqrt(z-s));
+        complex argy = (csqrt(z-s)-csqrt(z-y))/(csqrt(z-s)+csqrt(z-y));
+        complex R1 = (log(argx)+log(argy)+I*pm*PI)/csqrt(z-s);
 
         if (n == 1) return R1;
 
@@ -271,7 +270,7 @@ namespace iterateKT
         int n = _n_singularity;
         complex a = half_regularized_integrand(i, std::real(s));
         complex b = pthreshold_expansion(i, below)[0];
-        return integral + a*R(n,s,bounds) + b*R(n-2,s,bounds);
+        return integral + a*Q(n,s,bounds) + b*Q(n-2,s,bounds);
     };
 
     // This is the integral which contains and handles the cauchy singularity
@@ -282,7 +281,7 @@ namespace iterateKT
         complex a = half_regularized_integrand(i, std::real(s));
         auto fdx = [this,i,s,a,n](double x)
         { 
-            complex kx = (x <= _pth) ? csqrt(_pth - x) : +I*csqrt(x-_pth);
+            complex kx = (x <= _pth) ? csqrt(_pth - x) : I*csqrt(x - _pth);
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(kx,n); 
         };
         complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 

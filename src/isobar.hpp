@@ -23,11 +23,6 @@
 
 namespace iterateKT
 {
-    // We need a way to differentiate different channels
-    // since isobars describe physics in one channel
-    // at a time
-    enum channel{S_CHANNEL, T_CHANNEL, U_CHANNEL};
-
     // Forward declare for the typedef below
     class raw_isobar;
 
@@ -67,11 +62,6 @@ namespace iterateKT
 
         // Elastic phase shift which provides the intial guess
         virtual double phase_shift(double s) = 0;
-
-        // In the full amplitude, user must define the prefactor associated with
-        // each channel. This is where symmetries, kinematic factors, and angular polynomials,
-        // are implemented;
-        virtual complex prefactor(channel chan, complex s, complex t, complex u) = 0;
 
         // Kernel which appears in the angular average
         virtual complex kernel(int iso_id, complex s, complex t) = 0;
@@ -120,7 +110,7 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         protected:
 
-        friend class amplitude;
+        friend class raw_amplitude;
 
         // Kinematics instance
         kinematics _kinematics;

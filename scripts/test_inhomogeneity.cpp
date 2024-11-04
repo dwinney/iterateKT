@@ -23,7 +23,7 @@ using namespace iterateKT;
 void test_inhomogeneity()
 {
     using namespace iterateKT;
-    using V_to_3pi::kP_wave;
+    using namespace V_to_3pi;
 
     // Set up general kinematics so everything knows masses
     kinematics omega = new_kinematics(M_OMEGA, M_PION);
@@ -36,25 +36,15 @@ void test_inhomogeneity()
 
 
     // Set up our amplitude 
-    amplitude amplitude(omega);
-
-    settings settings;
-    settings._angular_integrator_depth = 10;
-    settings._interp_energy_low  = 2.;
-    settings._interp_energy_high = 20.;
-    settings._interp_offset      = 0.2;
-    settings._interp_points_low  = 100;
-    settings._interp_points_high = 50;
-    settings._matching_interval = 0.07;
-    settings._expansion_eps  = 0.09;
+    amplitude amplitude = new_amplitude<isoscalar>(omega);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude.add_isobar<V_to_3pi::P_wave>(2, settings);
-    auto previous = amplitude.get_isobars();
+    amplitude->add_isobar<V_to_3pi::P_wave>(2);
+    auto previous = amplitude->get_isobars();
 
     // Isolate our pwave
-    isobar pwave = amplitude.get_isobar(kP_wave);
+    isobar pwave = amplitude->get_isobar(kP_wave);
 
     // -----------------------------------------------------------------------
     
@@ -66,7 +56,7 @@ void test_inhomogeneity()
     auto grid = pwave->calculate_next(previous);
     timer.lap("grid");
     // first nontrivial iteration
-    iteration first = new_iteration(2, 3, grid, omega, settings);
+    iteration first = new_iteration(2, 3, grid, omega, P_wave::default_settings());
 
     plot p1 = plotter.new_plot();
     p1.set_legend(0.45, 0.6);

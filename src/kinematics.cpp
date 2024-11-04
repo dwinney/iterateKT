@@ -36,17 +36,17 @@ namespace iterateKT
 
     // Kacser with removed singularities at regular thresholds removed
     // xi is the radius of validity to remove the singularities analytically
-    complex raw_kinematics::nu(double s, double xi)
+    complex raw_kinematics::nu(double s, std::array<double,3> xi)
     {
         double Sth = sth();
         double Rth = rth();
         if (s < Sth) return NaN<double>();
 
         int region; 
-        region = (s >= Sth + xi)  // 1
-               + (s >= Rth - xi)  // 2
+        region = (s >= Sth + xi[0])  // 1
+               + (s >= Rth - xi[2])  // 2
                + (s >= Rth)       // 3
-               + (s >= Rth + xi); // 4
+               + (s >= Rth + xi[2]); // 4
 
         switch (region)
         {

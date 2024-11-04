@@ -27,8 +27,8 @@ namespace iterateKT
         double _infinitesimal      = 1E-5;
 
         // Interval +- regular thresholds around which to remove singularities
-        double _matching_interval = 0.05;
-        double _expansion_eps  = 0.1;
+        std::array<double,3> _matching_intervals = {0.05, 0.05, 0.05};
+        std::array<double,3> _expansion_offsets  = {0.05, 0.05, 0.05};
 
         // Interpolation settings
         double _interp_energy_low  = 5;    // interpolate from sth to this value
