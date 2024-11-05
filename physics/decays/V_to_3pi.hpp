@@ -14,6 +14,7 @@
 #define V_TO_3PI_HPP
 
 #include "isobar.hpp"
+#include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
 #include "phaseshifts/GKPY.hpp"
@@ -22,6 +23,8 @@ namespace iterateKT { namespace V_to_3pi
 {
     // Isobar id's
     static const int kP_wave = 0;
+
+    const double scale(){ return M_PION*M_PION; };
 
     // This defines the full amplitude, i.e. how the isobars are combined
     // Here is where we usually put the isospin combinations etc
@@ -71,7 +74,7 @@ namespace iterateKT { namespace V_to_3pi
         inline int singularity_power(){ return 2; };
 
         // Use GKPY phase shift, smoothly extrapolated to pi 
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
+        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, scale()*s); };
 
         // Since the prefactors are trivial, the kernel also is
         inline complex kernel(int iso_id, complex s, complex t)
@@ -85,19 +88,30 @@ namespace iterateKT { namespace V_to_3pi
         };
 
         // Choose default parameters for this isobar
-        static const settings default_settings()
+        inline static const settings default_settings()
         {
+            double s0 = scale();
+
             settings sets;
+
+            sets._massless_units = false;
+
             sets._angular_integrator_depth    = 10;
             sets._dispersion_integrator_depth = 15;
-            sets._interp_energy_low           = 2.;
-            sets._interp_energy_high          = 20.;
-            sets._interp_offset               = 0.2;
+            sets._infinitesimal               = 1E-5/s0;
+
+            sets._interp_energy_low           = 2. /s0;
+            sets._interp_energy_high          = 20./s0;
+            sets._interp_offset               = 0.2/s0;
             sets._interp_points_low           = 100;
             sets._interp_points_high          = 50;
+ 
+            double xi_sth = 0.03/s0,  eps_sth = 0.03/s0;
+            double xi_pth = 0.07/s0,  eps_pth = 0.10/s0;
+            double xi_rth = 0.08/s0,  eps_rth = 0.08/s0;
 
-            sets._matching_intervals  = {0.03, 0.07, 0.08};
-            sets._expansion_offsets   = {0.03, 0.1, 0.08};
+            sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
+            sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
 
             return sets;
         };

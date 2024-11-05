@@ -25,7 +25,7 @@ void test_omnes()
     using namespace V_to_3pi;
 
     // Set up general kinematics so everything knows masses
-    kinematics omega = new_kinematics(M_OMEGA, M_PION);
+    kinematics omega = new_kinematics(M_OMEGA/M_PION, 1.);
 
     // Set up our amplitude 
     amplitude A = new_amplitude<isoscalar>(omega);
@@ -46,39 +46,26 @@ void test_omnes()
 
     // first we print basis function 1 which should be just Omega
     plot p1 = plotter.new_plot();
-    p1.add_curve({EPS, 1.0}, [&](double s){ return std::real(pwave->basis_function(0,s+IEPS));}, solid(jpacColor::Blue, "+ieps"));
-    p1.add_curve({EPS, 1.0}, [&](double s){ return std::imag(pwave->basis_function(0,s+IEPS));}, solid(jpacColor::Red));
-    p1.add_curve({EPS, 1.0}, [&](double s){ return std::real(pwave->basis_function(0,s-IEPS));}, dashed(jpacColor::Blue,"-ieps"));
-    p1.add_curve({EPS, 1.0}, [&](double s){ return std::imag(pwave->basis_function(0,s-IEPS));}, dashed(jpacColor::Red));
-    p1.set_labels("#it{s} [GeV^{2}]", "F^{0}_{0} = #Omega");
+    p1.set_legend(0.3, 0.8);
+    p1.add_curve({EPS, 60}, [&](double s){ return std::real(pwave->omnes(s+IEPS));}, solid(jpacColor::Blue, "+ieps"));
+    p1.add_curve({EPS, 60}, [&](double s){ return std::imag(pwave->omnes(s+IEPS));}, solid(jpacColor::Red));
+    p1.add_curve({EPS, 60}, [&](double s){ return std::real(pwave->omnes(s-IEPS));}, dashed(jpacColor::Blue,"-ieps"));
+    p1.add_curve({EPS, 60}, [&](double s){ return std::imag(pwave->omnes(s-IEPS));}, dashed(jpacColor::Red));
+    p1.set_labels("#it{s} / m_{#pi}^{2}", "#Omega_{1}^{1}");
 
     timer.lap("plot 1");
 
-    // This prints the second basis function which will be s*Omega
-    plot p2 = plotter.new_plot();
-    p2.add_curve({EPS, 1.0}, [&](double s){ return std::real(pwave->basis_function(1,s+IEPS));}, solid(jpacColor::Blue, "+ieps"));
-    p2.add_curve({EPS, 1.0}, [&](double s){ return std::imag(pwave->basis_function(1,s+IEPS));}, solid(jpacColor::Red));
-    p2.add_curve({EPS, 1.0}, [&](double s){ return std::real(pwave->basis_function(1,s-IEPS));}, dashed(jpacColor::Blue,"-ieps"));
-    p2.add_curve({EPS, 1.0}, [&](double s){ return std::imag(pwave->basis_function(1,s-IEPS));}, dashed(jpacColor::Red));
-    p2.set_labels("#it{s} [GeV^{2}]", "F^{0}_{1} = #it{s} #Omega");
+    plot p3 = plotter.new_plot();
+    p3.set_curve_points(200);
+    p3.set_legend(0.5,0.4);
+    p3.add_curve({omega->sth(), 250}, [&](double s){ return pwave->LHC(s);});
+    p3.set_labels("#it{s} / m_{#pi}^{2}", "sin#delta(#it{s}) / |#Omega(#it{s})|");
 
     timer.lap("plot 2");
 
-    plot p3 = plotter.new_plot();
-    p3.set_curve_points(200);
-    p3.set_ranges({0,10}, {0,0.3});
-    p3.set_legend(0.5,0.4);
-    p3.add_curve({omega->sth(), 10.0}, [&](double s){ return pwave->LHC(s);});
-    p3.set_labels("#it{s} [GeV^{2}]", "sin#delta(#it{s}) / |#Omega(#it{s})|");
-
-    timer.lap("plot 3");
-
     // Save plots
-    plotter.combine({3,1}, {p1,p2,p3}, "omnes.pdf");
+    plotter.combine({2,1}, {p1,p3}, "omnes.pdf");
 
     timer.stop();
     timer.print_elapsed();
-
-    // This should produce an error and NaN
-    print(pwave->basis_function(2, 0.5+IEPS));
 }; 

@@ -38,6 +38,9 @@ namespace iterateKT
 
         // Amount to offset the middle point between interpolation regions
         double _interp_offset = 1;
+
+        // If you want to divide all dimensionful quantities by the mass of the pion....
+        bool _massless_units = false;
     };
 }; // namespace iterateKT
 
