@@ -26,7 +26,7 @@ void test_cauchy()
     using namespace V_to_3pi;
 
     // Set up general kinematics so everything knows masses
-    kinematics kinematics = new_kinematics(M_OMEGA, M_PION);
+    kinematics kinematics = new_kinematics(M_OMEGA/M_PION, 1.);
 
     // Significant points in integration path
     double A = kinematics->A();
@@ -61,13 +61,15 @@ void test_cauchy()
     
     // first nontrivial iteration
     iteration first = new_iteration(1, 3, grid, kinematics, settings);
+    double smax = 60;
 
     plot p1 = plotter.new_plot();
     p1.set_legend(0.45, 0.6);
-    p1.set_curve_points(200);
+    p1.set_curve_points(100);
+    p1.set_ranges({0,60}, {-0.01, 0.02});
     // p1.print_to_terminal(true);
-    p1.add_curve({A, 1.}, [&](double s) { return std::real(first->regularized_integrand(0, s)); }, solid(jpacColor::Blue));
-    p1.add_curve({A, 1.}, [&](double s) { return std::imag(first->regularized_integrand(0, s)); }, solid(jpacColor::Red));
+    p1.add_curve({A, smax}, [&](double s) { return std::real(first->regularized_integrand(0, s)); }, solid(jpacColor::Blue));
+    p1.add_curve({A, smax}, [&](double s) { return std::imag(first->regularized_integrand(0, s)); }, solid(jpacColor::Red));
     p1.set_labels("#it{s} [GeV^{2}]", "disp");
     p1.add_vertical({A, C, D});
     p1.add_horizontal(0);

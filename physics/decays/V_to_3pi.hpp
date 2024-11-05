@@ -100,15 +100,15 @@ namespace iterateKT { namespace V_to_3pi
             sets._dispersion_integrator_depth = 15;
             sets._infinitesimal               = 1E-5/s0;
 
-            sets._interp_energy_low           = 2. /s0;
+            sets._interp_energy_low           = 1. /s0;
             sets._interp_energy_high          = 20./s0;
             sets._interp_offset               = 0.2/s0;
-            sets._interp_points_low           = 100;
+            sets._interp_points_low           = 200;
             sets._interp_points_high          = 50;
  
-            double xi_sth = 0.03/s0,  eps_sth = 0.03/s0;
-            double xi_pth = 0.07/s0,  eps_pth = 0.10/s0;
-            double xi_rth = 0.08/s0,  eps_rth = 0.08/s0;
+            double xi_sth = 0.3,  eps_sth = 1.5;
+            double xi_pth = 0.3,  eps_pth = 1.5;
+            double xi_rth = 0.3,  eps_rth = 4.5;
 
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};

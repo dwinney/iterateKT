@@ -26,7 +26,7 @@ namespace iterateKT
     // nu given by n_singularity
     complex raw_iteration::half_regularized_integrand(unsigned int i, double s)
     {
-        if (s < _sth)     return 0.;
+        if (s <= _sth)    return 0.;
         if (_initialized) return _re_halfreg[i]->Eval(s) + I*_im_halfreg[i]->Eval(s);
 
         // If no interpolation is saved yet, calculate divide by nu explicitly
@@ -103,7 +103,7 @@ namespace iterateKT
     // This is only a function of the integration variable (no cauchy kernel)
     complex raw_iteration::regularized_integrand(unsigned int i, double s)
     {
-        if (s < _sth)    return 0.;
+        if (s <= _sth)    return 0.;
 
         // xi is the interval around pth we expand around
         int             n = _n_singularity;
@@ -112,8 +112,9 @@ namespace iterateKT
         bool    below_pth = (s <= _pth);
 
         // Momentum factor we will be dividing out
-        double        eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
-        complex k  = (below_pth) ? sqrt(_pth-s) : I*sqrt(s-_pth);
+        double eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
+        complex k  = csqrt(_pth-s+I*0.01);
+
         // Expansion coefficients
         std::array<complex,3> ecs = pthreshold_expansion(i, eps);
 
@@ -147,7 +148,7 @@ namespace iterateKT
             };
             case 3:  // P-waves
             {
-                bs = {+6, -5, +2};
+                bs = {-6, +5, -2};
                 cs = {-8, +8, -4};
                 ds = {+3, -3, +2};
                 break;
@@ -171,7 +172,7 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        if (e >= 0) { b *= -1; };
+        if (e < 0) { c = conj(c); /* d = -conj(d); */ };
         return {b, c, d};
     };
 
