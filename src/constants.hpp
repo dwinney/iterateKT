@@ -18,19 +18,21 @@ namespace iterateKT
 {
     using complex = std::complex<double>;
 
+    // Number of gaussian quadrature points to use in nonadaptive integration
+    const int N_GAUSS = 100;
+
     // ---------------------------------------------------------------------------
     // Mathematical constants 
 
     #ifndef PI
         const double PI   = M_PI;
     #endif
+    #ifndef I
+        const complex I   (0., 1.);
+    #endif
+
     const double DEG2RAD  = (M_PI / 180.);
     const double EPS      = 1.e-7;
-
-    // Unit complex numbers
-    const complex XR  (1., 0.);
-    const complex I   (0., 1.);
-    const complex IEPS(0., EPS);
 
     // PDG Meson masses in GeV
     const double M_PION      = 0.13957000;

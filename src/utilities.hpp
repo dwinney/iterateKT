@@ -60,22 +60,22 @@ namespace iterateKT
 
     inline complex operator+(const complex&c, const int& i)
     {
-        return c + XR*i;
+        return c + complex(1,0)*i;
     };
 
     inline complex operator+(const int& i, const complex & c)
     {
-        return XR*i + c;
+        return complex(1,0)*i + c;
     };
 
     inline complex operator-(const complex&c, const int& i)
     {
-        return c - XR*i;
+        return c - complex(1,0)*i;
     };
 
     inline complex operator-(const int& i, const complex & c)
     {
-        return XR*i - c;
+        return complex(1,0)*i - c;
     };
 
     inline bool operator == (const complex &z,const int n)
@@ -97,7 +97,7 @@ namespace iterateKT
 
     // This makes it so we always default to complex regardless of whether the input is an int or double
     template<typename T>
-    complex csqrt(T x){ return sqrt(x * XR); };
+    complex csqrt(T x){ return sqrt(x * complex(1,0)); };
 
     inline unsigned int factorial(unsigned int n) 
     {
@@ -117,9 +117,9 @@ namespace iterateKT
     };
 
     // If any of them are complex, return complex
-    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, XR*a, XR*b); };
-    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(XR*a, z, XR*b); };
-    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(XR*a, XR*b, z); };
+    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, complex(1,0)*a, complex(1,0)*b); };
+    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(complex(1,0)*a, z, complex(1,0)*b); };
+    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(complex(1,0)*a, complex(1,0)*b, z); };
 
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above

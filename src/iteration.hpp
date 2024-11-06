@@ -57,7 +57,6 @@ namespace iterateKT
           _kinematics(kin), _settings(sets)
         {
             _sth = kin->sth(); _pth = kin->pth(); _rth = kin->rth();
-            _cutoff = sets._interp_energy_high;
 
             // Load up the interpolators from the input data
             for (int i = 0; i < n; i++)
@@ -132,7 +131,7 @@ namespace iterateKT
         unsigned int _n_singularity  = 3; // degree of singular kinematic factors
 
         // These are convenient to save so to not have to keep redefining them
-        double _sth, _pth, _rth, _cutoff;
+        double _sth, _pth, _rth;
 
         // The saved data and interpolation of the discontinuity
         std::vector<ROOT::Math::Interpolator*> _re_inhom, _im_inhom;

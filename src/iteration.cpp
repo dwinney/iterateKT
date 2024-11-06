@@ -17,7 +17,7 @@ namespace iterateKT
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
     {
-        if (s <= _sth || s >= _cutoff) return 0.;
+        if (s <= _sth || s >= _settings._cutoff) return 0.;
         return _re_inhom[i]->Eval(s) + I*_im_inhom[i]->Eval(s);
     };
 
@@ -113,7 +113,7 @@ namespace iterateKT
 
         // Momentum factor we will be dividing out
         double eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
-        complex k  = csqrt(_pth-s+I*0.01);
+        complex k  = (below_pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);
 
         // Expansion coefficients
         std::array<complex,3> ecs = pthreshold_expansion(i, eps);
@@ -172,7 +172,6 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        if (e < 0) { c = conj(c); /* d = -conj(d); */ };
         return {b, c, d};
     };
 
@@ -196,7 +195,7 @@ namespace iterateKT
         double xi = _settings._matching_intervals[1];
         bool no_problem =   (std::real(s) <= _sth - xi
                           || !is_zero(std::imag(s), _settings._infinitesimal));
-        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _cutoff});
+        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _settings._cutoff});
         
         bool too_close = are_equal(std::real(s), _pth, xi);
         if (too_close) return 0.;
@@ -204,10 +203,10 @@ namespace iterateKT
         double p    = (std::real(s) + _pth)/2;
         bool below_pth  = (p <= _pth);
         if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, std::real(s), {_sth, p})
-                                          + sn/PI*disperse_with_pth   (i, std::real(s), {p, _cutoff});
+                                          + sn/PI*disperse_with_pth   (i, std::real(s), {p, _settings._cutoff});
         
         return polynomial  + sn/PI*disperse_with_pth   (i, std::real(s), {_sth, p})
-                           + sn/PI*disperse_with_cauchy(i, std::real(s), {p, _cutoff});
+                           + sn/PI*disperse_with_cauchy(i, std::real(s), {p, _settings._cutoff});
         return 0.;
     };
 
@@ -266,7 +265,7 @@ namespace iterateKT
         bool below = (std::real(s) < _pth);
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
         complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
-                                                                                        _settings._dispersion_integrator_depth, 1.E-9, NULL);
+                                                                                        _settings._dispersion_depth, 1.E-9, NULL);
 
         int n = _n_singularity;
         complex a = half_regularized_integrand(i, std::real(s));
@@ -286,7 +285,7 @@ namespace iterateKT
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(kx,n); 
         };
         complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
-                                                                                        _settings._dispersion_integrator_depth, 1.E-9, NULL);
+                                                                                        _settings._dispersion_depth, 1.E-9, NULL);
 
         return integral + a*R(n,s,bounds);
     };

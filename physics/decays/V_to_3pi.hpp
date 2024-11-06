@@ -24,6 +24,7 @@ namespace iterateKT { namespace V_to_3pi
     // Isobar id's
     static const int kP_wave = 0;
 
+    // Use s in units of pion mass squared
     const double scale(){ return M_PION*M_PION; };
 
     // This defines the full amplitude, i.e. how the isobars are combined
@@ -94,21 +95,22 @@ namespace iterateKT { namespace V_to_3pi
 
             settings sets;
 
-            sets._massless_units = false;
+            sets._adaptive_omnes          = false;
+            sets._adaptive_angular        = false;
 
-            sets._angular_integrator_depth    = 10;
-            sets._dispersion_integrator_depth = 15;
-            sets._infinitesimal               = 1E-5/s0;
+            sets._angular_depth           = 5;
+            sets._dispersion_depth        = 15;
+            sets._infinitesimal           = 1E-5;
 
-            sets._interp_energy_low           = 1. /s0;
-            sets._interp_energy_high          = 20./s0;
-            sets._interp_offset               = 0.2/s0;
-            sets._interp_points_low           = 200;
-            sets._interp_points_high          = 50;
+            sets._intermediate_energy     = 60;
+            sets._cutoff                  = 120;
+            sets._interpolation_offset    = 1;
+            
+            sets._interpolation_points    = {200, 100, 100};
  
-            double xi_sth = 0.3,  eps_sth = 1.5;
-            double xi_pth = 0.3,  eps_pth = 1.5;
-            double xi_rth = 0.3,  eps_rth = 4.5;
+            double xi_sth = 0.3,  eps_sth = 0.5;
+            double xi_pth = 2.5,  eps_pth = 0.5;
+            double xi_rth = 0.3,  eps_rth = 1.0;
 
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};

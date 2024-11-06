@@ -18,10 +18,17 @@ namespace iterateKT
     {
         settings(){};
 
+        // We have three types of integrations, we can choose whether to evaluate them
+        // using adaptive integration or not
+        bool _adaptive_omnes       = false; 
+        bool _adaptive_dispersion  = false; 
+        bool _adaptive_angular     = false; 
+
         // Number of subdivisions for adaptive integrator 
-        // For dispersion integrals and the pinocchio integral
-        int    _dispersion_integrator_depth = 15;
-        int    _angular_integrator_depth    = 15;
+        // These are only looked at if the appropriate flag above is true
+        int  _omnes_depth        = 15;    
+        int  _dispersion_depth   = 15;
+        int  _angular_depth      = 15;   
 
         // The infinitesimal to use for ieps inside Cauchy kernels
         double _infinitesimal      = 1E-5;
@@ -31,16 +38,11 @@ namespace iterateKT
         std::array<double,3> _expansion_offsets  = {0.05, 0.05, 0.05};
 
         // Interpolation settings
-        double _interp_energy_low  = 5;    // interpolate from sth to this value
-        int    _interp_points_low  = 100;  // interpolate the above interval with this many points
-        double _interp_energy_high = 1000; // then from _interp_energy_low to _interp_energy_high 
-        int    _interp_points_high = 100;  // with this many points
+        std::array<int,3> _interpolation_points = {100, 40, 100};
 
-        // Amount to offset the middle point between interpolation regions
-        double _interp_offset = 1;
-
-        // If you want to divide all dimensionful quantities by the mass of the pion....
-        bool _massless_units = false;
+        double _intermediate_energy  = 5;    // interpolate from sth to this value
+        double _cutoff               = 1000; // then from _interp_energy_low to _interp_energy_high 
+        double _interpolation_offset = 1;    // Amount to offset the middle point between interpolation regions        
     };
 }; // namespace iterateKT
 
