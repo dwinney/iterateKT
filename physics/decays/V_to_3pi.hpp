@@ -83,8 +83,9 @@ namespace iterateKT { namespace V_to_3pi
             // Only P-wave allowed in the cross channel
             if (iso_id != V_to_3pi::kP_wave) return NaN<complex>();
 
+            double m2  = _kinematics->m2(), M2 = _kinematics->M2();
             complex k  = _kinematics->kacser(s);
-            complex kz = 2*t-_kinematics->Sigma()+s;
+            complex kz = 2*t+s-M2-3*m2;
             return 3*(k*k - kz*kz); // We've multiplied by k^2 which is why singularity_power() = 2
         };
 
@@ -106,11 +107,11 @@ namespace iterateKT { namespace V_to_3pi
             sets._cutoff                  = 120;
             sets._interpolation_offset    = 1;
             
-            sets._interpolation_points    = {200, 100, 100};
+            sets._interpolation_points    = {400, 100, 200};
  
             double xi_sth = 0.3,  eps_sth = 0.5;
             double xi_pth = 2.5,  eps_pth = 0.5;
-            double xi_rth = 0.3,  eps_rth = 1.0;
+            double xi_rth = 0.8,  eps_rth = 1.5;
 
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};

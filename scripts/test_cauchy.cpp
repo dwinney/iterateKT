@@ -43,8 +43,9 @@ void test_cauchy()
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>(1, settings);
-    auto previous = amplitude->get_isobars();
+    amplitude->add_isobar<P_wave>(2, settings);
+
+    // Iterate once
 
     // Isolate our pwave
     isobar pwave = amplitude->get_isobar(kP_wave);
@@ -56,25 +57,33 @@ void test_cauchy()
 
     timer.start();
 
-    auto grid = pwave->calculate_next(previous);
-    timer.lap("grid");
-    
-    // first nontrivial iteration
-    iteration first = new_iteration(1, 3, grid, kinematics, settings);
-    double smax = 60;
-
     plot p1 = plotter.new_plot();
     p1.set_legend(0.45, 0.6);
-    p1.set_curve_points(100);
-    p1.set_ranges({0,60}, {-0.01, 0.02});
-    // p1.print_to_terminal(true);
-    p1.add_curve({A, smax}, [&](double s) { return std::real(first->regularized_integrand(0, s)); }, solid(jpacColor::Blue));
-    p1.add_curve({A, smax}, [&](double s) { return std::imag(first->regularized_integrand(0, s)); }, solid(jpacColor::Red));
-    p1.set_labels("#it{s} [GeV^{2}]", "disp");
+    p1.set_curve_points(1000);
+    p1.set_ranges({0,60}, {-4, 7});
+    p1.set_labels("#it{s} / m_{#pi}^{2}", "F_{0}");
     p1.add_vertical({A, C, D});
     p1.add_horizontal(0);
-    p1.save("dispersion.pdf");
+    
+    plot p2 = plotter.new_plot();
+    p2.set_legend(0.45, 0.6);
+    p2.set_curve_points(1000);
+    p2.set_ranges({0,60}, {-120, 200});
+    p2.set_labels("#it{s} / m_{#pi}^{2}", "F_{1}");
+    p2.add_vertical({A, C, D});
+    p2.add_horizontal(0);
 
+    p1.add_curve({0, 60}, [&](double s) { return std::real(pwave->basis_function(0, s+I*EPS)); }, dashed(jpacColor::Blue));
+    p1.add_curve({0, 60}, [&](double s) { return std::imag(pwave->basis_function(0, s+I*EPS)); }, dashed(jpacColor::Red));
+    p2.add_curve({0, 60}, [&](double s) { return std::real(pwave->basis_function(1, s+I*EPS)); }, dashed(jpacColor::Blue));
+    p2.add_curve({0, 60}, [&](double s) { return std::imag(pwave->basis_function(1, s+I*EPS)); }, dashed(jpacColor::Red));
+    amplitude->iterate();
+    p1.add_curve({0, 60}, [&](double s) { return std::real(pwave->basis_function(0, s+I*EPS)); }, solid(jpacColor::Blue));
+    p1.add_curve({0, 60}, [&](double s) { return std::imag(pwave->basis_function(0, s+I*EPS)); }, solid(jpacColor::Red));
+    p2.add_curve({0, 60}, [&](double s) { return std::real(pwave->basis_function(1, s+I*EPS)); }, solid(jpacColor::Blue));
+    p2.add_curve({0, 60}, [&](double s) { return std::imag(pwave->basis_function(1, s+I*EPS)); }, solid(jpacColor::Red));
+
+    plotter.combine({2,1}, {p1,p2}, "dispersion.pdf");
     timer.stop();
     timer.print_elapsed();
 };

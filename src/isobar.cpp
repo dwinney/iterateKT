@@ -116,7 +116,7 @@ namespace iterateKT
         if (iter_id  > _iterations.size()) return error("Requested iteration does not exist!", NaN<complex>());
         if (basis_id > _max_sub - 1)  return error("Requested basis function does not exist!", NaN<complex>());
 
-        return omnes(x)*_iterations[iter_id]->basis_function(basis_id, x);
+        return omnes(x)*_iterations[iter_id]->basis_factor(basis_id, x);
     };
 
     // Without an iter_id we just take the latest iteration
@@ -143,7 +143,7 @@ namespace iterateKT
     // ----------------------------------------------------------------------- 
     // Take the saved interpolation settings and output the necessary arrays
     
-    basis_grid raw_isobar::calculate_next(std::vector<isobar> previous)
+    basis_grid raw_isobar::calculate_next(std::vector<isobar> & previous)
     {
         basis_grid output;
         output._s_list = _s_list;
@@ -165,7 +165,7 @@ namespace iterateKT
     };
 
     // Filter which region of the pinnochio we are evalutating at and call the appropriate function
-    complex raw_isobar::pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous)
+    complex raw_isobar::pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous)
     {
         if (s < _kinematics->A()) return error("isobar::angular_integral", 
                                                 "Trying to evaluate angular integral below threshold!", NaN<complex>());
@@ -198,7 +198,7 @@ namespace iterateKT
     };
 
     // Integrate along a linear segment +ieps above the real axis
-    complex raw_isobar::linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> previous_list)
+    complex raw_isobar::linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> & previous_list)
     {
         using namespace boost::math::quadrature;
 
@@ -216,7 +216,7 @@ namespace iterateKT
     };
 
     // Integrate along the curved segment of pinnochio's head
-    complex raw_isobar::curved_segment(unsigned int basis_id, double s, std::vector<isobar> previous_list)
+    complex raw_isobar::curved_segment(unsigned int basis_id, double s, std::vector<isobar> & previous_list)
     {
         using namespace boost::math::quadrature;
 

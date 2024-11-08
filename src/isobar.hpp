@@ -86,10 +86,10 @@ namespace iterateKT
 
         // Use the specified kernel to calculate the angualar average
         // over the pinocchio path
-        complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> previous_list);
+        complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
         // Take in an array of isobars and use their current state to calculate the next disc
-        basis_grid calculate_next(std::vector<isobar> previous_list);
+        basis_grid calculate_next(std::vector<isobar> & previous_list);
         
         // Given a phase shift, this is the LHC piece (numerator)
         inline double LHC(double s)
@@ -121,9 +121,9 @@ namespace iterateKT
 
         // Calculate the angular integral along a straight line
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}
-        complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> previous_list);
+        complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> & previous_list);
         // Calculate the integral along the curved secment of pinocchio's head
-        complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> previous_list);
+        complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
         inline void save_iteration(basis_grid & grid)

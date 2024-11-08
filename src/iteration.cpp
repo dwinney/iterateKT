@@ -116,22 +116,22 @@ namespace iterateKT
         complex k  = (below_pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);
 
         // Expansion coefficients
-        std::array<complex,3> ecs = pthreshold_expansion(i, eps);
+        std::array<complex,4> ecs = pthreshold_expansion(i, eps);
 
         // if we're not near any threshold just divide like normal
         if (!close_to_pth)
         {
-            complex subtracted = half_regularized_integrand(i, s) - half_regularized_integrand(i, _pth);
+            complex subtracted = half_regularized_integrand(i, s) - ecs[0];
             // for p-wave also subtract the first derivative
-            if (n > 1) subtracted -= (_pth-s)*ecs[0];
+            if (n > 1) subtracted -= (_pth-s)*ecs[1];
             return subtracted/pow(k, n);
         };
 
-        return (below_pth) ? ecs[1]+ecs[2]*sqrt(_pth-s) : I*(ecs[1]+ecs[2]*sqrt(s-_pth));
+        return (below_pth) ? ecs[2]+ecs[3]*sqrt(_pth-s) : I*(ecs[2]+ecs[3]*sqrt(s-_pth));
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
-    std::array<complex,3> raw_iteration::pthreshold_expansion(unsigned int i, double e)
+    std::array<complex,4> raw_iteration::pthreshold_expansion(unsigned int i, double e)
     {
         // These coefficients only depend on the order of the singularity
         int n = _n_singularity;
@@ -172,13 +172,13 @@ namespace iterateKT
         complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
         complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
 
-        return {b, c, d};
+        return {fpth, b, c, d};
     };
 
     // -----------------------------------------------------------------------
     // Evaluate the `basis' function. This deviates from the typical 
     // defintion by not including the overall factor of the omnes function
-    complex raw_iteration::basis_function(unsigned int i, complex s)
+    complex raw_iteration::basis_factor(unsigned int i, complex s)
     {
         if (i > _n_subtraction - 1) return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
 
@@ -192,22 +192,33 @@ namespace iterateKT
         // Now we need to evaluate the inhomogenous integral
 
         // If we're sufficiently far from pth we can just integrate without issue
-        double xi = _settings._matching_intervals[1];
-        bool no_problem =   (std::real(s) <= _sth - xi
+        bool no_problem =   (std::real(s) <= _sth 
                           || !is_zero(std::imag(s), _settings._infinitesimal));
         if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _settings._cutoff});
-        
-        bool too_close = are_equal(std::real(s), _pth, xi);
-        if (too_close) return 0.;
 
+        // Split the integrals into two pieces, one which contains the pth singularity
+        // and another with the cauchy singularity
         double p    = (std::real(s) + _pth)/2;
+        std::array<double,2> lower = {_sth, p}, upper = {p, _settings._cutoff};
+
+        // If we are evaluating exactly at this point we have a problem
+        // If we're too close to pth just evaluate above and below it and linear interpolate
+        double xi = _settings._matching_intervals[1];
+        bool on_pth = are_equal(std::real(s), _pth, xi * 0.9);
+        if (on_pth)
+        {
+            double  x1 = _pth - xi, x2 = _pth + xi;
+            complex f1 = basis_factor(i, x1), f2 = basis_factor(i, x2);
+            return  f1 + (f2 - f1)*(s - x1)/(x2 - x1);
+        };
+
+        // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, std::real(s), {_sth, p})
-                                          + sn/PI*disperse_with_pth   (i, std::real(s), {p, _settings._cutoff});
+        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, std::real(s), lower)
+                                          + sn/PI*disperse_with_pth   (i, std::real(s), upper);
         
-        return polynomial  + sn/PI*disperse_with_pth   (i, std::real(s), {_sth, p})
-                           + sn/PI*disperse_with_cauchy(i, std::real(s), {p, _settings._cutoff});
-        return 0.;
+        return polynomial  + sn/PI*disperse_with_pth   (i, std::real(s), lower)
+                           + sn/PI*disperse_with_cauchy(i, std::real(s), upper);
     };
 
     // -----------------------------------------------------------------------
@@ -238,17 +249,18 @@ namespace iterateKT
     {
         if (!is_odd(n)) return NaN<complex>();
         
-        int pm   = (std::imag(sc) >= 0) ? +1 : -1;
+        int pm   = (std::imag(sc) <= 0) ? +1 : -1;
         double s = std::real(sc);
-
+        
         double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
+
         complex argx = (csqrt(z-x)+csqrt(z-s))/(csqrt(z-x)-csqrt(z-s));
         complex argy = (csqrt(z-s)-csqrt(z-y))/(csqrt(z-s)+csqrt(z-y));
         complex R1 = (log(argx)+log(argy)+I*pm*PI)/csqrt(z-s);
 
         if (n == 1) return R1;
 
-        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/(z-s);
+        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/std::abs(z-s);
 
         if (n == 3) return R3;
 
@@ -262,30 +274,34 @@ namespace iterateKT
     // This is the integral which contains and handles the pth singularity
     complex raw_iteration::disperse_with_pth(unsigned int i, complex s, std::array<double,2> bounds)
     {
-        bool below = (std::real(s) < _pth);
-        auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
-        complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
-                                                                                        _settings._dispersion_depth, 1.E-9, NULL);
+        using namespace boost::math::quadrature;
 
-        int n = _n_singularity;
-        complex a = half_regularized_integrand(i, std::real(s));
-        complex b = pthreshold_expansion(i, below)[0];
+        // We'll need to calculate the 
+        int       n = _n_singularity;
+        auto coeffs = pthreshold_expansion(i, _settings._expansion_offsets[1]);
+        complex a = coeffs[0], b = coeffs[1];
+        
+        auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
+        complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
+                                                            : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
+
         return integral + a*Q(n,s,bounds) + b*Q(n-2,s,bounds);
     };
 
     // This is the integral which contains and handles the cauchy singularity
     complex raw_iteration::disperse_with_cauchy(unsigned int i, complex s, std::array<double,2> bounds)
     {
-        int n = _n_singularity;
+        using namespace boost::math::quadrature;
 
+        int n = _n_singularity;
         complex a = half_regularized_integrand(i, std::real(s));
         auto fdx = [this,i,s,a,n](double x)
         { 
             complex kx = (x <= _pth) ? csqrt(_pth - x) : I*csqrt(x - _pth);
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(kx,n); 
         };
-        complex integral = boost::math::quadrature::gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], 
-                                                                                        _settings._dispersion_depth, 1.E-9, NULL);
+        complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
+                                                            : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*R(n,s,bounds);
     };

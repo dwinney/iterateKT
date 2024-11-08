@@ -96,7 +96,7 @@ namespace iterateKT
         
         // This returns the function which multiplies the Omnes. Its given in the form
         // s^i + s^n * dispersion_integral(s)
-        complex basis_function(unsigned int i, complex x);
+        complex basis_factor(unsigned int i, complex x);
 
         // This is the inhomogeneity multiplied by kappa^N to remove all singularities
         complex ksf_inhomogeneity(unsigned int i, double x);
@@ -105,15 +105,6 @@ namespace iterateKT
         // This is KSF and we only have the non-removable pth singularities to contend with
         complex half_regularized_integrand(unsigned int i, double x);
         complex regularized_integrand(unsigned int i, double x);
-
-        // Analytic parts of the dispersion which we've subtracted away
-        complex Q(int n, complex s, std::array<double,2> bounds);
-        complex R(int n, complex s, std::array<double,2> bounds);
-
-        // Consider two cases of dispersion integrals
-        // They either contain the pth singularity or the cauchy one
-        complex disperse_with_pth   (unsigned int i, complex s, std::array<double,2> bounds);
-        complex disperse_with_cauchy(unsigned int i, complex s, std::array<double,2> bounds);
 
         // -----------------------------------------------------------------------
         private:
@@ -144,7 +135,16 @@ namespace iterateKT
 
         // Calculate the expansion coefficients
         std::array<complex, 3> rthreshold_expansion(unsigned int i, double s, double eps);
-        std::array<complex, 3> pthreshold_expansion(unsigned int i, double eps);
+        std::array<complex, 4> pthreshold_expansion(unsigned int i, double eps);
+
+        // Analytic parts of the dispersion which we've subtracted away
+        complex Q(int n, complex s, std::array<double,2> bounds);
+        complex R(int n, complex s, std::array<double,2> bounds);
+
+        // Consider two cases of dispersion integrals
+        // They either contain the pth singularity or the cauchy one
+        complex disperse_with_pth   (unsigned int i, complex s, std::array<double,2> bounds);
+        complex disperse_with_cauchy(unsigned int i, complex s, std::array<double,2> bounds);
     };
 
 }; // namespace iterateKT
