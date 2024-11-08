@@ -20,7 +20,7 @@
 
 using namespace iterateKT;
 
-void test_cauchy()
+void test_iteration()
 {
     using namespace iterateKT;
     using namespace V_to_3pi;
@@ -37,15 +37,9 @@ void test_cauchy()
     // Set up our amplitude 
     amplitude amplitude = new_amplitude<isoscalar>(kinematics, "#Omega decay");
 
-    // Just use the default settings
-    // Define it outside so we can 
-    settings settings = P_wave::default_settings();
-
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>(2, settings);
-
-    // Iterate once
+    amplitude->add_isobar<P_wave>(2);
 
     // Isolate our pwave
     isobar pwave = amplitude->get_isobar(kP_wave);

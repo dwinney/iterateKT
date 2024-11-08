@@ -105,6 +105,9 @@ namespace iterateKT
         inline uint option(){ return _option; };
         virtual inline void set_option(uint x){ _option = x; };
 
+        // Flag used for internal debugging
+        inline void set_debug(uint x){ _debug = x; };
+
         // Grab a pointer to a specific iteration of an isobar
         iteration get_iteration(uint id){ return _iterations[id];};
 
@@ -135,8 +138,11 @@ namespace iterateKT
         private:
 
         // Overal option flag 
-        int _option = 0;
+        uint _option = 0;
 
+        // Debugging flag
+        uint _debug = 0;
+        bool debug(uint x){ return (_debug == x); };
         // Saved vector of iterations
         std::vector<iteration> _iterations;
 

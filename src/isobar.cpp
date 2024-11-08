@@ -53,7 +53,7 @@ namespace iterateKT
     void raw_isobar::interpolate_lhc()
     {
         std::vector<double> lhc;
-        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/std::abs(omnes(s+_ieps) ) );
+        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/std::abs(omnes(s+_ieps)) );
         _lhc.SetData(_s_list, lhc);
         _lhc_interpolated = true;
     };
@@ -104,7 +104,7 @@ namespace iterateKT
         complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._omnes_depth, 1.E-9, NULL)
                                                        : gauss<double,N_GAUSS>::   integrate(fdx, low, high);
 
-        complex logarithm = are_equal(s, _kinematics->sth(), 1E-5) ? 0 : RHCs * log(1.-(s+_ieps) / low);
+        complex logarithm = (std::real(s) <= _kinematics->sth()) ? 0 : RHCs * log(1.-(s+_ieps) / low);
     
         return exp((integral-logarithm)/M_PI);
     };
@@ -180,7 +180,7 @@ namespace iterateKT
             {
                 double sp = std::real(_kinematics->t_plus(s));
                 double sm = std::real(_kinematics->t_minus(s));
-                return linear_segment(basis_id, {sm, sp, +1}, s, previous);
+                return linear_segment(basis_id, {sm, sp, 0.}, s, previous);
             };
             // s+ is above cut but s- is below cut
             case 1:

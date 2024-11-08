@@ -121,6 +121,8 @@ namespace iterateKT
     inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(complex(1,0)*a, z, complex(1,0)*b); };
     inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(complex(1,0)*a, complex(1,0)*b, z); };
 
+    inline int sign(double x){ return (x >= 0) ? +1 : -1; }
+
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
     // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate

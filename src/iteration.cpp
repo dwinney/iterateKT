@@ -181,20 +181,24 @@ namespace iterateKT
     complex raw_iteration::basis_factor(unsigned int i, complex s)
     {
         if (i > _n_subtraction - 1) return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
+        if (is_zero(s)) return (i == 0);
 
         // First term is just the polynomial
         complex polynomial = std::pow(s, i);
         complex sn         = std::pow(s, _n_subtraction);
 
         // if this is the homogeneous contribution then we return this
-        if (_zeroth) return polynomial;
+        if (_zeroth)    return polynomial;
 
         // Now we need to evaluate the inhomogenous integral
 
         // If we're sufficiently far from pth we can just integrate without issue
-        bool no_problem =   (std::real(s) <= _sth 
-                          || !is_zero(std::imag(s), _settings._infinitesimal));
+        bool no_problem = (std::real(s) < _sth || abs(std::imag(s)) > _settings._infinitesimal);
         if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _settings._cutoff});
+
+        // If we're too close to the real line, we evalaute with ieps perscriptions
+        s = (std::imag(s) < 0) ? std::real(s) - I*_settings._infinitesimal 
+                               : std::real(s) + I*_settings._infinitesimal;
 
         // Split the integrals into two pieces, one which contains the pth singularity
         // and another with the cauchy singularity
@@ -214,11 +218,11 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, std::real(s), lower)
-                                          + sn/PI*disperse_with_pth   (i, std::real(s), upper);
+        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, s, lower)
+                                          + sn/PI*disperse_with_pth   (i, s, upper);
         
-        return polynomial  + sn/PI*disperse_with_pth   (i, std::real(s), lower)
-                           + sn/PI*disperse_with_cauchy(i, std::real(s), upper);
+        return polynomial  + sn/PI*disperse_with_pth   (i, s, lower)
+                           + sn/PI*disperse_with_cauchy(i, s, upper);
     };
 
     // -----------------------------------------------------------------------
@@ -251,6 +255,7 @@ namespace iterateKT
         
         int pm   = (std::imag(sc) <= 0) ? +1 : -1;
         double s = std::real(sc);
+        if (are_equal(s,_sth)) return 0.;
         
         double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
 
