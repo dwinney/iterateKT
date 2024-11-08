@@ -33,6 +33,7 @@ namespace iterateKT
 
     const double DEG2RAD  = (M_PI / 180.);
     const double EPS      = 1.e-7;
+    const complex IEPS    = I*EPS;
 
     // PDG Meson masses in GeV
     const double M_PION      = 0.13957000;

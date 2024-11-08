@@ -178,14 +178,14 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluate the `basis' function. This deviates from the typical 
     // defintion by not including the overall factor of the omnes function
-    complex raw_iteration::basis_factor(unsigned int i, complex s)
+    complex raw_iteration::basis_factor(unsigned int i, complex sc)
     {
         if (i > _n_subtraction - 1) return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
-        if (is_zero(s)) return (i == 0);
+        if (is_zero(sc)) return (i == 0);
 
         // First term is just the polynomial
-        complex polynomial = std::pow(s, i);
-        complex sn         = std::pow(s, _n_subtraction);
+        complex polynomial = std::pow(sc, i);
+        complex sn         = std::pow(sc, _n_subtraction);
 
         // if this is the homogeneous contribution then we return this
         if (_zeroth)    return polynomial;
@@ -193,36 +193,36 @@ namespace iterateKT
         // Now we need to evaluate the inhomogenous integral
 
         // If we're sufficiently far from pth we can just integrate without issue
-        bool no_problem = (std::real(s) < _sth || abs(std::imag(s)) > _settings._infinitesimal);
-        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, s, {_sth, _settings._cutoff});
+        bool no_problem = (std::real(sc) < _sth || abs(std::imag(sc)) > _settings._infinitesimal);
+        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, sc, {_sth, _settings._cutoff});
 
         // If we're too close to the real line, we evalaute with ieps perscriptions
-        s = (std::imag(s) < 0) ? std::real(s) - I*_settings._infinitesimal 
-                               : std::real(s) + I*_settings._infinitesimal;
+        complex ieps = sign(std::imag(sc)) * I*_settings._infinitesimal;
+        double s     = std::real(sc);
 
         // Split the integrals into two pieces, one which contains the pth singularity
         // and another with the cauchy singularity
-        double p    = (std::real(s) + _pth)/2;
+        double p    = (s + _pth)/2;
         std::array<double,2> lower = {_sth, p}, upper = {p, _settings._cutoff};
 
         // If we are evaluating exactly at this point we have a problem
         // If we're too close to pth just evaluate above and below it and linear interpolate
         double xi = _settings._matching_intervals[1];
-        bool on_pth = are_equal(std::real(s), _pth, xi * 0.9);
+        bool on_pth = are_equal(s, _pth, xi/2. * 0.9);
         if (on_pth)
         {
-            double  x1 = _pth - xi, x2 = _pth + xi;
-            complex f1 = basis_factor(i, x1), f2 = basis_factor(i, x2);
+            double  x1 = _pth - xi/2., x2 = _pth + xi/2.;
+            complex f1 = basis_factor(i, x1+ieps), f2 = basis_factor(i, x2+ieps);
             return  f1 + (f2 - f1)*(s - x1)/(x2 - x1);
         };
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, s, lower)
-                                          + sn/PI*disperse_with_pth   (i, s, upper);
+        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, s+ieps, lower)
+                                          + sn/PI*disperse_with_pth   (i, s+ieps, upper);
         
-        return polynomial  + sn/PI*disperse_with_pth   (i, s, lower)
-                           + sn/PI*disperse_with_cauchy(i, s, upper);
+        return polynomial  + sn/PI*disperse_with_pth   (i, s+ieps, lower)
+                           + sn/PI*disperse_with_cauchy(i, s+ieps, upper);
     };
 
     // -----------------------------------------------------------------------
