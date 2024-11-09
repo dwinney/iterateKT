@@ -16,7 +16,7 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluating an amplitude just sums isobars and their associated prefactors
     // in each channel.
-    complex raw_amplitude::operator()(complex s, complex t, complex u)
+    complex raw_amplitude::evaluate(complex s, complex t, complex u)
     {
         complex result = 0;
 

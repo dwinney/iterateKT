@@ -46,7 +46,7 @@ namespace iterateKT
         {};
 
         // Evaluate the full amplitude. This will 
-        complex operator()(complex s, complex t, complex u);
+        complex evaluate(complex s, complex t, complex u);
 
         // Need to specify how to combine the isobars into the full amplitude
         virtual complex prefactor_s(unsigned int isobar_id, complex s, complex t, complex u) = 0;

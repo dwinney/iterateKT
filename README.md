@@ -64,6 +64,9 @@ isobar first_isobar = amp->get_isobar(id_of_first_isobar);
 
 // Evaluate the ith iteration of the jth basis function
 print(first_isobar->basis_function(i, j, s+IEP));
+
+// Evaluate the full amplitude
+print(amp->evaluate(s, t, u));
 ```
 
 ### Virtual functions
