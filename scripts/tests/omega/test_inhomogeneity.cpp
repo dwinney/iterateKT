@@ -14,7 +14,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis_grid.hpp"
-#include "decays/V_to_3pi.hpp"
+#include "decays/isoscalar_vector.hpp"
 
 #include "plotter.hpp"
 
@@ -23,7 +23,7 @@ using namespace iterateKT;
 void test_inhomogeneity()
 {
     using namespace iterateKT;
-    using namespace V_to_3pi;
+    using P_wave = isoscalar_vector::P_wave;
 
     // Set up general kinematics so everything knows masses
     // Assume masses are given in terms of pion mass
@@ -36,11 +36,11 @@ void test_inhomogeneity()
     double D = omega->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<isoscalar>(omega);
+    amplitude amplitude = new_amplitude<isoscalar_vector>(omega);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<V_to_3pi::P_wave>(1);
+    amplitude->add_isobar<P_wave>(1);
     auto previous = amplitude->get_isobars();
 
     // Isolate our pwave

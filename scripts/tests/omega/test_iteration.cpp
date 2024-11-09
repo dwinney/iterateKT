@@ -14,7 +14,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis_grid.hpp"
-#include "decays/V_to_3pi.hpp"
+#include "decays/isoscalar_vector.hpp"
 
 #include "plotter.hpp"
 
@@ -23,7 +23,7 @@ using namespace iterateKT;
 void test_iteration()
 {
     using namespace iterateKT;
-    using namespace V_to_3pi;
+    using P_wave = isoscalar_vector::P_wave;
 
     // Set up general kinematics so everything knows masses
     kinematics kinematics = new_kinematics(M_OMEGA/M_PION, 1.);
@@ -35,7 +35,7 @@ void test_iteration()
     double D = kinematics->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<isoscalar>(kinematics, "#Omega decay");
+    amplitude amplitude = new_amplitude<isoscalar_vector>(kinematics, "#Omega decay");
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions

@@ -13,7 +13,7 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "decays/V_to_3pi.hpp"
+#include "decays/isoscalar_vector.hpp"
 
 #include "plotter.hpp"
 
@@ -22,13 +22,13 @@ using namespace iterateKT;
 void test_omnes()
 {
     using namespace iterateKT;
-    using namespace V_to_3pi;
+    using P_wave = isoscalar_vector::P_wave;
 
     // Set up general kinematics so everything knows masses
     kinematics omega = new_kinematics(M_OMEGA/M_PION, 1.);
 
     // Set up our amplitude 
-    amplitude A = new_amplitude<isoscalar>(omega);
+    amplitude A = new_amplitude<isoscalar_vector>(omega);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions

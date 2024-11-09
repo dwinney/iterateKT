@@ -12,7 +12,7 @@
 #include "utilities.hpp"
 #include "colors.hpp"
 #include "constants.hpp"
-#include "decays/V_to_3pi.hpp"
+#include "decays/isoscalar_vector.hpp"
 
 #include "plotter.hpp"
 

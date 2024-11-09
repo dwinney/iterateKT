@@ -104,7 +104,7 @@ namespace iterateKT
                 sets._infinitesimal           = 1E-5;
 
                 sets._intermediate_energy     = 60;
-                sets._cutoff                  = 120;
+                sets._cutoff                  = 400;
                 sets._interpolation_offset    = 1;
                 
                 sets._interpolation_points    = {400, 100, 200};
