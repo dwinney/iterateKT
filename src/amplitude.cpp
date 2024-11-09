@@ -23,7 +23,7 @@ namespace iterateKT
         // S_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = s_channel_prefactor(f->id(), s, t, u);
+            complex term = prefactor_s(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(s);
         };
@@ -31,7 +31,7 @@ namespace iterateKT
         // T_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = t_channel_prefactor(f->id(), s, t, u);
+            complex term = prefactor_t(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(t);
         };
@@ -39,7 +39,7 @@ namespace iterateKT
         // U_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = u_channel_prefactor(f->id(), s, t, u);
+            complex term = prefactor_u(f->id(), s, t, u);
             if (is_zero(term)) continue;
             result += term * f->evaluate(u);
         };

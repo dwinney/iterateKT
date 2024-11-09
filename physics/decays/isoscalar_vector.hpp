@@ -38,17 +38,17 @@ namespace iterateKT
         {};
 
         // We have no kinematic factors and only one isobar so simply return 1.
-        inline complex s_channel_prefactor(uint id, complex s, complex t, complex u)
+        inline complex prefactor_s(uint id, complex s, complex t, complex u)
         {
             return (id == kP_wave) ? 1. : 0.;
         };
 
         // We're completely symmetric here so these are the same
-        inline complex t_channel_prefactor(uint id, complex s, complex t, complex u)
+        inline complex prefactor_t(uint id, complex s, complex t, complex u)
         {
             return (id == kP_wave) ? 1. : 0.;
         };
-        inline complex u_channel_prefactor(uint id, complex s, complex t, complex u)
+        inline complex prefactor_u(uint id, complex s, complex t, complex u)
         {
             return (id == kP_wave) ? 1. : 0.;
         };

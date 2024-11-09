@@ -49,9 +49,9 @@ namespace iterateKT
         complex operator()(complex s, complex t, complex u);
 
         // Need to specify how to combine the isobars into the full amplitude
-        virtual complex s_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
-        virtual complex t_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
-        virtual complex u_channel_prefactor(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex prefactor_s(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex prefactor_t(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex prefactor_u(unsigned int isobar_id, complex s, complex t, complex u) = 0;
 
         // Calculate one iteration of the KT equations
         void iterate();

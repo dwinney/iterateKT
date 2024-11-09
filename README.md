@@ -38,6 +38,54 @@ iterateKT my_script.cpp
 or add the bin directory to $PATH to call `iterateKT` from any directory. 
 
 The main classes of interest are:
-- [`kinematics`](./src/kinematics.hpp) which contains all relevant information regarding masses of particles involved. So far only decays into three equal mass particles is implemented. 
+- [`kinematics`](./src/kinematics.hpp) which contains all relevant information regarding masses of particles involved. So far the three final state particles must have the same mass. 
 - [`amplitude`](./src/amplitude.hpp) which contains the information of how many isobars contribute to a specific process and how they are combined. This is where a user can implement different isospin/helicity amplitudes. 
 - [`isobar`](./src/isobar.hpp) which contains all of the dynamical information of a single two-body subsystem. 
+
+A typical script may look like this
+```c++
+// Specify decay masses
+kinematics kin = new_kinematics(m_decay, m_pi);
+
+// Specify amplitude structure (quantum numbers)
+amplitude  amp = new_amplitude<my_amplitude>(kin, "My Decay Process");
+
+// Specify each isobar and number of subtractions
+amp->add_isobar<my_first_isobar> (n_subtractions);
+amp->add_isobar<my_second_isobar>(m_subtractions);
+
+// Iterate the KT equations N times
+amp->iterate(n_iterations);
+
+// Access all isobars
+std::vector<isobar> isobars = amp->get_isobars();
+// or an individual one
+isobar first_isobar = amp->get_isobar(kId);
+
+// Evaluate the ith iteration of the jth basis function
+complex first_isobar->basis_function(i, j, s+IEP);
+```
+
+### Virtual functions
+As illustrated above, `amplitude` and `isobar` are pointers to instances of an abstract template classes (`raw_amplitude` and `raw_isobar` respectively). These contain the following virtual functions which must be specified by the user in a derived class:
+
+#### `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)`
+
+The full amplitude can be evaluated from all the isobars at arbitrary $s$, $t$, and $u$ by evaluating:
+```math
+\mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~.
+```
+The function $p_s^i$ is specified by the `prefactor_s`. Similarly $p_t^i$ and $p_u^i$ given by `prefactor_t` and `prefactor_u`. These provide the kinematic prefactors, isospin coefficients, and angular structure to the full amplitude which are irrelevant for individual isobars. 
+
+#### `raw_isobar::id()` and `raw_isobar::name()`
+Each isobar needs to be assigned an integer identifier and a string name with which it differentiate different isobars which get looped over. The int id is used internally while name provides a more human-readable identifier for command-line messages.
+
+#### `raw_isobar::phase_shift(double s)`
+The elastic phase shift $\delta(s)$ of a given isobar. This determes the Omnes function $\Omega(s)$ and therefore the initial guess for each isobar.
+
+#### `raw_isobar::singularity_power()` and `raw_isobar::ksf_kernel(uint j, complex s, complex t)`
+The last thing that must be specified is the kernel function $K_{ij}(s,t,u)$ which enters in the inhomogeneity of the KT equations. In order to avoid kinematic singularities, we instead specify the KSF kernel defined by
+```math
+    \hat{K}_{ij}(s,t) = \kappa^{n+1} \, K_{ij}(s,t) ~,
+```
+in terms of the Kacser function $\kappa$. The function `ksf_kernel(j, s, t)` then specifies $\hat{K}_{ij}(s,t)$ and `singularity_power()` returns the exponent $n$ (note the total power is $n+1$ with one factor always coming from the Jacobian of the angular integral).
