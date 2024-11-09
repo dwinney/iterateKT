@@ -55,6 +55,7 @@ namespace iterateKT
 
         // Calculate one iteration of the KT equations
         void iterate();
+        inline void iterate(unsigned int N){ for (int i = 0; i < N; i++) iterate(); };
         
         // -----------------------------------------------------------------------
         // Utilities
