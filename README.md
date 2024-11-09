@@ -1,13 +1,13 @@
 # iterateKT
 Solver for iterative solutions to general Omnes-Khuri-Treiman problems.
 That is, solutions to a system of coupled integral equations for any number of single-variable analytic functions of the form:
-$$
+```math
     F_i(s) = P_{n-1}(s) + \frac{s^n}{\pi} \int ds^\prime \, \frac{\text{disc }F_i(s^\prime)}{s^{\prime n} \, (s^\prime - s)}
-$$
+```
 satisfying the unitarity condition
-$$
+```math
     \text{disc }F_i(s) =  \sin\delta_i(s) \, e^{-i\delta_i(s)} \left[ F_i(s) + \sum_{j} \int dt \,  K_{ij}(s,t) \,  F_j(t) \right] ~.
-$$
+```
 For maximum flexibility, the code is agnostic to any quantum numbers and only requires specifying the elastic phase shift $\delta_i(s)$ and kernel functions $K_{ij}(s,t)$ for each isobar considered.
 
 ##  INSTALLATION
