@@ -69,21 +69,21 @@ complex first_isobar->basis_function(i, j, s+IEP);
 ### Virtual functions
 As illustrated above, `amplitude` and `isobar` are pointers to instances of an abstract template classes (`raw_amplitude` and `raw_isobar` respectively). These contain the following virtual functions which must be specified by the user in a derived class:
 
-#### `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)`
+##### `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)`
 
 The full amplitude can be evaluated from all the isobars at arbitrary $s$, $t$, and $u$ by evaluating:
 ```math
 \mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~.
 ```
-The function $p_s^i$ is specified by the `prefactor_s`. Similarly $p_t^i$ and $p_u^i$ given by `prefactor_t` and `prefactor_u`. These provide the kinematic prefactors, isospin coefficients, and angular structure to the full amplitude which are irrelevant for individual isobars. 
+The function $P_s^i$ is specified by the `prefactor_s`. Similarly $P_t^i$ and $P_u^i$ given by `prefactor_t` and `prefactor_u`. These provide the kinematic prefactors, isospin coefficients, and angular structure to the full amplitude which are irrelevant for individual isobars. 
 
-#### `raw_isobar::id()` and `raw_isobar::name()`
+##### `raw_isobar::id()` and `raw_isobar::name()`
 Each isobar needs to be assigned an integer identifier and a string name with which it differentiate different isobars which get looped over. The int id is used internally while name provides a more human-readable identifier for command-line messages.
 
-#### `raw_isobar::phase_shift(double s)`
+##### `raw_isobar::phase_shift(double s)`
 The elastic phase shift $\delta(s)$ of a given isobar. This determes the Omnes function $\Omega(s)$ and therefore the initial guess for each isobar.
 
-#### `raw_isobar::singularity_power()` and `raw_isobar::ksf_kernel(uint j, complex s, complex t)`
+##### `raw_isobar::singularity_power()` and `raw_isobar::ksf_kernel(uint j, complex s, complex t)`
 The last thing that must be specified is the kernel function $K_{ij}(s,t,u)$ which enters in the inhomogeneity of the KT equations. In order to avoid kinematic singularities, we instead specify the KSF kernel defined by
 ```math
     \hat{K}_{ij}(s,t) = \kappa^{n+1} \, K_{ij}(s,t) ~,
