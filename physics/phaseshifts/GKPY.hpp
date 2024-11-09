@@ -24,15 +24,25 @@ namespace iterateKT
         // This phaseshift is valid for all energies above threshold.
         static inline double phase_shift( int iso, int j, double s)
         {
+            // Match the asmyptotic at Lamsq
             double LamSq = 1.3*1.3;
+
             if (s <= LamSq) return phase_shift_low(iso, j, s);
 
-            int n = (iso == 1) ? 1 : 2;
+            int n;
+            switch (iso)
+            {
+                case 0 : n = 1; break;
+                case 1 : n = 1; break;
+                case 2 : n = 0; break;
+
+            };
+
             double match =  phase_shift_low(1, 1, LamSq);
-            double der = (phase_shift_low(1, 1, LamSq+EPS) - phase_shift_low(1, 1, LamSq-EPS))/(2*EPS);
-            double a = 3*pow(M_PI-match, 2.) / (2*LamSq*der);
-            double b = -1+3*(M_PI-match) / (2*LamSq*der);
-            return M_PI - a / (b + pow(s/LamSq, 1.5));
+            double der   = (phase_shift_low(1, 1, LamSq+EPS) - phase_shift_low(1, 1, LamSq-EPS))/(2*EPS);
+            double a     = 3*pow(n*M_PI-match, 2.) / (2*LamSq*der);
+            double b     = -1+3*(n*M_PI-match) / (2*LamSq*der);
+            return n*M_PI - a / (b + pow(s/LamSq, 1.5));
         };
 
         private:
