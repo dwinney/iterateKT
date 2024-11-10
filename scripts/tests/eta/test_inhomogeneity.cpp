@@ -1,4 +1,4 @@
-// Evaluate the pinocchio integration
+// Evaluate the pinocchio integration for C-conserving eta -> 3pi
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -14,7 +14,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis_grid.hpp"
-#include "decays/vector.hpp"
+#include "decays/pseudoscalar.hpp"
 
 #include "plotter.hpp"
 
@@ -22,28 +22,28 @@
 void test_inhomogeneity()
 {
     using namespace iterateKT;
-    using vector =  iterateKT::vector;
+    using namespace pseudoscalar;
 
     // Set up general kinematics so everything knows masses
     // Assume masses are given in terms of pion mass
-    kinematics omega = new_kinematics(M_OMEGA/M_PION, 1.);
+    kinematics eta = new_kinematics(M_ETA/M_PION, 1.);
 
     // Significant points in integration path
-    double A = omega->A();
-    double B = omega->B();
-    double C = omega->C();
-    double D = omega->D();
+    double A = eta->A();
+    double B = eta->B();
+    double C = eta->C();
+    double D = eta->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<vector>(omega);
+    amplitude amp_I1 = new_amplitude<I1_transition>(eta);
+    amp_I1->add_isobar<I1_transition::S0_wave>(2);
+    amp_I1->add_isobar<I1_transition::P1_wave>(1);
+    amp_I1->add_isobar<I1_transition::S2_wave>(1);
 
-    // We need to load our amplitude with our isobars 
-    // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<vector::P_wave>(1);
-    auto previous = amplitude->get_isobars();
-
+    std::vector<isobar> previous = amp_I1->get_isobar();
+    
     // Isolate our pwave
-    isobar pwave = amplitude->get_isobar(kP_wave);
+    isobar pwave = amp_I1->get_isobar(kI1_P1);
 
     // -----------------------------------------------------------------------
     

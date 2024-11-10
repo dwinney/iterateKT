@@ -13,18 +13,17 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "decays/isoscalar_vector.hpp"
+#include "decays/vector.hpp"
 
 #include "plotter.hpp"
-
-using namespace iterateKT;
 
 void omega_decay()
 {
     using namespace iterateKT;
-    using P_wave = isoscalar_vector::P_wave;
+    using vector =  iterateKT::vector;
 
     // Set up general kinematics so everything knows masses
+    // Use masses in units of pion mass
     kinematics kinematics = new_kinematics(M_OMEGA/M_PION, 1.);
     
     // Significant points in integration path
@@ -34,11 +33,11 @@ void omega_decay()
     double D = kinematics->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<isoscalar_vector>(kinematics, "#Omega decay");
+    amplitude amplitude = new_amplitude<vector>(kinematics);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>(2);
+    amplitude->add_isobar<vector::P_wave>(2);
     isobar pwave = amplitude->get_isobar(kP_wave);
 
     // -----------------------------------------------------------------------
