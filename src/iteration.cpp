@@ -13,6 +13,34 @@
 namespace iterateKT
 {
     // -----------------------------------------------------------------------
+    // Initialize by saving relevant quantities and setting up interpoaltions
+    void raw_iteration::initialize(basis_grid & dat)
+    {
+        _sth = _kinematics->sth(); _pth = _kinematics->pth(); _rth = _kinematics->rth();
+
+        // Load up the interpolators from the input data
+        for (int i = 0; i < _n_subtraction; i++)
+        {
+            _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
+            _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
+        };
+
+        // Also half-regularize them and save as an interpolations
+        for (int i = 0; i < _n_subtraction; i++)
+        {
+            std::vector<double> re, im;
+            for (auto s : dat._s_list)
+            {
+                complex half_reg = half_regularized_integrand(i, s);
+                re.push_back( std::real(half_reg) );
+                im.push_back( std::imag(half_reg) );
+            };
+            _re_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, re));
+            _im_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, im));
+        };
+        _initialized = true;
+    };
+    // -----------------------------------------------------------------------
     // The discontinuity of the inhomogenous contribution
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
@@ -178,23 +206,26 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluate the `basis' function. This deviates from the typical 
     // defintion by not including the overall factor of the omnes function
-    complex raw_iteration::basis_factor(unsigned int i, complex sc)
+    complex raw_iteration::polynomial(unsigned int i, complex s)
     {
-        if (i > _n_subtraction - 1) return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
-        if (is_zero(sc)) return (i == 0);
-
-        // First term is just the polynomial
-        complex polynomial = std::pow(sc, i);
-        complex sn         = std::pow(sc, _n_subtraction);
-
-        // if this is the homogeneous contribution then we return this
-        if (_zeroth)    return polynomial;
+        if (i > _n_subtraction - 1) 
+        return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
+        if (is_zero(s)) 
+        return (i == 0);
+        return std::pow(s, i);
+    };
 
         // Now we need to evaluate the inhomogenous integral
+    complex raw_iteration::integral(unsigned int i, complex sc)
+    {
+        if (is_zero(sc) || _zeroth) return 0.;
+        
+        // Powers of s in front of the dispersion relation
+        complex sn = std::pow(sc, _n_subtraction);
 
         // If we're sufficiently far from pth we can just integrate without issue
         bool no_problem = (std::real(sc) < _sth || abs(std::imag(sc)) > _settings._infinitesimal);
-        if (no_problem) return polynomial + sn/PI*disperse_with_pth(i, sc, {_sth, _settings._cutoff});
+        if (no_problem) return sn/PI*disperse_with_pth(i, sc, {_sth, _settings._cutoff});
 
         // If we're too close to the real line, we evalaute with ieps perscriptions
         complex ieps = sign(std::imag(sc)) * I*_settings._infinitesimal;
@@ -212,17 +243,18 @@ namespace iterateKT
         if (on_pth)
         {
             double  x1 = _pth - xi/2., x2 = _pth + xi/2.;
-            complex f1 = basis_factor(i, x1+ieps), f2 = basis_factor(i, x2+ieps);
+            complex f1 = integral(i, x1+ieps), f2 = integral(i, x2+ieps);
             return  f1 + (f2 - f1)*(s - x1)/(x2 - x1);
         };
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth)  return polynomial + sn/PI*disperse_with_cauchy(i, s+ieps, lower)
-                                          + sn/PI*disperse_with_pth   (i, s+ieps, upper);
+        if (below_pth) return sn/PI*disperse_with_cauchy(i, s+ieps, lower)
+                            + sn/PI*disperse_with_pth   (i, s+ieps, upper);
         
-        return polynomial  + sn/PI*disperse_with_pth   (i, s+ieps, lower)
-                           + sn/PI*disperse_with_cauchy(i, s+ieps, upper);
+        return sn/PI*disperse_with_pth   (i, s+ieps, lower)
+             + sn/PI*disperse_with_cauchy(i, s+ieps, upper);
+
     };
 
     // -----------------------------------------------------------------------

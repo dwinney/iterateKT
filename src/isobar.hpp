@@ -32,9 +32,9 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin, int nsub, settings sets = settings() )
+    inline isobar new_isobar(kinematics kin, int nsub, std::string name = "isobar", settings sets = settings() )
     {
-        auto x = std::make_shared<A>(kin, nsub, sets);
+        auto x = std::make_shared<A>(kin, nsub, name, sets);
         return std::static_pointer_cast<raw_isobar>(x);
     };
 
@@ -44,22 +44,25 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin, int nsub, settings sets) : _kinematics(xkin), _settings(sets)
+        raw_isobar(kinematics xkin, int nsub, std::string name, settings sets) 
+        : _kinematics(xkin), _name(name), _settings(sets)
         { 
             set_max_subtraction(nsub); 
             initialize();
         };
 
+        // Each isobar should have an identifying int (suggest implementing this with enums)
+        //  and a string name for human readable id
+        inline std::string name(){ return _name; }; 
+
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
 
-        // Each isobar should have an identifying int (suggest implementing this with enums)
-        virtual unsigned int id()  = 0;
-        virtual std::string name() = 0; // as well as a string name for human readable id
+        virtual unsigned int id() = 0;
 
         // The power (p q)^n that appears in angular momentum barrier factor
         // This determines the type of matching required at pseudothreshold
-        virtual int singularity_power() = 0;
+        virtual unsigned int singularity_power() = 0;
 
         // Elastic phase shift which provides the intial guess
         virtual double phase_shift(double s) = 0;
@@ -88,16 +91,6 @@ namespace iterateKT
         // over the pinocchio path
         complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
-        // Take in an array of isobars and use their current state to calculate the next disc
-        basis_grid calculate_next(std::vector<isobar> & previous_list);
-        
-        // Given a phase shift, this is the LHC piece (numerator)
-        inline double LHC(double s)
-        { 
-            if (!_lhc_interpolated) interpolate_lhc();
-            return (s >= _kinematics->sth()) ? _lhc.Eval(s) : NaN<double>(); 
-        };
-
         // -----------------------------------------------------------------------
         // Utilities
 
@@ -121,24 +114,39 @@ namespace iterateKT
 
         // Integrator and interpolator settings
         settings _settings;
+        
+        // Given a phase shift, this is the LHC piece (numerator)
+        inline double LHC(double s)
+        { 
+            if (!_lhc_interpolated) interpolate_lhc();
+            return (s >= _kinematics->sth()) ? _lhc.Eval(s) : NaN<double>(); 
+        };
 
+        // Grab only the integral piece of the latest iteration
+        complex inhomogeneity(unsigned int basis_id, complex x);
+        
         // Calculate the angular integral along a straight line
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}
         complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> & previous_list);
         // Calculate the integral along the curved secment of pinocchio's head
         complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
+        // Take in an array of isobars and use their current state to calculate the next disc
+        basis_grid calculate_next(std::vector<isobar> & previous_list);
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
         inline void save_iteration(basis_grid & grid)
         {
             _iterations.push_back(new_iteration(_max_sub, singularity_power()+1, grid, _kinematics, _settings));
-        }
+        };
 
         // -----------------------------------------------------------------------
         private:
 
         // Overal option flag 
         uint _option = 0;
+
+        // IDs
+        std::string _name = "isobar";
 
         // Debugging flag
         uint _debug = 0;

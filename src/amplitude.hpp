@@ -46,12 +46,12 @@ namespace iterateKT
         {};
 
         // Evaluate the full amplitude. This will 
-        complex evaluate(complex s, complex t, complex u);
+        virtual complex evaluate(complex s, complex t, complex u);
 
         // Need to specify how to combine the isobars into the full amplitude
-        virtual complex prefactor_s(unsigned int isobar_id, complex s, complex t, complex u) = 0;
-        virtual complex prefactor_t(unsigned int isobar_id, complex s, complex t, complex u) = 0;
-        virtual complex prefactor_u(unsigned int isobar_id, complex s, complex t, complex u) = 0;
+        virtual complex prefactor_s(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_t(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_u(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
 
         // Calculate one iteration of the KT equations
         void iterate();
@@ -77,7 +77,10 @@ namespace iterateKT
 
         // Load up a new isobar
         template<class T>
-        inline void add_isobar(int nsub, settings sets = T::default_settings()){ _isobars.push_back(new_isobar<T>(_kinematics, nsub, sets)); };
+        inline void add_isobar(int nsub, std::string name = "isobar", settings sets = T::default_settings())
+        { 
+            _isobars.push_back(new_isobar<T>(_kinematics, nsub, name, sets)); 
+        };
 
         // Access the full vector of isobar pointers
         inline std::vector<isobar> get_isobars(){return _isobars;};

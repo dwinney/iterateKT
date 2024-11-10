@@ -91,8 +91,8 @@ namespace iterateKT
         // If we're close to the real axis, we split the integration in two parts
         // to properly handle the Principle Value and ieps perscription
 
-        double  RHCs = phase_shift(real(s));
-        auto fdx = [this,s,RHCs](double x)
+        double RHCs = (std::real(s) <= _kinematics->sth()) ? 0 : phase_shift(real(s));
+        auto    fdx = [this,s,RHCs](double x)
         {
             complex integrand;
             integrand  = phase_shift(x) - RHCs;
@@ -104,8 +104,7 @@ namespace iterateKT
         complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._omnes_depth, 1.E-9, NULL)
                                                        : gauss<double,N_GAUSS>::   integrate(fdx, low, high);
 
-        complex logarithm = (std::real(s) <= _kinematics->sth()) ? 0 : RHCs * log(1.-(s+_ieps) / low);
-    
+        complex logarithm = RHCs * log(1.-(s+_ieps) / low);
         return exp((integral-logarithm)/M_PI);
     };
 
@@ -116,13 +115,20 @@ namespace iterateKT
         if (iter_id  > _iterations.size()) return error("Requested iteration does not exist!", NaN<complex>());
         if (basis_id > _max_sub - 1)  return error("Requested basis function does not exist!", NaN<complex>());
 
-        return omnes(x)*_iterations[iter_id]->basis_factor(basis_id, x);
+        iteration iter = _iterations[iter_id];
+        return omnes(x)*(iter->polynomial(basis_id, x) + iter->integral(basis_id, x));
     };
 
     // Without an iter_id we just take the latest iteration
     complex raw_isobar::basis_function(unsigned int basis_id, complex x)
     { 
         return basis_function(_iterations.size()-1, basis_id, x); 
+    };
+    
+    complex raw_isobar::inhomogeneity(unsigned int basis_id, complex x)
+    {
+        if (basis_id > _max_sub - 1)  return error("Requested basis function does not exist!", NaN<complex>());
+        return omnes(x)*_iterations.back()->integral(basis_id, x);
     };
 
     // ----------------------------------------------------------------------- 
@@ -208,7 +214,13 @@ namespace iterateKT
         {
             complex sum = 0;
             for (auto previous : previous_list) 
-            sum+=ksf_kernel(previous->id(),s,t)*previous->basis_function(basis_id,t+pm*_ieps);
+            {
+                complex K = ksf_kernel(previous->id(),s,t);
+                if (is_zero(K)) continue;
+                if (previous->id() == id()) sum+=K*previous->basis_function(basis_id,t+pm*_ieps);
+                else                        sum+=K*previous->inhomogeneity (basis_id,t+pm*_ieps);
+
+            };
             return sum;
         };
         return (_settings._adaptive_angular) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._angular_depth, 1.E-9, NULL)
@@ -228,7 +240,10 @@ namespace iterateKT
             for (auto previous : previous_list) 
             {
                 complex t = this->_kinematics->t_curve(phi);
-                sum += ksf_kernel(previous->id(),s,t)*previous->basis_function(basis_id, t);
+                complex K = ksf_kernel(previous->id(),s,t);
+                if (is_zero(K)) continue;
+                if (previous->id() == id()) sum+=K*previous->basis_function(basis_id,t);
+                else                        sum+=K*previous->inhomogeneity (basis_id,t);
                 sum *= this->_kinematics->jacobian(phi);
             };
             return sum;

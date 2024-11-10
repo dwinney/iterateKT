@@ -56,29 +56,7 @@ namespace iterateKT
         : _zeroth(false), _n_subtraction(n), _n_singularity(sing),
           _kinematics(kin), _settings(sets)
         {
-            _sth = kin->sth(); _pth = kin->pth(); _rth = kin->rth();
-
-            // Load up the interpolators from the input data
-            for (int i = 0; i < n; i++)
-            {
-                _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
-                _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
-            };
-
-            // Also half-regularize them and save as an interpolations
-            for (int i = 0; i < n; i++)
-            {
-                std::vector<double> re, im;
-                for (auto s : dat._s_list)
-                {
-                    complex half_reg = half_regularized_integrand(i, s);
-                    re.push_back( std::real(half_reg) );
-                    im.push_back( std::imag(half_reg) );
-                };
-                _re_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, re));
-                _im_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, im));
-            };
-            _initialized = true;
+            initialize(dat);
         };
 
         // Clean up manual pointers
@@ -96,7 +74,8 @@ namespace iterateKT
         
         // This returns the function which multiplies the Omnes. Its given in the form
         // s^i + s^n * dispersion_integral(s)
-        complex basis_factor(unsigned int i, complex x);
+        complex polynomial(unsigned int i, complex s);
+        complex integral  (unsigned int i, complex s);
 
         // This is the inhomogeneity multiplied by kappa^N to remove all singularities
         complex ksf_inhomogeneity(unsigned int i, double x);
@@ -114,6 +93,9 @@ namespace iterateKT
 
         // way to get thresholds and momenta
         kinematics _kinematics;
+
+        // Save all the interpolations and everything
+        void initialize(basis_grid & data);
         
         // Whether this is the homogeneous solution with a trivial integral
         bool _zeroth = false;
