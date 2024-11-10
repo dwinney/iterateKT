@@ -14,6 +14,7 @@
 #define GKPY_HPP
 
 #include "constants.hpp"
+#include "TMath.h"
 
 namespace iterateKT 
 {
@@ -24,28 +25,40 @@ namespace iterateKT
         // This phaseshift is valid for all energies above threshold.
         static inline double phase_shift( int iso, int j, double s)
         {
+            if (s <= M_PION*M_PION) return 0.;
+
             // Match the asmyptotic at Lamsq
-            double LamSq = 1.3*1.3;
+            double LamSq = 1.3*1.3, eps = EPS;
 
             if (s <= LamSq) return phase_shift_low(iso, j, s);
 
-            int n;
+            double f   =  phase_shift_low(iso, j, LamSq);
+            double fp  = (phase_shift_low(iso, j, LamSq+eps) -   phase_shift_low(iso, j, LamSq-eps))/(2*eps);
+
+            int    n;
             switch (iso)
             {
-                case 0 : n = 1; break;
-                case 1 : n = 1; break;
-                case 2 : n = 0; break;
-
+                case 0: n = 2; break;
+                case 1: n = 1; break;
+                case 2: 
+                {
+                    double fpp = (phase_shift_low(iso, j, LamSq+eps) - 2*phase_shift_low(iso,j,LamSq) + phase_shift_low(iso,j,LamSq-eps))/eps/eps;
+                    double x = (s - LamSq);
+                    double a = f ;
+                    double b = fp/a;
+                    double c = (fpp/a-b*b)/2.;
+                    return a*exp(b*x+c*x*x);
+                }
             };
 
-            double match =  phase_shift_low(1, 1, LamSq);
-            double der   = (phase_shift_low(1, 1, LamSq+EPS) - phase_shift_low(1, 1, LamSq-EPS))/(2*EPS);
-            double a     = 3*pow(n*M_PI-match, 2.) / (2*LamSq*der);
-            double b     = -1+3*(n*M_PI-match) / (2*LamSq*der);
-            return n*M_PI - a / (b + pow(s/LamSq, 1.5));
+            double a = 3*pow(n*M_PI-f, 2.)/(2*LamSq*fp);
+            double b = -1+3*(n*M_PI-f)/(2*LamSq*fp);
+            return n*M_PI-a/(b+pow(s/LamSq, 1.5));
         };
 
         private:
+        
+        static constexpr double M_PION = 0.13957, M_KAON = 0.496, M_ETA = 0.54751;
 
         static inline double phase_shift_low(int iso, int j, double s)
         {
@@ -105,7 +118,7 @@ namespace iterateKT
             {
                 temp3 = B0 + B1 * wl;
                 cot_delta = temp1 * temp2 * temp3;
-                delta = atan2(1., cot_delta);
+                delta = TMath::ATan(1/cot_delta);
             }
             else if ((s > sm) && ( s < sh)) //Intermediate energies
             {
@@ -124,7 +137,7 @@ namespace iterateKT
                 temp3 = Bh0 + Bh1*(wh - whsm) + Bh2*pow(wh - whsm, 2.);
 
                 cot_delta = temp1 * temp2 * temp3;
-                delta = atan2(1., cot_delta);
+                delta = TMath::ATan(1/cot_delta);
             }
             else {delta = 0.;}
 
@@ -150,14 +163,15 @@ namespace iterateKT
             B3 = -26.2;
             w = conformal(s, 4.*M_KAON*M_KAON);
 
-            if ((s > 4.*M_PION*M_PION) && (s <= sm)) //Low energy parameterization
+            if ((s >= 4.*M_PION*M_PION) && (s <= sm)) //Low energy parameterization
             {
                 temp1 = sqrt(s) / (2.*k);
                 temp2 = M_PION * M_PION / (s - 0.5 * M_PION * M_PION);
                 temp3 = M_PION / sqrt(s);
 
                 cot_delta = temp1 * temp2 * (temp3 + B0 + B1 * w + B2 * w * w + B3 *w*w*w);
-                delta = atan2(1., cot_delta);
+                delta = TMath::ATan(1./cot_delta);
+                if (delta < 0) delta += PI;
             }
             else if (s < sh)
             {
@@ -189,7 +203,7 @@ namespace iterateKT
                     temp2 = M_PION * M_PION / (sm - 0.5 * M_PION * M_PION);
                     temp3 = M_PION / sqrt(sm);
                     cot_delm = temp1 * temp2 * (temp3 + B0 + B1 * wm + B2 * wm * wm + B3 *wm*wm*wm);
-                    delm = atan2(1., cot_delm);
+                    delm = TMath::ATan(1/cot_delm) + PI;
 
                     //Derivative calculated in Mathematica (because im lazy)
                     delPm = 1.588503;
