@@ -13,7 +13,7 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "basis_grid.hpp"
+#include "basis.hpp"
 #include "decays/vector.hpp"
 
 #include "plotter.hpp"
@@ -56,7 +56,7 @@ void test_inhomogeneity()
     timer.lap("grid");
 
     // first nontrivial iteration
-    iteration first = new_iteration(1, 3, grid, omega, vector::P_wave::default_settings());
+    iteration first = new_iteration(omega, grid, vector::P_wave::default_settings());
 
     double smax = 60;
 

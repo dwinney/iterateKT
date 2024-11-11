@@ -127,7 +127,7 @@ namespace iterateKT
         complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
-        inline void save_iteration(basis_grid & grid){ _iterations.push_back(new_iteration(grid, _kinematics, _settings)); };
+        inline void save_iteration(basis_grid & grid){ _iterations.push_back(new_iteration( _kinematics, grid, _settings)); };
 
         // -----------------------------------------------------------------------
         private:

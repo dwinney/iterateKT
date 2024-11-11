@@ -103,9 +103,9 @@ namespace iterateKT { namespace pseudoscalar
             complex k  = _kinematics->kacser(s), kz = 2*t+s-M2-3*m2;
             switch (iso_id)
             {
-                case kI1_S0: return 2/3;
-                case kI1_P1: return 2*((s-r)+kz/3);
-                case kI1_S2: return 20/9;
+                case kI1_S0: return 2./3;
+                case kI1_P1: return 2.*((s-r)+kz/3);
+                case kI1_S2: return 20./9;
                 default:    return 0.;
             };
         };

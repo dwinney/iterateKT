@@ -49,20 +49,9 @@ void test_omnes()
     p1.add_curve({EPS, 60}, [&](double s){ return std::imag(pwave->omnes(s+IEPS));}, solid(jpacColor::Red));
     p1.add_curve({EPS, 60}, [&](double s){ return std::real(pwave->omnes(s-IEPS));}, dashed(jpacColor::Blue,"-ieps"));
     p1.add_curve({EPS, 60}, [&](double s){ return std::imag(pwave->omnes(s-IEPS));}, dashed(jpacColor::Red));
-    p1.set_labels("#it{s} / m_{#pi}^{2}", "#Omega_{1}^{1}");
+    p1.set_labels("#it{s} / m_{#pi}^{2}", "#Omega_{1}^{1}(#it{s})");
 
-    timer.lap("plot 1");
-
-    plot p3 = plotter.new_plot();
-    p3.set_curve_points(200);
-    p3.set_legend(0.5,0.4);
-    p3.add_curve({omega->sth(), 250}, [&](double s){ return pwave->LHC(s);});
-    p3.set_labels("#it{s} / m_{#pi}^{2}", "sin#delta(#it{s}) / |#Omega(#it{s})|");
-
-    timer.lap("plot 2");
-
-    // Save plots
-    plotter.combine({2,1}, {p1,p3}, "omnes.pdf");
+    p1.save("omnes.pdf");
 
     timer.stop();
     timer.print_elapsed();

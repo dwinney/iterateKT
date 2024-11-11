@@ -38,14 +38,14 @@ void test_inhomogeneity()
     amplitude amp_I1 = new_amplitude<I1_transition>(eta);
     amp_I1->add_isobar<I1_transition::S0_wave>(2);
     amp_I1->add_isobar<I1_transition::P1_wave>(1);
-    // amp_I1->add_isobar<I1_transition::S2_wave>(1);
+    amp_I1->add_isobar<I1_transition::S2_wave>(0);
 
     std::vector<isobar> previous = amp_I1->get_isobars();
     
     // Isolate our pwave
-    isobar pwave = amp_I1->get_isobar(kI1_P1);
-
-    pwave->print_subs(); exit(1);
+    isobar S0 = amp_I1->get_isobar(kI1_S0);
+    isobar P1 = amp_I1->get_isobar(kI1_P1);
+    isobar S2 = amp_I1->get_isobar(kI1_S2);
 
     // -----------------------------------------------------------------------
     
@@ -54,25 +54,75 @@ void test_inhomogeneity()
 
     timer.start();
 
-    auto grid = pwave->calculate_next(previous);
-
-    timer.lap("grid");
-
-    // first nontrivial iteration
-    iteration first = new_iteration(1, 3, grid, eta, I1_transition::default_settings());
-
     double smax = 35;
 
     plot p1 = plotter.new_plot();
-    p1.set_legend(0.45, 0.6);
-    p1.set_curve_points(100);
-    p1.set_ranges({A, smax}, {-20, 20});
-    p1.add_curve( {A, smax}, [&](double s){ return std::real(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Blue, "Real"));
-    p1.add_curve( {A, smax}, [&](double s){ return std::imag(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p1.set_labels("#it{s}/#it{m}_{#pi}^{2}", "#tilde{F}^{1}_{0}");
-    p1.add_vertical({A, C, D});
+    p1.set_curve_points(400);
+    p1.set_legend(0.3, 0.4);
+    p1.set_ranges({A, smax}, {-10, 6});
+    p1.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(0, s, previous)); }, "Imaginary");
+    p1.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(0, s, previous)); }, "Real");
+    p1.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#alpha}(s)");
 
-    p1.save("inhomogeneity.pdf");
+    plot p2 = plotter.new_plot();
+    p2.set_curve_points(400);
+    p2.set_ranges({A, smax}, {-20, 10});
+    p2.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(0, s, previous)); });
+    p2.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(0, s, previous)); });
+    p2.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#alpha}(s)");
+
+    plot p3 = plotter.new_plot();
+    p3.set_curve_points(400);
+    p3.set_ranges({A, smax}, {-15, 10});
+    p3.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(0, s, previous)); });
+    p3.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(0, s, previous)); });
+    p3.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#alpha}(s)");
+
+    plot p4 = plotter.new_plot();
+    p4.set_curve_points(400);
+    p4.set_legend(0.3, 0.4);
+    p4.set_ranges({A, smax}, {-13, 40});
+    p4.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(1, s, previous)); });
+    p4.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(1, s, previous)); });
+    p4.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#beta}(s)");
+
+    plot p5 = plotter.new_plot();
+    p5.set_curve_points(400);
+    p5.set_ranges({A, smax}, {-200, 80});
+    p5.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(1, s, previous)); });
+    p5.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(1, s, previous)); });
+    p5.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#beta}(s)");
+
+    plot p6 = plotter.new_plot();
+    p6.set_curve_points(400);
+    p6.set_ranges({A, smax}, {-15, 50});
+    p6.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(1, s, previous)); });
+    p6.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(1, s, previous)); });
+    p6.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#beta}(s)");
+
+    plot p7 = plotter.new_plot();
+    p7.set_curve_points(400);
+    p7.set_legend(0.3, 0.4);
+    p7.set_ranges({A, smax}, {-200, 190});
+    p7.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(2, s, previous)); });
+    p7.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(2, s, previous)); });
+    p7.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#gamma}(s)");
+
+    plot p8 = plotter.new_plot();
+    p8.set_curve_points(400);
+    p8.set_ranges({A, smax}, {-290, 90});
+    p8.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(2, s, previous)); });
+    p8.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(2, s, previous)); });
+    p8.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#gamma}(s)");
+
+    plot p9 = plotter.new_plot();
+    p9.set_curve_points(400);
+    p9.set_ranges({A, smax}, {-150, 200});
+    p9.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(2, s, previous)); });
+    p9.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(2, s, previous)); });
+    p9.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#gamma}(s)");
+
+    plotter.combine({3,3},{p1,p2,p3,p4,p5,p6,p7,p8,p9}, "inhomogeneity.pdf");
 
     timer.stop();
     timer.print_elapsed();

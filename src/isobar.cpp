@@ -120,6 +120,7 @@ namespace iterateKT
 
         bool no_poly = (_subtractions->get_id(basis_id) != id());
         complex polynomial = (no_poly) ? 0 : pow(s, _subtractions->get_power(basis_id));
+
         return omnes(s)*(polynomial + pow(s,_max_sub)/PI*_iterations[iter_id]->integral(basis_id, s));
     };
 
@@ -226,8 +227,8 @@ namespace iterateKT
                 complex K = ksf_kernel(previous->id(),s,t);
                 if (is_zero(K)) continue;
                 sum += K*previous->basis_function(basis_id,t);
-                sum *= this->_kinematics->jacobian(phi);
             };
+            sum *= this->_kinematics->jacobian(phi);
             return sum;
         };
         return (_settings._adaptive_angular) ? gauss_kronrod<double,61>::integrate(fdx, _kinematics->phi_minus(s), _kinematics->phi_plus(s), _settings._angular_depth, 1.E-9, NULL)

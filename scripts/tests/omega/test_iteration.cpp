@@ -13,7 +13,6 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "basis_grid.hpp"
 #include "decays/vector.hpp"
 
 #include "plotter.hpp"

@@ -33,9 +33,9 @@ namespace iterateKT
     // iterations only need to know the number of basis functions to consider
     inline iteration new_iteration(){ return std::make_shared<raw_iteration>(); };
 
-    inline iteration new_iteration(basis_grid & grid, kinematics kin, settings sets) 
+    inline iteration new_iteration(kinematics kin, basis_grid & grid, settings sets) 
     { 
-        return std::make_shared<raw_iteration>(grid, kin, sets); 
+        return std::make_shared<raw_iteration>(kin, grid, sets); 
     };
 
     class raw_iteration
@@ -49,7 +49,7 @@ namespace iterateKT
 
         // Constructor for other iterations
         // We need to provide vectors of the discontinuity on the real line
-        raw_iteration(basis_grid & dat, kinematics kin, settings sets) 
+        raw_iteration(kinematics kin, basis_grid & dat, settings sets) 
         : _zeroth(false),   _n_singularity(dat._n_singularity),
           _kinematics(kin), _settings(sets)
         {
