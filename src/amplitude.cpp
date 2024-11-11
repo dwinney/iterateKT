@@ -20,29 +20,29 @@ namespace iterateKT
     {
         complex result = 0;
 
-        // // S_CHANNEL
-        // for (auto f : _isobars)
-        // {
-        //     complex term = prefactor_s(f->id(), s, t, u);
-        //     if (is_zero(term)) continue;
-        //     result += term * f->evaluate(s);
-        // };
+        // S_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_s(f->id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate(s);
+        };
 
-        // // T_CHANNEL
-        // for (auto f : _isobars)
-        // {
-        //     complex term = prefactor_t(f->id(), s, t, u);
-        //     if (is_zero(term)) continue;
-        //     result += term * f->evaluate(t);
-        // };
+        // T_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_t(f->id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate(t);
+        };
 
-        // // U_CHANNEL
-        // for (auto f : _isobars)
-        // {
-        //     complex term = prefactor_u(f->id(), s, t, u);
-        //     if (is_zero(term)) continue;
-        //     result += term * f->evaluate(u);
-        // };
+        // U_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_u(f->id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate(u);
+        };
 
         return result;
     };

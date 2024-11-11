@@ -70,25 +70,24 @@ print(amp->evaluate(s, t, u));
 ```
 
 ### Virtual functions
-As illustrated above, `amplitude` and `isobar` are pointers to instances of an abstract template class (`raw_amplitude` and `raw_isobar` respectively). These contain the following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
+As illustrated above, `isobar` is a pointer to an instance of an abstract template class ( `raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
 
 ##### `uint raw_isobar::id()`
 Each isobar $F_i(s)$ needs to be assigned an integer $i$ to identify it, which should be unique among the set of isobars considered.
 
 ##### `double raw_isobar::phase_shift(double s)`
-The elastic phase shift $\delta_i(s)$ of a given isobar. This fully determines the Omnes function $\Omega_i(s)$ and therefore the initial guess for each isobar.
+The elastic phase shift $\delta_i(s)$ fully determines the Omnes function $\Omega_i(s)$ and therefore the initial guess for each isobar.
 
-##### `uint raw_isobar::singularity_power()` and `complex raw_isobar::ksf_kernel(uint j, complex s, complex t)`
-The last thing that must be specified is the kernel function $K_{ij}(s,t)$ which enters in the inhomogeneity of the KT equations. In order to avoid kinematic singularities, we actually specify the KSF kernel defined by
+##### `complex raw_isobar::ksf_kernel(uint j, complex s, complex t)` and `uint raw_isobar::singularity_power()`
+The kernel function $K_{ij}(s,t)$ which enters in the inhomogeneity of the KT equations. In order to avoid kinematic singularities, we actually specify the KSF kernel defined by
 ```math
     \hat{K}_{ij}(s,t) = \kappa^{n_i+1} \, K_{ij}(s,t) ~,
 ```
 in terms of the Kacser function $\kappa$. The function `ksf_kernel(j, s, t)` then specifies $\hat{K}_{ij}(s,t)$ and `singularity_power()` returns the exponent $n_i$ (note the total power is $n_i+1$ with one factor always coming from the Jacobian of the angular integral).
 
-##### `complex raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)`
-When combining multiply isobars into the full amplitude, we evaluate:
+The above are sufficient if one is only interested in finding the basis functions which solve the KT equations. One may also combine isobars together using `amplitude` in the form:
 ```math
 \mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~,
 ```
-for arbirary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by the `prefactor_s`. Similarly $P_t^i$ and $P_u^i$ given by `prefactor_t` and `prefactor_u`. These provide any barrier factors, isospin coefficients, and angular structure which are irrelevant for individual isobars. 
+for arbirary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding  `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These provide any barrier factors, isospin coefficients, and angular structure which are irrelevant for individual isobars. 
 

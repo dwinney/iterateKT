@@ -25,15 +25,16 @@ namespace iterateKT
 
         raw_subtractions(){};
         
-        inline unsigned int N_basis()         { return _ids.size(); };
+        inline unsigned int N_basis()                 { return _ids.size(); };
         inline unsigned int get_id(unsigned int i)    { return _ids[i]; };
         inline unsigned int get_power(unsigned int i) { return _powers[i]; };
+        inline complex get_par(unsigned int i)        { return _values[i]; };
 
         private: 
 
         friend class raw_amplitude;
-        std::vector<unsigned int>         _ids;     // The id of the isobar this subtraction coeff appears in
-        std::vector<unsigned int>         _powers;  // The power of s i nthe polynomial this coeff multiplies
+        std::vector<unsigned int> _ids;     // The id of the isobar this subtraction coeff appears in
+        std::vector<unsigned int> _powers;  // The power of s i nthe polynomial this coeff multiplies
         std::vector<std::string>  _names;   // Optional to give this parameter a name
         std::vector<complex>      _values;  // Its actual value determined by fit or matching
     };

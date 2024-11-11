@@ -66,6 +66,16 @@ namespace iterateKT
         inline int option(){ return _option; };
         virtual inline void set_option(int x){ _option = x; for (auto f : _isobars) f->set_option(x); };
 
+        inline void set_parameters( std::vector<complex> pars)
+        {
+            if (pars.size() != _subtractions->N_basis())
+            {
+                warning("set_parameters", "Parameter vector of unexpected size!");
+                return;
+            }
+            _subtractions->_values = pars;
+        };
+
         // -----------------------------------------------------------------------
         // Isobar management
         

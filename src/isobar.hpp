@@ -91,6 +91,15 @@ namespace iterateKT
         // over the pinocchio path
         complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
+        // Combine all the basis functions with their parameters
+        inline complex evaluate(complex s)
+        {
+            complex sum = 0;
+            for (int i = 0; i < _subtractions->N_basis(); i++) 
+            sum += _subtractions->get_par(i)*basis_function(i, s);
+            return sum;
+        };
+
         // -----------------------------------------------------------------------
         // Utilities
 
