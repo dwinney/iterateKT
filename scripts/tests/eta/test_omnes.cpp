@@ -33,7 +33,7 @@ void test_omnes()
     // Isolate our pwave
     isobar S0 = amp_I1->get_isobar(kI1_S0);
     isobar P1 = amp_I1->get_isobar(kI1_P1);
-    isobar S2 = amp_I1->get_isobar(kI1_S2);
+    // isobar S2 = amp_I1->get_isobar(kI1_S2);
 
     // -----------------------------------------------------------------------
     

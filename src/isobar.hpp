@@ -17,7 +17,7 @@
 #include "kinematics.hpp"
 #include "iteration.hpp"
 #include "settings.hpp"
-#include "basis_grid.hpp"
+#include "basis.hpp"
 #include <Math/Interpolator.h>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 #include <boost/math/quadrature/gauss.hpp>
@@ -32,9 +32,9 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin, int nsub, std::string name = "isobar", settings sets = settings() )
+    inline isobar new_isobar(kinematics kin, subtractions subs, uint maxsub, settings sets = settings() )
     {
-        auto x = std::make_shared<A>(kin, nsub, name, sets);
+        auto x = std::make_shared<A>(kin, subs, maxsub, sets);
         return std::static_pointer_cast<raw_isobar>(x);
     };
 
@@ -44,15 +44,17 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin, int nsub, std::string name, settings sets) 
-        : _kinematics(xkin), _name(name), _settings(sets)
+        raw_isobar(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
+        : _kinematics(xkin), _settings(sets), _subtractions(subs)
         { 
-            set_max_subtraction(nsub); 
+            // When we have "unsubtracted" we assume we do have one but no polynomial
+            _max_sub = (maxsub == 0) ? 1 : maxsub;
             initialize();
         };
 
         // Each isobar should have an identifying int (suggest implementing this with enums)
         //  and a string name for human readable id
+        inline void set_name(std::string x){ _name = x; };
         inline std::string name(){ return _name; }; 
 
         // -----------------------------------------------------------------------
@@ -82,11 +84,9 @@ namespace iterateKT
         complex basis_function(unsigned int iter_id, unsigned int basis_id, complex x);
         complex basis_function(unsigned int basis_id, complex x);
 
-        // Evaluate the full isobar combining the basis functions and coefficients
-        // Specify an iter_id or just eval the latest one
-        complex evaluate(unsigned int iter_id, complex s);
-        complex evaluate(complex s);
-
+        // Take in an array of isobars and use their current state to calculate the next disc
+        basis_grid calculate_next(std::vector<isobar> & previous_list);
+        
         // Use the specified kernel to calculate the angualar average
         // over the pinocchio path
         complex pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
@@ -107,8 +107,6 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         protected:
 
-        friend class raw_amplitude;
-
         // Kinematics instance
         kinematics _kinematics;
 
@@ -121,9 +119,6 @@ namespace iterateKT
             if (!_lhc_interpolated) interpolate_lhc();
             return (s >= _kinematics->sth()) ? _lhc.Eval(s) : NaN<double>(); 
         };
-
-        // Grab only the integral piece of the latest iteration
-        complex inhomogeneity(unsigned int basis_id, complex x);
         
         // Calculate the angular integral along a straight line
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}
@@ -131,16 +126,14 @@ namespace iterateKT
         // Calculate the integral along the curved secment of pinocchio's head
         complex curved_segment(unsigned int basis_id, double s, std::vector<isobar> & previous_list);
 
-        // Take in an array of isobars and use their current state to calculate the next disc
-        basis_grid calculate_next(std::vector<isobar> & previous_list);
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
-        inline void save_iteration(basis_grid & grid)
-        {
-            _iterations.push_back(new_iteration(_max_sub, singularity_power()+1, grid, _kinematics, _settings));
-        };
+        inline void save_iteration(basis_grid & grid){ _iterations.push_back(new_iteration(grid, _kinematics, _settings)); };
 
         // -----------------------------------------------------------------------
         private:
+
+        // Private method only accessible to raw_amplitude
+        friend class raw_amplitude;
 
         // Overal option flag 
         uint _option = 0;
@@ -151,19 +144,13 @@ namespace iterateKT
         // Debugging flag
         uint _debug = 0;
         bool debug(uint x){ return (_debug == x); };
+
         // Saved vector of iterations
         std::vector<iteration> _iterations;
 
         // Number of subtractions
-        unsigned int _max_sub = 1;
-        void set_max_subtraction(int n)
-        {
-            std::string message = "Isobar initiated with 0 subtraction will be ignored and initialized with 1 instead.";
-            _max_sub = (n == 0) ? error(message, 1) : n;
-
-            // Initialize each subtraction coefficient to 0
-            for (int i = 0; i < n; i++) _subtraction_coeffs.push_back(0.); 
-        };
+        unsigned int _max_sub = 1, _n_basis = 1;
+        subtractions _subtractions;
 
         // Initialize the 'zeroth' iteration by evaluating just the omnes function
         void initialize();
@@ -174,10 +161,6 @@ namespace iterateKT
         void interpolate_lhc();
         ROOT::Math::Interpolator _lhc;
         bool _lhc_interpolated = false;
-
-        // Subtraction coefficients
-        std::vector<complex> _subtraction_coeffs;
-
     };
 
 }; // namespace iterateKT

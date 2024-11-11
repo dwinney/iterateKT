@@ -52,8 +52,8 @@ namespace iterateKT
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin, int nsub, std::string name, settings sets) 
-        : raw_isobar(xkin, nsub, name, sets)
+        P_wave(kinematics xkin, subtractions subs, int maxsub, settings sets) 
+        : raw_isobar(xkin, subs, maxsub, sets)
         {};
 
         // Virtual functions

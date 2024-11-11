@@ -18,7 +18,7 @@ namespace iterateKT
     void raw_isobar::initialize()
     {
         // Add the 'zeroth' iteration to the list
-        _iterations.push_back(new_iteration(_max_sub));
+        _iterations.push_back(new_iteration());
         _ieps =  I*_settings._infinitesimal;
 
         // We interpolate different regions with different graining
@@ -109,41 +109,24 @@ namespace iterateKT
     };
 
     // ----------------------------------------------------------------------- 
-    // Specify a given iteration to use when outputting the basis_function
-    complex raw_isobar::basis_function(unsigned int iter_id, unsigned int basis_id, complex x)
-    {
-        if (iter_id  > _iterations.size()) return error("Requested iteration does not exist!", NaN<complex>());
-        if (basis_id > _max_sub - 1)  return error("Requested basis function does not exist!", NaN<complex>());
+    // Basis funciton is given by the form
+    // Omega(s)*(P(s) + I(s))
 
-        iteration iter = _iterations[iter_id];
-        return omnes(x)*(iter->polynomial(basis_id, x) + iter->integral(basis_id, x));
+    // Specify a given iteration to use when outputting the basis_function
+    complex raw_isobar::basis_function(unsigned int iter_id, unsigned int basis_id, complex s)
+    {
+        if (iter_id  >  _iterations.size())        return error("Requested iteration does not exist!", NaN<complex>());
+        if (basis_id >= _subtractions->N_basis())  return error("Requested basis function does not exist!", NaN<complex>());
+
+        bool no_poly = (_subtractions->get_id(basis_id) != id());
+        complex polynomial = (no_poly) ? 0 : pow(s, _subtractions->get_power(basis_id));
+        return omnes(s)*(polynomial + pow(s,_max_sub)/PI*_iterations[iter_id]->integral(basis_id, s));
     };
 
     // Without an iter_id we just take the latest iteration
     complex raw_isobar::basis_function(unsigned int basis_id, complex x)
     { 
         return basis_function(_iterations.size()-1, basis_id, x); 
-    };
-    
-    complex raw_isobar::inhomogeneity(unsigned int basis_id, complex x)
-    {
-        if (basis_id > _max_sub - 1)  return error("Requested basis function does not exist!", NaN<complex>());
-        return omnes(x)*_iterations.back()->integral(basis_id, x);
-    };
-
-    // ----------------------------------------------------------------------- 
-    // Combine all the basis_functions to evaluate the isobar
-    complex raw_isobar::evaluate(unsigned int iter_id, complex s)
-    {
-        if (iter_id  > _iterations.size()) return error("Requested iteration does not exist!", NaN<complex>());
-        
-        complex result = 0.;
-        for (int i = 0; i < _max_sub; i++) result += _subtraction_coeffs[i]*basis_function(iter_id, i, s);
-        return result;
-    };
-    complex raw_isobar::evaluate(complex s)
-    {
-        return evaluate(_iterations.size()-1, s);
     };
 
     // ----------------------------------------------------------------------- 
@@ -152,9 +135,10 @@ namespace iterateKT
     basis_grid raw_isobar::calculate_next(std::vector<isobar> & previous)
     {
         basis_grid output;
+        output._n_singularity = singularity_power()+1;
         output._s_list = _s_list;
         // Sum over basis functions
-        for (int i = 0; i < _max_sub; i++)
+        for (int i = 0; i < _subtractions->N_basis(); i++)
         {
             std::vector<double> re, im;
             for (auto s : _s_list)
@@ -217,8 +201,7 @@ namespace iterateKT
             {
                 complex K = ksf_kernel(previous->id(),s,t);
                 if (is_zero(K)) continue;
-                if (previous->id() == id()) sum+=K*previous->basis_function(basis_id,t+pm*_ieps);
-                else                        sum+=K*previous->inhomogeneity (basis_id,t+pm*_ieps);
+                sum += K*previous->basis_function(basis_id,t+pm*_ieps);
 
             };
             return sum;
@@ -242,8 +225,7 @@ namespace iterateKT
                 complex t = this->_kinematics->t_curve(phi);
                 complex K = ksf_kernel(previous->id(),s,t);
                 if (is_zero(K)) continue;
-                if (previous->id() == id()) sum+=K*previous->basis_function(basis_id,t);
-                else                        sum+=K*previous->inhomogeneity (basis_id,t);
+                sum += K*previous->basis_function(basis_id,t);
                 sum *= this->_kinematics->jacobian(phi);
             };
             return sum;

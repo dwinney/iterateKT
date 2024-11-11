@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "basis_grid.hpp"
+#include "basis.hpp"
 #include "kinematics.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
@@ -31,14 +31,11 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     // iterations only need to know the number of basis functions to consider
-    inline iteration new_iteration(unsigned int nsub)
-    { 
-        return std::make_shared<raw_iteration>(nsub); 
-    };
+    inline iteration new_iteration(){ return std::make_shared<raw_iteration>(); };
 
-    inline iteration new_iteration(unsigned int sub, unsigned int sing, basis_grid & grid, kinematics kin, settings sets) 
+    inline iteration new_iteration(basis_grid & grid, kinematics kin, settings sets) 
     { 
-        return std::make_shared<raw_iteration>(sub, sing, grid, kin, sets); 
+        return std::make_shared<raw_iteration>(grid, kin, sets); 
     };
 
     class raw_iteration
@@ -47,13 +44,13 @@ namespace iterateKT
         public:
 
         // Default constructor for the zeroth iteration, just need to specify number of subs
-        raw_iteration(unsigned int n) : _n_subtraction(n), _zeroth(true)
+        raw_iteration() : _zeroth(true)
         {};
 
         // Constructor for other iterations
         // We need to provide vectors of the discontinuity on the real line
-        raw_iteration(unsigned int n, unsigned int sing, basis_grid & dat, kinematics kin, settings sets) 
-        : _zeroth(false), _n_subtraction(n), _n_singularity(sing),
+        raw_iteration(basis_grid & dat, kinematics kin, settings sets) 
+        : _zeroth(false),   _n_singularity(dat._n_singularity),
           _kinematics(kin), _settings(sets)
         {
             initialize(dat);
@@ -72,9 +69,7 @@ namespace iterateKT
         // ----------------------------------------------------------------------- 
         // Evaluate the actual amplitude piece which usually involves a dispersion integral
         
-        // This returns the function which multiplies the Omnes. Its given in the form
-        // s^i + s^n * dispersion_integral(s)
-        complex polynomial(unsigned int i, complex s);
+        // This returns the inhomogeneity integral which multiplies the omnes function
         complex integral  (unsigned int i, complex s);
 
         // This is the inhomogeneity multiplied by kappa^N to remove all singularities
@@ -94,13 +89,15 @@ namespace iterateKT
         // way to get thresholds and momenta
         kinematics _kinematics;
 
+        // Info regarding subtractions
+        subtractions _subtractions;
+
         // Save all the interpolations and everything
         void initialize(basis_grid & data);
         
         // Whether this is the homogeneous solution with a trivial integral
         bool _zeroth = false;
 
-        unsigned int _n_subtraction  = 1; // total subtractions (also # of basis functions)
         unsigned int _n_singularity  = 3; // degree of singular kinematic factors
 
         // These are convenient to save so to not have to keep redefining them

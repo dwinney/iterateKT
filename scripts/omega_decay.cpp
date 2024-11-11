@@ -39,7 +39,7 @@ void omega_decay()
     // Up to two subtractions so we have two basis functions
     amplitude->add_isobar<vector::P_wave>(2);
     isobar pwave = amplitude->get_isobar(kP_wave);
-
+    
     // -----------------------------------------------------------------------
     
     timer timer;

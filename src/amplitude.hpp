@@ -15,7 +15,7 @@
 #include <memory>
 #include "kinematics.hpp"
 #include "utilities.hpp"
-#include "basis_grid.hpp"
+#include "basis.hpp"
 #include "isobar.hpp"
 
 namespace iterateKT
@@ -28,11 +28,12 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude" )
+    inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude")
     {
         auto x = std::make_shared<A>(kin, id);
         return std::static_pointer_cast<raw_amplitude>(x);
     };
+
 
     class raw_amplitude
     {
@@ -42,16 +43,16 @@ namespace iterateKT
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
         raw_amplitude(kinematics xkin, std::string id)
-        : _kinematics(xkin), _id(id)
+        : _kinematics(xkin), _id(id), _subtractions(std::make_shared<raw_subtractions>())
         {};
 
         // Evaluate the full amplitude. This will 
         virtual complex evaluate(complex s, complex t, complex u);
 
         // Need to specify how to combine the isobars into the full amplitude
-        virtual complex prefactor_s(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
-        virtual complex prefactor_t(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
-        virtual complex prefactor_u(unsigned int isobar_id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_s(unsigned int id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_t(unsigned int id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_u(unsigned int id, complex s, complex t, complex u){ return 0.; };
 
         // Calculate one iteration of the KT equations
         void iterate();
@@ -77,9 +78,27 @@ namespace iterateKT
 
         // Load up a new isobar
         template<class T>
-        inline void add_isobar(int nsub, std::string name = "isobar", settings sets = T::default_settings())
+        inline void add_isobar(int nsub, settings sets = T::default_settings())
         { 
-            _isobars.push_back(new_isobar<T>(_kinematics, nsub, name, sets)); 
+            isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
+
+            // Check for uniqueness
+            for (auto old_iso : _isobars)
+            {
+                if (old_iso->id() == new_iso->id())
+                {
+                    warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
+                    return;
+                };
+            };
+            _isobars.push_back(new_iso);
+
+            // Need to update _subtractions to know about new polynomials
+            for (int i = 0; i < nsub; i++)
+            {
+                _subtractions->_ids.push_back(new_iso->id());
+                _subtractions->_powers.push_back(i);
+            };
         };
 
         // Access the full vector of isobar pointers
@@ -94,6 +113,9 @@ namespace iterateKT
 
         // Store isobars here to be called later
         std::vector<isobar> _isobars;
+
+        // Store info regarding the subtraction polynomials
+        subtractions _subtractions;
 
         // Options flag
         int _option;

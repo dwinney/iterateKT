@@ -19,14 +19,14 @@ namespace iterateKT
         _sth = _kinematics->sth(); _pth = _kinematics->pth(); _rth = _kinematics->rth();
 
         // Load up the interpolators from the input data
-        for (int i = 0; i < _n_subtraction; i++)
+        for (int i = 0; i < dat.N_basis(); i++)
         {
             _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
             _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
         };
 
         // Also half-regularize them and save as an interpolations
-        for (int i = 0; i < _n_subtraction; i++)
+        for (int i = 0; i < dat.N_basis(); i++)
         {
             std::vector<double> re, im;
             for (auto s : dat._s_list)
@@ -45,7 +45,7 @@ namespace iterateKT
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
     {
-        if (s <= _sth || s >= _settings._cutoff) return 0.;
+        if (s <= _sth || s >= _settings._cutoff || _zeroth) return 0.;
         return _re_inhom[i]->Eval(s) + I*_im_inhom[i]->Eval(s);
     };
 
@@ -206,26 +206,14 @@ namespace iterateKT
     // -----------------------------------------------------------------------
     // Evaluate the `basis' function. This deviates from the typical 
     // defintion by not including the overall factor of the omnes function
-    complex raw_iteration::polynomial(unsigned int i, complex s)
-    {
-        if (i > _n_subtraction - 1) 
-        return error("Requested invalid basis function (i = "+std::to_string(i)+", n = " +std::to_string(_n_singularity)+")!", NaN<complex>());
-        if (is_zero(s)) 
-        return (i == 0);
-        return std::pow(s, i);
-    };
 
-        // Now we need to evaluate the inhomogenous integral
     complex raw_iteration::integral(unsigned int i, complex sc)
     {
         if (is_zero(sc) || _zeroth) return 0.;
         
-        // Powers of s in front of the dispersion relation
-        complex sn = std::pow(sc, _n_subtraction);
-
         // If we're sufficiently far from pth we can just integrate without issue
         bool no_problem = (std::real(sc) < _sth || abs(std::imag(sc)) > _settings._infinitesimal);
-        if (no_problem) return sn/PI*disperse_with_pth(i, sc, {_sth, _settings._cutoff});
+        if (no_problem) return disperse_with_pth(i, sc, {_sth, _settings._cutoff});
 
         // If we're too close to the real line, we evalaute with ieps perscriptions
         complex ieps = sign(std::imag(sc)) * I*_settings._infinitesimal;
@@ -249,12 +237,8 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth) return sn/PI*disperse_with_cauchy(i, s+ieps, lower)
-                            + sn/PI*disperse_with_pth   (i, s+ieps, upper);
-        
-        return sn/PI*disperse_with_pth   (i, s+ieps, lower)
-             + sn/PI*disperse_with_cauchy(i, s+ieps, upper);
-
+        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);        
+        return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
     // -----------------------------------------------------------------------

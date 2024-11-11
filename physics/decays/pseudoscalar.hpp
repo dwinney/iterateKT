@@ -89,8 +89,8 @@ namespace iterateKT { namespace pseudoscalar
     {
         public: 
         
-        S0_wave(kinematics xkin, int nsub, std::string name, settings sets) 
-        : raw_isobar(xkin, nsub, name, sets)
+        S0_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, subs, maxsub, sets)
         {};
 
         inline unsigned int id()                       { return kI1_S0;  };
@@ -117,8 +117,8 @@ namespace iterateKT { namespace pseudoscalar
     {
         public: 
         
-        P1_wave(kinematics xkin, int nsub, std::string name, settings sets) 
-        : raw_isobar(xkin, nsub, name, sets)
+        P1_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, subs, maxsub, sets)
         {};
 
         inline unsigned int id()                       { return kI1_P1;  };
@@ -146,8 +146,8 @@ namespace iterateKT { namespace pseudoscalar
     {
         public: 
         
-        S2_wave(kinematics xkin, int nsub, std::string name, settings sets) 
-        : raw_isobar(xkin, nsub, name, sets)
+        S2_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, subs, maxsub, sets)
         {};
 
         inline unsigned int id()                       { return kI1_S2;  };
