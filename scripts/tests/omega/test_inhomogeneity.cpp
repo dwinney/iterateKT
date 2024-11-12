@@ -63,10 +63,10 @@ void test_inhomogeneity()
     plot p1 = plotter.new_plot();
     p1.set_legend(0.45, 0.6);
     p1.set_curve_points(100);
-    p1.set_ranges({A, smax}, {-100, 100});
-    p1.add_curve( {A, smax}, [&](double s){ return std::real(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Blue, "Real"));
-    p1.add_curve( {A, smax}, [&](double s){ return std::imag(first->ksf_inhomogeneity(0, s)); }, solid(jpacColor::Red,  "Imaginary"));
-    p1.set_labels("#it{s}/#it{m}_{#pi}^{2}", "#tilde{F}^{1}_{0}");
+    p1.set_ranges({A, smax}, {0, 0.015});
+    p1.add_curve( {A, smax}, [&](double s){ return std::real(first->regularized_integrand(0, s)); }, solid(jpacColor::Blue, "Real"));
+    p1.add_curve( {A, smax}, [&](double s){ return std::imag(first->regularized_integrand(0, s)); }, solid(jpacColor::Red,  "Imaginary"));
+    p1.set_labels("#it{s}/#it{m}_{#pi}^{2}", "#tilde{F}^{1}_{0} / #kappa^{3}");
     p1.add_vertical({A, C, D});
 
     plot p3 = plotter.new_plot();
@@ -78,7 +78,7 @@ void test_inhomogeneity()
     p3.set_labels("#it{s}/#it{m}_{#pi}^{2}", "#tilde{F}^{1}_{0} / #nu^{3}");
     p3.add_vertical({A, C, D});
 
-    plotter.combine({2,1}, {p1,p3}, "inhomogeneity.pdf");
+    plotter.combine({2,1}, {p3,p1}, "inhomogeneity.pdf");
 
     timer.stop();
     timer.print_elapsed();

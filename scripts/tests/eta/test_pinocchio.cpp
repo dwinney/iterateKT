@@ -19,7 +19,7 @@
 #include "plotter.hpp"
 
 
-void test_inhomogeneity()
+void test_pinocchio()
 {
     using namespace iterateKT;
     using namespace pseudoscalar;
@@ -122,7 +122,7 @@ void test_inhomogeneity()
     p9.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(2, s, previous)); });
     p9.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#gamma}(s)");
 
-    plotter.combine({3,3},{p1,p2,p3,p4,p5,p6,p7,p8,p9}, "inhomogeneity.pdf");
+    plotter.combine({3,3},{p1,p2,p3,p4,p5,p6,p7,p8,p9}, "pinocchio.pdf");
 
     timer.stop();
     timer.print_elapsed();

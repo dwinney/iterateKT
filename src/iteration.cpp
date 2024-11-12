@@ -131,17 +131,17 @@ namespace iterateKT
     // This is only a function of the integration variable (no cauchy kernel)
     complex raw_iteration::regularized_integrand(unsigned int i, double s)
     {
-        if (s <= _sth)    return 0.;
+        if (s < _sth)    return 0.;
 
         // xi is the interval around pth we expand around
         int             n = _n_singularity;
         double         xi = _settings._matching_intervals[1];
         bool close_to_pth = are_equal( s, _pth, xi);
-        bool    below_pth = (s <= _pth);
+        bool    below_pth = (s < _pth);
 
         // Momentum factor we will be dividing out
         double eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
-        complex k  = (below_pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);
+        complex k  = (below_pth) ? csqrt(_pth-s) : I*csqrt(s-_pth);
 
         // Expansion coefficients
         std::array<complex,4> ecs = pthreshold_expansion(i, eps);
@@ -152,14 +152,15 @@ namespace iterateKT
             complex subtracted = half_regularized_integrand(i, s) - ecs[0];
             // for p-wave also subtract the first derivative
             if (n > 1) subtracted -= (_pth-s)*ecs[1];
+
             return subtracted/pow(k, n);
         };
 
-        return (below_pth) ? ecs[2]+ecs[3]*sqrt(_pth-s) : I*(ecs[2]+ecs[3]*sqrt(s-_pth));
+        return (below_pth) ? ecs[2]+ecs[3]*k : -I*ecs[2]+ecs[3]*k;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
-    std::array<complex,4> raw_iteration::pthreshold_expansion(unsigned int i, double e)
+    std::array<complex,4> raw_iteration::pthreshold_expansion(unsigned int i, double epsilon)
     {
         // These coefficients only depend on the order of the singularity
         int n = _n_singularity;
@@ -177,7 +178,7 @@ namespace iterateKT
             case 3:  // P-waves
             {
                 bs = {-6, +5, -2};
-                cs = {-8, +8, -4};
+                cs = {+8, -8, +4};
                 ds = {+3, -3, +2};
                 break;
             };
@@ -188,19 +189,27 @@ namespace iterateKT
            };
         };
 
-        // Need up to second derivative
-        double s_exp = _pth+e;
+        if (epsilon < 0)
+        {
+            bs[0] *= -1; bs[2] *= -1;
+            cs[0] *= -1; cs[2] *= -1;
+            ds[1] *= -1;
+        };
 
-        complex fpth = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
+        // Need up to second derivative
+        double s_exp = _pth+epsilon;
+
+        double e = abs(epsilon);
+        complex a    = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
         complex f    = _re_halfreg[i]->Eval(s_exp)   + I*_im_halfreg[i]->Eval(s_exp);
         complex fp   = _re_halfreg[i]->Deriv(s_exp)  + I*_im_halfreg[i]->Deriv(s_exp);
         complex fpp  = _re_halfreg[i]->Deriv2(s_exp) + I*_im_halfreg[i]->Deriv2(s_exp);
 
-        complex b = (bs[0]*(f-fpth)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(std::abs(e), (n-1)/2.);
-        complex c = (cs[0]*(f-fpth)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(std::abs(e),  n   /2.);
-        complex d = (ds[0]*(f-fpth)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(std::abs(e), (n+1)/2.);
-
-        return {fpth, b, c, d};
+        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (n-1)/2.);
+        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  n   /2.);
+        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (n+1)/2.);
+        
+        return {a, b, c, d};
     };
 
     // -----------------------------------------------------------------------

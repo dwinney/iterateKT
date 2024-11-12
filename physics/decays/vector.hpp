@@ -93,7 +93,7 @@ namespace iterateKT
             sets._interpolation_offset    = 1;
             sets._interpolation_points    = {400, 100, 200};
             double xi_sth = 0.3,  eps_sth = 0.5;
-            double xi_pth = 2.5,  eps_pth = 0.5;
+            double xi_pth = 0.3,  eps_pth = 0.3;
             double xi_rth = 0.8,  eps_rth = 1.5;
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
