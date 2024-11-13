@@ -156,7 +156,7 @@ namespace iterateKT
             return subtracted/pow(k, n);
         };
 
-        return (below_pth) ? ecs[2]+ecs[3]*k : -I*ecs[2]+ecs[3]*k;
+        return ecs[2]+ecs[3]*k;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -205,10 +205,11 @@ namespace iterateKT
         complex fp   = _re_halfreg[i]->Deriv(s_exp)  + I*_im_halfreg[i]->Deriv(s_exp);
         complex fpp  = _re_halfreg[i]->Deriv2(s_exp) + I*_im_halfreg[i]->Deriv2(s_exp);
 
-        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (n-1)/2.);
+        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (n-1.)/2.);
         complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  n   /2.);
-        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (n+1)/2.);
+        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (n+1.)/2.);
         
+        if (epsilon > 0) c *= -I;
         return {a, b, c, d};
     };
 
@@ -308,7 +309,8 @@ namespace iterateKT
 
         // We'll need to calculate the 
         int       n = _n_singularity;
-        auto coeffs = pthreshold_expansion(i, _settings._expansion_offsets[1]);
+        int      pm = (std::real(s) < _pth) ? -1 : +1;
+        auto coeffs = pthreshold_expansion(i, pm*_settings._expansion_offsets[1]);
         complex a = coeffs[0], b = coeffs[1];
         
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
