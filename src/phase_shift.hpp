@@ -46,8 +46,8 @@ namespace iterateKT
             auto data = import_data<2>("/physics/phase_shifts/"+file);
             check<2>(data, file);
 
-            if (data[0].back() < lam2 || lam2 < _sth) warning("phase_shift", "Cutoff outside interpolation range!");
             _sth = data[0][0]; 
+            if (data[0].back() < lam2 || lam2 < _sth) warning("phase_shift", "Cutoff outside interpolation range!");
 
             // Interpolate
             _delta.SetData(data[0], data[1]);
