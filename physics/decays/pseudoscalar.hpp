@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "phase_shifts/GKPY.hpp"
+#include "phase_shift.hpp"
 
 namespace iterateKT { namespace pseudoscalar 
 { 
@@ -55,27 +55,6 @@ namespace iterateKT { namespace pseudoscalar
         
         I1_transition(kinematics kin, std::string id) : raw_amplitude(kin,id)
         {};
-
-        inline complex prefactor_s(uint id, complex s, complex t, complex u)
-        { 
-            switch (id)
-            {
-                case kI1_S0 : return 1;
-                case kI1_S2 : return -2/3;
-                default:      return 0;
-            };
-        };
-        inline complex prefactor_t(uint id, complex s, complex t, complex u)
-        {
-            switch (id)
-            {
-                case kI1_P1 : return (s-u);
-                case kI1_S2 : return 1;
-                default:      return 0;
-            };
-        };
-        // Symmetric in t <-> u
-        inline complex prefactor_u(uint id, complex s, complex t, complex u){ return prefactor_t(id, s, u, t); };
         
         // Three waves contribute here
         class S0_wave;
@@ -90,12 +69,12 @@ namespace iterateKT { namespace pseudoscalar
         public: 
         
         S0_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets)
+        : raw_isobar(xkin, subs, maxsub, sets), _delta0("bern/phase_pipi_0.dat", 114., 1)
         {};
 
         inline unsigned int id()                       { return kI1_S0;  };
         inline unsigned int singularity_power()        { return 0; };
-        inline double phase_shift(double s)            { return GKPY::phase_shift(0, 0, M_PION*M_PION*s); };
+        inline double phase_shift(double s)            { return _delta0(s); };
         inline static const settings default_settings(){ return pseudoscalar::default_settings(); };
         inline complex ksf_kernel(int iso_id, complex s, complex t)
         { 
@@ -109,6 +88,10 @@ namespace iterateKT { namespace pseudoscalar
                 default:     return 0.;
             };
         };
+
+        private:
+
+        class phase_shift _delta0;
     };
 
     // -----------------------------------------------------------------------
@@ -118,12 +101,12 @@ namespace iterateKT { namespace pseudoscalar
         public: 
         
         P1_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets)
+        : raw_isobar(xkin, subs, maxsub, sets), _delta1("bern/phase_pipi_1.dat", 80., 1)
         {};
 
         inline unsigned int id()                       { return kI1_P1;  };
         inline unsigned int singularity_power()        { return 2; };
-        inline double       phase_shift(double s)      { return GKPY::phase_shift(1, 1, M_PION*M_PION*s); };
+        inline double       phase_shift(double s)      { return _delta1(s); };
         inline static const settings default_settings(){ return pseudoscalar::default_settings(); };
 
         inline complex ksf_kernel(int iso_id, complex s, complex t)
@@ -138,6 +121,10 @@ namespace iterateKT { namespace pseudoscalar
                 default:     return 0.;
             };
         };
+
+        private : 
+
+        class phase_shift _delta1;
     };
 
     // -----------------------------------------------------------------------
@@ -147,12 +134,12 @@ namespace iterateKT { namespace pseudoscalar
         public: 
         
         S2_wave(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets)
+        : raw_isobar(xkin, subs, maxsub, sets), _delta2("bern/phase_pipi_2.dat", 800, 0)
         {};
 
         inline unsigned int id()                       { return kI1_S2;  };
         inline unsigned int singularity_power()        { return 0; };
-        inline double phase_shift(double s)            { return GKPY::phase_shift(2, 0, M_PION*M_PION*s); };
+        inline double phase_shift(double s)            { return _delta2(s); };
         inline static const settings default_settings(){ return pseudoscalar::default_settings(); };
         inline complex ksf_kernel(int iso_id, complex s, complex t)
         { 
@@ -166,6 +153,9 @@ namespace iterateKT { namespace pseudoscalar
                 default:    return 0.;
             };
         };
+
+        private: 
+        class phase_shift _delta2;
     };
 
 }; /*  namespace iterateKT */ }; // namespace pseudoscalar
