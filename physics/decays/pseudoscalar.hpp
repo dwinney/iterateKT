@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "phaseshifts/GKPY.hpp"
+#include "phase_shifts/GKPY.hpp"
 
 namespace iterateKT { namespace pseudoscalar 
 { 

@@ -37,6 +37,7 @@
 /.vscode/
 /bin/
 /lib/
+physics/phase_shifts/bern/
 
 # Outputs 
 *.pdf
