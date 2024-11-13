@@ -46,9 +46,9 @@ void test_omnes()
     plot p1 = plotter.new_plot();
     p1.set_legend(0.3, 0.7);
     p1.set_ranges(bounds, {-0.5, 2});
-    p1.add_curve(bounds, [&](double s){ return GKPY::phase_shift(0, 0, M_PION*M_PION*s)/PI;}, solid(jpacColor::Blue,  "#it{S}0"));
-    p1.add_curve(bounds, [&](double s){ return GKPY::phase_shift(1, 1, M_PION*M_PION*s)/PI;}, solid(jpacColor::Red,   "#it{P}1"));
-    p1.add_curve(bounds, [&](double s){ return GKPY::phase_shift(2, 0, M_PION*M_PION*s)/PI;}, solid(jpacColor::Green, "#it{S}2"));
+    p1.add_curve(bounds, [&](double s){ return S0->phase_shift(s)/PI;}, solid(jpacColor::Blue,  "#it{S}0"));
+    p1.add_curve(bounds, [&](double s){ return P1->phase_shift(s)/PI;}, solid(jpacColor::Red,   "#it{P}1"));
+    p1.add_curve(bounds, [&](double s){ return S2->phase_shift(s)/PI;}, solid(jpacColor::Green, "#it{S}2"));
     p1.set_labels("#it{s} / m_{#pi}^{2}", "#delta(#it{s}) / #pi");
 
 
