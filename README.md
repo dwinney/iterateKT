@@ -89,5 +89,5 @@ The above are sufficient if one is only interested in finding the basis function
 ```math
 \mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~,
 ```
-for arbirary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding  `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These provide any barrier factors, isospin coefficients, and angular structure which are irrelevant for individual isobars. 
+for arbitrary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding  `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These provide any barrier factors, isospin coefficients, and angular structure which are irrelevant for individual isobars. 
 
