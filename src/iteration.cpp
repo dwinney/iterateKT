@@ -258,7 +258,7 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);
+        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower) + disperse_with_pth(i, s+ieps, upper);
         return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
@@ -289,24 +289,21 @@ namespace iterateKT
     complex raw_iteration::R(int n, complex sc, std::array<double,2> bounds)
     {
         if (!is_odd(n)) return NaN<complex>();
-        
-        int pm   = (std::imag(sc) >= 0) ? +1 : -1;
-        double s =  std::real(sc);
+        double s = real(sc);
         if (are_equal(s,_sth)) return 0.;
         
-        double x  = bounds[0], y = bounds[1], z = _kinematics->pth();
-
+        double  x  = bounds[0], y = bounds[1], z = _pth;
         complex ks = k(s), kx = k(x), ky = k(y);
 
         complex argx = (kx+ks)/(kx-ks);
         complex argy = (ks-ky)/(ks+ky);
-        complex R1 = (log(argx)-log(argy)-I*pm*PI)/ks;
+        complex R1 = (log(argx)-sign(s - _pth)*(log(argy)+I*sign(imag(sc))*PI))/ks;
 
         if (n == 1) return R1;
 
-        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/std::norm(ks);
+        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/norm(ks);
 
-        if (n == 3) return 0*R3;
+        if (n == 3) return R3;
 
         return error("raw_iteration::R: Requested R_n/2 hasnt been added!", NaN<complex>());
     };
