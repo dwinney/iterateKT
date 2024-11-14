@@ -141,7 +141,6 @@ namespace iterateKT
 
         // Momentum factor we will be dividing out
         double eps = (!below_pth - below_pth)*_settings._expansion_offsets[1];
-        complex k  = (below_pth) ? csqrt(_pth-s) : I*csqrt(s-_pth);
 
         // Expansion coefficients
         std::array<complex,4> ecs = pthreshold_expansion(i, eps);
@@ -152,11 +151,11 @@ namespace iterateKT
             complex subtracted = half_regularized_integrand(i, s) - ecs[0];
             // for p-wave also subtract the first derivative
             if (n > 1) subtracted -= (_pth-s)*ecs[1];
-            return subtracted/pow(k, n);
+            return subtracted/pow(k(s), n);
         };
 
-        return (n == 1) ? ecs[1] + ecs[2]*k + ecs[3]*std::norm(k)
-                        :          ecs[2]   + ecs[3]*k;
+        return (n == 1) ? ecs[1] + ecs[2]*k(s) + ecs[3]*std::norm(k(s))
+                        :          ecs[2]      + ecs[3]*k(s);
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -259,7 +258,8 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);
+        if (below_pth) return 0.;
+        // if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)/* + disperse_with_pth(i, s+ieps, upper) */;
         return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
@@ -295,11 +295,11 @@ namespace iterateKT
         double s =  std::real(sc);
         if (are_equal(s,_sth)) return 0.;
         
-        double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
+        double x  = bounds[0], y = bounds[1], z = _kinematics->pth();
 
-        complex argx = (csqrt(z-x)+csqrt(z-s))/(csqrt(z-x)-csqrt(z-s));
-        complex argy = (csqrt(z-s)-csqrt(z-y))/(csqrt(z-s)+csqrt(z-y));
-        complex R1 = (log(argx)+log(argy)+I*pm*PI)/csqrt(z-s);
+        complex argx = (csqrt(z-x)-k(s))/(csqrt(z-x)+k(s));
+        complex argy = (csqrt(z-y)+k(s))/(csqrt(z-y)-k(s));
+        complex R1 = (log(argx)+log(-argy)+I*pm*PI)/k(s);
 
         if (n == 1) return R1;
 
@@ -341,8 +341,7 @@ namespace iterateKT
         complex a = half_regularized_integrand(i, std::real(s));
         auto fdx = [this,i,s,a,n](double x)
         { 
-            complex kx = (x <= _pth) ? csqrt(_pth - x) : I*csqrt(x - _pth);
-            return (half_regularized_integrand(i,x) - a)/(x-s)/pow(kx,n); 
+            return (half_regularized_integrand(i,x) - a)/(x-s)/pow(k(x),n); 
         };
         complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
                                                             : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
