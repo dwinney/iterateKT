@@ -258,8 +258,7 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth) return 0.;
-        // if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)/* + disperse_with_pth(i, s+ieps, upper) */;
+        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);
         return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
@@ -297,15 +296,17 @@ namespace iterateKT
         
         double x  = bounds[0], y = bounds[1], z = _kinematics->pth();
 
-        complex argx = (csqrt(z-x)-k(s))/(csqrt(z-x)+k(s));
-        complex argy = (csqrt(z-y)+k(s))/(csqrt(z-y)-k(s));
-        complex R1 = (log(argx)+log(-argy)+I*pm*PI)/k(s);
+        complex ks = k(s), kx = k(x), ky = k(y);
+
+        complex argx = (kx+ks)/(kx-ks);
+        complex argy = (ks-ky)/(ks+ky);
+        complex R1 = (log(argx)-log(argy)-I*pm*PI)/ks;
 
         if (n == 1) return R1;
 
-        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/std::abs(z-s);
+        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/std::norm(ks);
 
-        if (n == 3) return R3;
+        if (n == 3) return 0*R3;
 
         return error("raw_iteration::R: Requested R_n/2 hasnt been added!", NaN<complex>());
     };
