@@ -152,11 +152,11 @@ namespace iterateKT
             complex subtracted = half_regularized_integrand(i, s) - ecs[0];
             // for p-wave also subtract the first derivative
             if (n > 1) subtracted -= (_pth-s)*ecs[1];
-
             return subtracted/pow(k, n);
         };
 
-        return ecs[2]+ecs[3]*k;
+        return (n == 1) ? ecs[1] + ecs[2]*k + ecs[3]*std::norm(k)
+                        :          ecs[2]   + ecs[3]*k;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -170,9 +170,9 @@ namespace iterateKT
         {
             case 1:  // S-waves
             {
-                bs = {-3, +3, -2};
-                cs = {-3, +3, -2};
-                ds = {+3, -4, +4};
+                bs = {+3, -3, +2};
+                cs = {+3, -4, +4};
+                ds = {-1, +1, -2};
                 break;
             };
             case 3:  // P-waves
@@ -191,25 +191,37 @@ namespace iterateKT
 
         if (epsilon < 0)
         {
-            bs[0] *= -1; bs[2] *= -1;
+            bs[1] *= -1;
             cs[0] *= -1; cs[2] *= -1;
-            ds[1] *= -1;
+            ds[0] *= -1; ds[2] *= -1;
+            // bs[0] *= -1; bs[2] *= -1;
+            // cs[0] *= -1; cs[2] *= -1;
+            // ds[1] *= -1;
         };
 
         // Need up to second derivative
         double s_exp = _pth+epsilon;
 
-        double e = abs(epsilon);
+        double e     = abs(epsilon);
         complex a    = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
         complex f    = _re_halfreg[i]->Eval(s_exp)   + I*_im_halfreg[i]->Eval(s_exp);
         complex fp   = _re_halfreg[i]->Deriv(s_exp)  + I*_im_halfreg[i]->Deriv(s_exp);
         complex fpp  = _re_halfreg[i]->Deriv2(s_exp) + I*_im_halfreg[i]->Deriv2(s_exp);
 
-        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (n-1.)/2.);
-        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  n   /2.);
-        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (n+1.)/2.);
+        int p = (n == 1) ? n+1 : n;
+        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (p-1.)/2.);
+        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  p    /2.);
+        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (p+1.)/2.);
         
-        if (epsilon > 0) c *= -I;
+        if (epsilon > 0)
+        {
+            switch (n)
+            {
+                case 1: { b *= -I; d *= I; break;};
+                case 2: { c *=  I; break; };
+                default: break;
+            };
+        };
         return {a, b, c, d};
     };
 
@@ -247,7 +259,7 @@ namespace iterateKT
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
-        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);        
+        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower)+ disperse_with_pth(i, s+ieps, upper);
         return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
@@ -279,8 +291,8 @@ namespace iterateKT
     {
         if (!is_odd(n)) return NaN<complex>();
         
-        int pm   = (std::imag(sc) <= 0) ? +1 : -1;
-        double s = std::real(sc);
+        int pm   = (std::imag(sc) >= 0) ? +1 : -1;
+        double s =  std::real(sc);
         if (are_equal(s,_sth)) return 0.;
         
         double x   = bounds[0], y = bounds[1], z = _kinematics->pth();
