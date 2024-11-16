@@ -19,7 +19,7 @@ namespace iterateKT
     using complex = std::complex<double>;
 
     // Number of gaussian quadrature points to use in nonadaptive integration
-    const int N_GAUSS = 100;
+    const int N_GAUSS = 150;
 
     // ---------------------------------------------------------------------------
     // Mathematical constants 

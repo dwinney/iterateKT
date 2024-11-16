@@ -50,7 +50,7 @@ void omega_decay()
     plot p1 = plotter.new_plot();
     p1.set_legend(0.2, 0.7);
     p1.set_curve_points(100);
-    p1.set_ranges({-15, 70}, {-3, 6.5});
+    p1.set_ranges({-15, 70}, {-4, 6.5});
     p1.set_labels("#it{s} / m_{#pi}^{2}", "F_{a}(#it{s} + #it{i}#epsilon)");
     p1.add_vertical({A, C, D});
     p1.add_horizontal(0);

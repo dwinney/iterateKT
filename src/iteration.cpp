@@ -163,7 +163,6 @@ namespace iterateKT
     {
         // These coefficients only depend on the order of the singularity
         int n = _n_singularity;
-
         std::array<int,3> bs, cs, ds;
         switch (n)
         {
@@ -190,12 +189,18 @@ namespace iterateKT
 
         if (epsilon < 0)
         {
-            bs[1] *= -1;
-            cs[0] *= -1; cs[2] *= -1;
-            ds[0] *= -1; ds[2] *= -1;
-            // bs[0] *= -1; bs[2] *= -1;
-            // cs[0] *= -1; cs[2] *= -1;
-            // ds[1] *= -1;
+            if (n == 1)
+            {
+                bs[1] *= -1;
+                cs[0] *= -1; cs[2] *= -1;
+                ds[0] *= -1; ds[2] *= -1;
+            }
+            else
+            {
+                bs[0] *= -1; bs[2] *= -1;
+                cs[0] *= -1; cs[2] *= -1;
+                ds[1] *= -1;
+            }
         };
 
         // Need up to second derivative
@@ -216,11 +221,12 @@ namespace iterateKT
         {
             switch (n)
             {
-                case 1: { b *= -I; d *= I; break;};
-                case 2: { c *=  I; break; };
+                case 1: { b *= -I; d *=  I;  break;};
+                case 3: { c *= -I;           break; };
                 default: break;
             };
         };
+
         return {a, b, c, d};
     };
 
@@ -301,8 +307,8 @@ namespace iterateKT
 
         if (n == 1) return R1;
 
-        complex R3 = (2*(1/csqrt(z-y)-1/csqrt(z-x)) + R1)/norm(ks);
-
+        complex R3 = (2*(1/ky-1/kx) + R1)/(_pth-s);
+        
         if (n == 3) return R3;
 
         return error("raw_iteration::R: Requested R_n/2 hasnt been added!", NaN<complex>());
@@ -324,8 +330,10 @@ namespace iterateKT
         complex a = coeffs[0], b = coeffs[1];
         
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
-        complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
-                                                            : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
+
+        bool use_adaptive = (_settings._adaptive_dispersion) || are_equal(std::real(s), _pth, _settings._matching_intervals[1]);
+        complex integral = (use_adaptive) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
+                                          : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*Q(n,s,bounds) + b*Q(n-2,s,bounds);
     };

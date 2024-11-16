@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "phase_shifts/GKPY.hpp"
+#include "GKPY.hpp"
 
 namespace iterateKT
 { 
