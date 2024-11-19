@@ -18,6 +18,7 @@
 #include "iteration.hpp"
 #include "settings.hpp"
 #include "basis.hpp"
+#include "timer.hpp"
 #include <Math/Interpolator.h>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 #include <boost/math/quadrature/gauss.hpp>

@@ -1,10 +1,13 @@
-// Evaluate first few iterations
+// delta I = 1 transition amplitude for eta->3pi
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
 // Affiliation:  Universitat Bonn
 //               Helmholtz Institute (HISKP)
 // Email:        daniel.winney@gmail.com
+// ------------------------------------------------------------------------------
+// REFERENCES: 
+// [1] -  https://arxiv.org/abs/2111.02417
 // ------------------------------------------------------------------------------
 
 #include "kinematics.hpp"
@@ -19,7 +22,7 @@
 #include "plotter.hpp"
 
 
-void test_iteration()
+void eta_decay()
 {
     using namespace iterateKT;
     using namespace pseudoscalar;
@@ -45,7 +48,7 @@ void test_iteration()
     // -----------------------------------------------------------------------
     // Iterate N times
 
-    int N = 2;
+    int N = 4;
     
     timer timer;
     timer.start();
@@ -61,21 +64,22 @@ void test_iteration()
     // Plot Results
 
     plotter plotter;
-    double smin =  0 ;
-    double smax =  20;
+    double smin =  -10;
+    double smax =  +70;
+
+    std::array<std::string,5> labels = {"#Omega", "1st", "2nd", "3rd", "4th"};
 
     auto plot_basis = [&](isobar isobar, int i, std::string label)
     {
         plot p = plotter.new_plot();
+        p.set_curve_points(200);
         p.set_legend(false);
-        p.set_curve_points(400);
-        p.add_curve( {smin, smax}, [&](double s){ return std::real(isobar->basis_function(N-2, i, s+IEPS)); }, dotted(jpacColor::Blue));
-        p.add_curve( {smin, smax}, [&](double s){ return std::imag(isobar->basis_function(N-2, i, s+IEPS)); }, dotted(jpacColor::Red));
-        p.add_curve( {smin, smax}, [&](double s){ return std::real(isobar->basis_function(N-1, i, s+IEPS)); }, dashed(jpacColor::Blue));
-        p.add_curve( {smin, smax}, [&](double s){ return std::imag(isobar->basis_function(N-1, i, s+IEPS)); }, dashed(jpacColor::Red));
-        p.add_curve( {smin, smax}, [&](double s){ return std::real(isobar->basis_function(i, s+IEPS)); },    solid(jpacColor::Blue, "Real"));
-        p.add_curve( {smin, smax}, [&](double s){ return std::imag(isobar->basis_function(i, s+IEPS)); },    solid(jpacColor::Red,  "Imaginary"));
         p.set_labels("#it{s} / #it{m}_{#pi}^{2}", label);
+        for (int j = 0; j <= N; j++)
+        {
+            p.add_curve( {smin, smax}, [&](double s){ return std::real(isobar->basis_function(j, i, s+IEPS)); }, labels[j]);
+            p.add_dashed({smin, smax}, [&](double s){ return std::imag(isobar->basis_function(j, i, s+IEPS)); });
+        }
         return p;
     };
 
@@ -84,15 +88,16 @@ void test_iteration()
     isobar P1 = amp_dI1->get_isobar(kdI1_P1);
     isobar S2 = amp_dI1->get_isobar(kdI1_S2);
 
-    plot f0a = plot_basis(S0, 0, "F_{0}^{#alpha}(s)");
-    plot f1a = plot_basis(P1, 0, "F_{1}^{#alpha}(s)");
-    plot f2a = plot_basis(S2, 0, "F_{2}^{#alpha}(s)");
-    plot f0b = plot_basis(S0, 1, "F_{0}^{#beta}(s)");
-    plot f1b = plot_basis(P1, 1, "F_{1}^{#beta}(s)");
-    plot f2b = plot_basis(S2, 1, "F_{2}^{#beta}(s)");
-    plot f0g = plot_basis(S0, 2, "F_{0}^{#gamma}(s)");
-    plot f1g = plot_basis(P1, 2, "F_{1}^{#gamma}(s)");
-    plot f2g = plot_basis(S2, 2, "F_{2}^{#gamma}(s)");
+    plot f0a = plot_basis(S0, 0, "F_{0}^{#alpha}(#it{s})");
+    plot f1a = plot_basis(P1, 0, "F_{1}^{#alpha}(#it{s})");
+    plot f2a = plot_basis(S2, 0, "F_{2}^{#alpha}(#it{s})");
+    plot f0b = plot_basis(S0, 1, "F_{0}^{#beta}(#it{s})");
+    plot f1b = plot_basis(P1, 1, "F_{1}^{#beta}(#it{s})");
+    plot f2b = plot_basis(S2, 1, "F_{2}^{#beta}(#it{s})");
+    plot f0g = plot_basis(S0, 2, "F_{0}^{#gamma}(#it{s})");
+    plot f1g = plot_basis(P1, 2, "F_{1}^{#gamma}(#it{s})");
+    plot f2g = plot_basis(S2, 2, "F_{2}^{#gamma}(#it{s})");
 
-    plotter.combine({3,3}, {f0a, f1a, f2a, f0b, f1b, f2b, f0g, f1g, f2g}, "iterations.pdf");
+    f1a.set_legend(0.2, 0.3);
+    plotter.combine({3,3}, {f0a, f1a, f2a, f0b, f1b, f2b, f0g, f1g, f2g}, "eta_isobars.pdf");
 };

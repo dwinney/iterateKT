@@ -14,7 +14,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/pseudoscalar_dI1.hpp"
+#include "decays/pseudoscalar.hpp"
 
 #include "plotter.hpp"
 
@@ -35,12 +35,12 @@ void test_pinocchio()
     double D = eta->D();
 
     // Set up our amplitude 
-    amplitude amp_dI1 = new_amplitude<dI1_transition>(eta);
-    amp_dI1->add_isobar<dI1_transition::S0_wave>(2);
-    amp_dI1->add_isobar<dI1_transition::P1_wave>(1);
-    amp_dI1->add_isobar<dI1_transition::S2_wave>(0);
+    amplitude amp_dI1 = new_amplitude<neutral_mode>(eta);
+    amp_dI1->add_isobar<dI1_S0>(2);
+    amp_dI1->add_isobar<dI1_P1>(1);
+    amp_dI1->add_isobar<dI1_S2>(0);
 
-    std::vector<isobar> previous = amp_dI1->get_isobars();
+
     
     // Isolate our pwave
     isobar S0 = amp_dI1->get_isobar(kdI1_S0);
@@ -49,21 +49,28 @@ void test_pinocchio()
 
     // -----------------------------------------------------------------------
     
-    timer timer;
     plotter plotter;
 
+    timer timer;
+
     timer.start();
+    amp_dI1->iterate();
+    timer.lap("Iterated");
+
+    std::vector<isobar> previous = amp_dI1->get_isobars();
 
     double smax = 35;
 
     auto plot_pinocchio = [&](isobar isobar, int i, std::string label)
     {
         plot p = plotter.new_plot();    
-        p.set_curve_points(400);
+        p.set_curve_points(100);
+        p.print_to_terminal(true);
         p.set_legend(false);
         p.add_curve( {A, smax}, [&](double s){ return std::imag(isobar->pinocchio_integral(i, s, previous)); }, "Imaginary");
         p.add_curve( {A, smax}, [&](double s){ return std::real(isobar->pinocchio_integral(i, s, previous)); }, "Real");
         p.set_labels("#it{s} / #it{m}_{#pi}^{2}", label);
+        timer.lap("plot "+std::to_string(i));
         return p;
     };
 

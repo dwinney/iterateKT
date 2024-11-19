@@ -346,7 +346,7 @@ namespace iterateKT
         
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
 
-        bool use_adaptive = (_settings._adaptive_dispersion) || (std::real(s) <= _pth);
+        bool use_adaptive = (_settings._adaptive_dispersion);
         complex integral = (use_adaptive) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
                                           : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
 

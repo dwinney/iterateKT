@@ -13,7 +13,7 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "decays/pseudoscalar_dI1.hpp"
+#include "decays/pseudoscalar.hpp"
 #include "plotter.hpp"
 
 void test_omnes()
@@ -25,10 +25,10 @@ void test_omnes()
     kinematics eta = new_kinematics(M_ETA/M_PION, 1.);
 
     // Set up our amplitude 
-    amplitude amp_dI1 = new_amplitude<dI1_transition>(eta);
-    amp_dI1->add_isobar<dI1_transition::S0_wave>(2);
-    amp_dI1->add_isobar<dI1_transition::P1_wave>(1);
-    amp_dI1->add_isobar<dI1_transition::S2_wave>(0);
+    amplitude amp_dI1 = new_amplitude<neutral_mode>(eta);
+    amp_dI1->add_isobar<dI1_S0>(2);
+    amp_dI1->add_isobar<dI1_P1>(1);
+    amp_dI1->add_isobar<dI1_S2>(0);
 
     // Isolate our pwave
     isobar S0 = amp_dI1->get_isobar(kdI1_S0);
