@@ -370,6 +370,19 @@ namespace iterateKT
         return std::string(env);  
     };
 
+    // Same as above but looks for DESKTOP
+    inline std::string desktop()
+    {
+       // Find the correct data file using the top level repo directory
+        std::string top_dir;
+        char const * env = std::getenv("DESKTOP");
+        if ( env == NULL || std::string(env) == "" )
+        {
+            return error("desktop(): Cannot find environment variable DESKTOP!", "");
+        }
+        return std::string(env);  
+    };
+
     // ---------------------------------------------------------------------------
     // Element-wise operations on data vectors
 

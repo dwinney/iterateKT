@@ -60,10 +60,14 @@ namespace iterateKT
         ~raw_iteration()
         {
             if (_zeroth) return;
-            for (auto ptr : _re_inhom)   delete ptr;
-            for (auto ptr : _im_inhom)   delete ptr;
-            for (auto ptr : _re_halfreg) delete ptr;
-            for (auto ptr : _im_halfreg) delete ptr;
+            for (auto ptr : _re_inhom)          delete ptr;
+            for (auto ptr : _im_inhom)          delete ptr;
+            for (auto ptr : _re_halfreg)        delete ptr;
+            for (auto ptr : _im_halfreg)        delete ptr;
+            for (auto ptr : _re_excluded_plus)  delete ptr;
+            for (auto ptr : _im_excluded_plus)  delete ptr;
+            for (auto ptr : _re_excluded_minus) delete ptr;
+            for (auto ptr : _im_excluded_minus) delete ptr;
         };
 
         // ----------------------------------------------------------------------- 
@@ -104,13 +108,21 @@ namespace iterateKT
         double _sth, _pth, _rth;
 
         // The threshold square root continuation
-        inline complex k(double s){ return (s <= _pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth); };
+        inline complex k(double s)
+        { 
+            complex ieps = I*_settings._infinitesimal;
+            return (s <= _pth) ? csqrt(_pth + ieps -s) : +I*csqrt(s-_pth - ieps); 
+        };
 
         // The saved data and interpolation of the discontinuity
         std::vector<ROOT::Math::Interpolator*> _re_inhom, _im_inhom;
 
         // We're also going to save interpolations of the half-regularized disc
         std::vector<ROOT::Math::Interpolator*> _re_halfreg, _im_halfreg;
+
+        // Finally, for each basis function we have a small region around pth which we interpolate
+        std::vector<ROOT::Math::Interpolator*> _re_excluded_plus, _im_excluded_plus, 
+                                               _re_excluded_minus, _im_excluded_minus;
 
         // Flag to know if the interpolators are set up
         bool _initialized = false;

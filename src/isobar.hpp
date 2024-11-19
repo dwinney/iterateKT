@@ -163,7 +163,7 @@ namespace iterateKT
 
         // Initialize the 'zeroth' iteration by evaluating just the omnes function
         void initialize();
-        std::vector<double> _s_list;
+        std::vector<double> _s_list, _s_around_pth;
         complex _ieps;
 
         // Not properly initialized until lhc interpolation is saved

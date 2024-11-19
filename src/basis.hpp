@@ -46,7 +46,7 @@ namespace iterateKT
         inline unsigned int N_basis(){ return _re_list.size(); };
         
         int _n_singularity;
-        std::vector<double> _s_list;
+        std::vector<double> _s_list, _s_around_pth;
         std::vector<std::vector<double>> _re_list, _im_list;
     };
 };

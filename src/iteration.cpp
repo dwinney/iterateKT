@@ -23,11 +23,8 @@ namespace iterateKT
         {
             _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
             _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
-        };
-
-        // Also half-regularize them and save as an interpolations
-        for (int i = 0; i < dat.N_basis(); i++)
-        {
+ 
+           // Also half-regularize them and save as an interpolations
             std::vector<double> re, im;
             for (auto s : dat._s_list)
             {
@@ -38,6 +35,28 @@ namespace iterateKT
             _re_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, re));
             _im_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, im));
         };
+
+        // Finally, because we have singularities at pth, evaluate below and above it
+        // and interpolate in between to get a smooth curve
+        for (int i = 0; i < dat.N_basis(); i++)
+        {
+            std::vector<double> rep, imp, rem, imm;
+            for (auto s : dat._s_around_pth)
+            {
+                complex disp_plus = integral(i, s+IEPS);
+                rep.push_back( std::real(disp_plus) );
+                imp.push_back( std::imag(disp_plus) );
+
+                complex disp_minus = integral(i, s-IEPS);
+                rem.push_back( std::real(disp_minus) );
+                imm.push_back( std::imag(disp_minus) );
+            };
+            _re_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, rep));
+            _im_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, imp));
+            _re_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, rem));
+            _im_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, imm));
+        };
+
         _initialized = true;
     };
     // -----------------------------------------------------------------------
@@ -212,10 +231,10 @@ namespace iterateKT
         complex fp   = _re_halfreg[i]->Deriv(s_exp)  + I*_im_halfreg[i]->Deriv(s_exp);
         complex fpp  = _re_halfreg[i]->Deriv2(s_exp) + I*_im_halfreg[i]->Deriv2(s_exp);
 
-        int p = (n == 1) ? n+1 : n;
-        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (p-1.)/2.);
-        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  p    /2.);
-        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (p+1.)/2.);
+        int m = (n == 1) ? n+1 : n;
+        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (m-1.)/2.);
+        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  m    /2.);
+        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (m+1.)/2.);
         
         if (epsilon > 0)
         {
@@ -253,14 +272,10 @@ namespace iterateKT
 
         // If we are evaluating exactly at this point we have a problem
         // If we're too close to pth just evaluate above and below it and linear interpolate
-        double xi = _settings._matching_intervals[1];
-        bool on_pth = are_equal(s, _pth, xi/2. * 0.9);
-        if (on_pth)
-        {
-            double  x1 = _pth - xi/2., x2 = _pth + xi/2.;
-            complex f1 = integral(i, x1+ieps), f2 = integral(i, x2+ieps);
-            return  f1 + (f2 - f1)*(s - x1)/(x2 - x1);
-        };
+        bool in_excluded = (s >= _pth - _settings._exclusion_offsets[0]) &&
+                           (s <= _pth + _settings._exclusion_offsets[1]) && _initialized;
+        if (in_excluded) return (imag(ieps) > 0) ? _re_excluded_plus[i]->Eval(s) + I*_im_excluded_plus[i]->Eval(s)
+                                                 : _re_excluded_minus[i]->Eval(s) + I*_im_excluded_minus[i]->Eval(s);
 
         // Else evaluate the integrals
         bool below_pth  = (p <= _pth);
@@ -331,7 +346,7 @@ namespace iterateKT
         
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
 
-        bool use_adaptive = (_settings._adaptive_dispersion) || are_equal(std::real(s), _pth, _settings._matching_intervals[1]);
+        bool use_adaptive = (_settings._adaptive_dispersion) || (std::real(s) <= _pth);
         complex integral = (use_adaptive) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
                                           : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
 

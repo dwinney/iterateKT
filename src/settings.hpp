@@ -37,12 +37,16 @@ namespace iterateKT
         std::array<double,3> _matching_intervals = {0.05, 0.05, 0.05};
         std::array<double,3> _expansion_offsets  = {0.05, 0.05, 0.05};
 
-        // Interpolation settings
-        std::array<int,3> _interpolation_points = {100, 40, 100};
+        // We exclude a specific range around pth when evaluating the basis functions
+        // and allow an interpolation to fit in the middle.
+        int _exclusion_points = 10;
+        std::array<double,2> _exclusion_offsets  = {1, 8};
 
+        // Interpolation settings
         double _intermediate_energy  = 5;    // interpolate from sth to this value
         double _cutoff               = 1000; // then from _interp_energy_low to _interp_energy_high 
         double _interpolation_offset = 1;    // Amount to offset the middle point between interpolation regions        
+        std::array<int,3> _interpolation_points = {100, 40, 100}; // Number of points to interpolate in each of the above regions
     };
 }; // namespace iterateKT
 

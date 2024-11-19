@@ -14,7 +14,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/pseudoscalar.hpp"
+#include "decays/pseudoscalar_dI1.hpp"
 
 #include "plotter.hpp"
 
@@ -35,17 +35,17 @@ void test_pinocchio()
     double D = eta->D();
 
     // Set up our amplitude 
-    amplitude amp_I1 = new_amplitude<I1_transition>(eta);
-    amp_I1->add_isobar<I1_transition::S0_wave>(2);
-    amp_I1->add_isobar<I1_transition::P1_wave>(1);
-    amp_I1->add_isobar<I1_transition::S2_wave>(0);
+    amplitude amp_dI1 = new_amplitude<dI1_transition>(eta);
+    amp_dI1->add_isobar<dI1_transition::S0_wave>(2);
+    amp_dI1->add_isobar<dI1_transition::P1_wave>(1);
+    amp_dI1->add_isobar<dI1_transition::S2_wave>(0);
 
-    std::vector<isobar> previous = amp_I1->get_isobars();
+    std::vector<isobar> previous = amp_dI1->get_isobars();
     
     // Isolate our pwave
-    isobar S0 = amp_I1->get_isobar(kI1_S0);
-    isobar P1 = amp_I1->get_isobar(kI1_P1);
-    isobar S2 = amp_I1->get_isobar(kI1_S2);
+    isobar S0 = amp_dI1->get_isobar(kdI1_S0);
+    isobar P1 = amp_dI1->get_isobar(kdI1_P1);
+    isobar S2 = amp_dI1->get_isobar(kdI1_S2);
 
     // -----------------------------------------------------------------------
     
@@ -56,73 +56,28 @@ void test_pinocchio()
 
     double smax = 35;
 
-    plot p1 = plotter.new_plot();
-    p1.set_curve_points(400);
-    p1.set_legend(0.3, 0.4);
-    p1.set_ranges({A, smax}, {-10, 6});
-    p1.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(0, s, previous)); }, "Imaginary");
-    p1.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(0, s, previous)); }, "Real");
-    p1.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#alpha}(s)");
+    auto plot_pinocchio = [&](isobar isobar, int i, std::string label)
+    {
+        plot p = plotter.new_plot();    
+        p.set_curve_points(400);
+        p.set_legend(false);
+        p.add_curve( {A, smax}, [&](double s){ return std::imag(isobar->pinocchio_integral(i, s, previous)); }, "Imaginary");
+        p.add_curve( {A, smax}, [&](double s){ return std::real(isobar->pinocchio_integral(i, s, previous)); }, "Real");
+        p.set_labels("#it{s} / #it{m}_{#pi}^{2}", label);
+        return p;
+    };
 
-    plot p2 = plotter.new_plot();
-    p2.set_curve_points(400);
-    p2.set_ranges({A, smax}, {-20, 10});
-    p2.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(0, s, previous)); });
-    p2.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(0, s, previous)); });
-    p2.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#alpha}(s)");
+    plot f0a = plot_pinocchio(S0, 0, "#tilde{F}_{0}^{#alpha}(s)");
+    plot f1a = plot_pinocchio(P1, 0, "#tilde{F}_{1}^{#alpha}(s)");
+    plot f2a = plot_pinocchio(S2, 0, "#tilde{F}_{0}^{#alpha}(s)");
+    plot f0b = plot_pinocchio(S0, 1, "#tilde{F}_{0}^{#beta}(s)");
+    plot f1b = plot_pinocchio(P1, 1, "#tilde{F}_{1}^{#beta}(s)");
+    plot f2b = plot_pinocchio(S2, 1, "#tilde{F}_{2}^{#beta}(s)");
+    plot f0g = plot_pinocchio(S0, 2, "#tilde{F}_{0}^{#gamma}(s)");
+    plot f1g = plot_pinocchio(P1, 2, "#tilde{F}_{1}^{#gamma}(s)");
+    plot f2g = plot_pinocchio(S2, 2, "#tilde{F}_{2}^{#gamma}(s)");
 
-    plot p3 = plotter.new_plot();
-    p3.set_curve_points(400);
-    p3.set_ranges({A, smax}, {-15, 10});
-    p3.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(0, s, previous)); });
-    p3.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(0, s, previous)); });
-    p3.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#alpha}(s)");
-
-    plot p4 = plotter.new_plot();
-    p4.set_curve_points(400);
-    p4.set_legend(0.3, 0.4);
-    p4.set_ranges({A, smax}, {-13, 40});
-    p4.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(1, s, previous)); });
-    p4.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(1, s, previous)); });
-    p4.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#beta}(s)");
-
-    plot p5 = plotter.new_plot();
-    p5.set_curve_points(400);
-    p5.set_ranges({A, smax}, {-200, 80});
-    p5.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(1, s, previous)); });
-    p5.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(1, s, previous)); });
-    p5.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#beta}(s)");
-
-    plot p6 = plotter.new_plot();
-    p6.set_curve_points(400);
-    p6.set_ranges({A, smax}, {-15, 50});
-    p6.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(1, s, previous)); });
-    p6.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(1, s, previous)); });
-    p6.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#beta}(s)");
-
-    plot p7 = plotter.new_plot();
-    p7.set_curve_points(400);
-    p7.set_legend(0.3, 0.4);
-    p7.set_ranges({A, smax}, {-200, 190});
-    p7.add_curve({A, smax}, [&](double s){ return std::imag(S0->pinocchio_integral(2, s, previous)); });
-    p7.add_curve({A, smax}, [&](double s){ return std::real(S0->pinocchio_integral(2, s, previous)); });
-    p7.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{0}^{#gamma}(s)");
-
-    plot p8 = plotter.new_plot();
-    p8.set_curve_points(400);
-    p8.set_ranges({A, smax}, {-290, 90});
-    p8.add_curve({A, smax}, [&](double s){ return std::imag(P1->pinocchio_integral(2, s, previous)); });
-    p8.add_curve({A, smax}, [&](double s){ return std::real(P1->pinocchio_integral(2, s, previous)); });
-    p8.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{1}^{#gamma}(s)");
-
-    plot p9 = plotter.new_plot();
-    p9.set_curve_points(400);
-    p9.set_ranges({A, smax}, {-150, 200});
-    p9.add_curve({A, smax}, [&](double s){ return std::imag(S2->pinocchio_integral(2, s, previous)); });
-    p9.add_curve({A, smax}, [&](double s){ return std::real(S2->pinocchio_integral(2, s, previous)); });
-    p9.set_labels("#it{s} / #it{m}_{#pi}^{2}", "#tilde{F}_{2}^{#gamma}(s)");
-
-    plotter.combine({3,3},{p1,p2,p3,p4,p5,p6,p7,p8,p9}, "pinocchio.pdf");
+    plotter.combine({3,3}, {f0a, f1a, f2a, f0b, f1b, f2b, f0g, f1g, f2g}, "pinocchio.pdf");
 
     timer.stop();
     timer.print_elapsed();

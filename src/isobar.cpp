@@ -20,16 +20,16 @@ namespace iterateKT
         // Add the 'zeroth' iteration to the list
         _iterations.push_back(new_iteration());
         _ieps =  I*_settings._infinitesimal;
+        double pth = _kinematics->pth();
 
         // We interpolate different regions with different graining
         // Each si marks a boundary of a region 
         // eps is added to make a gap between regions and ensure each
         // interval is monotonic increasing
-
         double eps = _settings._interpolation_offset;
         double s0  = _kinematics->sth();
-        double s1  = _kinematics->pth() - 1.2*_settings._expansion_offsets[1] - eps; // This region is around the point we will 
-        double s2  = _kinematics->pth() + 1.2*_settings._expansion_offsets[1];       // expand the angular average around pth
+        double s1  = pth - 1.2*_settings._expansion_offsets[1] - eps; // This region is around the point we will 
+        double s2  = pth + 1.2*_settings._expansion_offsets[1];       // expand the angular average around pth
         double s3  = _settings._intermediate_energy;
         double s4  = _settings._cutoff;
 
@@ -47,6 +47,21 @@ namespace iterateKT
         for (int i = 0; i < N_3; i++) _s_list.push_back(s2 + (s3 - s2)*double(i)/double(N_3-1));
         s3 += eps;
         for (int i = 0; i < N_4; i++) _s_list.push_back(s3 + (s4 - s3)*double(i)/double(N_4-1));
+        
+        // We also need to be able to excluse a part of the isobars around pth
+        int N = _settings._exclusion_points/2;
+        for (int k = 0; k <= N; k++)
+        {
+            double low  = (pth - 2*_settings._exclusion_offsets[0]);
+            double high = (pth -   _settings._exclusion_offsets[0]);
+            _s_around_pth.push_back(low - (low - high)*double(k)/N);
+        };
+        for (int k = 0; k <= N; k++)
+        {
+            double low  = (pth +   _settings._exclusion_offsets[1]);
+            double high = (pth + 2*_settings._exclusion_offsets[1]);
+            _s_around_pth.push_back(low - (low - high)*double(k)/N);
+        };
     };
 
     // Save an interpolation of the LHC since this never changes and is called a lot
@@ -138,6 +153,8 @@ namespace iterateKT
         basis_grid output;
         output._n_singularity = singularity_power()+1;
         output._s_list = _s_list;
+        output._s_around_pth = _s_around_pth;
+        
         // Sum over basis functions
         for (int i = 0; i < _subtractions->N_basis(); i++)
         {
