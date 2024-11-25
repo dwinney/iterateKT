@@ -274,7 +274,7 @@ namespace iterateKT
         // If we're too close to pth just evaluate above and below it and linear interpolate
         bool in_excluded = (s >= _pth - _settings._exclusion_offsets[0]) &&
                            (s <= _pth + _settings._exclusion_offsets[1]) && _initialized;
-        if (in_excluded) return (imag(ieps) > 0) ? _re_excluded_plus[i]->Eval(s) + I*_im_excluded_plus[i]->Eval(s)
+        if (in_excluded) return (imag(ieps) > 0) ? _re_excluded_plus[i]->Eval(s)  + I*_im_excluded_plus[i]->Eval(s)
                                                  : _re_excluded_minus[i]->Eval(s) + I*_im_excluded_minus[i]->Eval(s);
 
         // Else evaluate the integrals
@@ -348,7 +348,7 @@ namespace iterateKT
 
         bool use_adaptive = (_settings._adaptive_dispersion);
         complex integral = (use_adaptive) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
-                                          : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
+                                          : gauss<double,N_GAUSS_DISPERSIVE>::   integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*Q(n,s,bounds) + b*Q(n-2,s,bounds);
     };
@@ -365,7 +365,7 @@ namespace iterateKT
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(k(x),n); 
         };
         complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
-                                                            : gauss<double,N_GAUSS>::   integrate(fdx, bounds[0], bounds[1]);
+                                                            : gauss<double,N_GAUSS_DISPERSIVE>::   integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*R(n,s,bounds);
     };

@@ -313,10 +313,10 @@ namespace iterateKT
         std::ofstream out;
         out.open(outname);
 
-        for (int j = 0; j < data[0].size(); j++)
+        for (uint j = 0; j < data[0].size(); j++)
         {
             out << std::left;
-            for (int i = 0; i < N; i++)
+            for (uint i = 0; i < N; i++)
             {
                 out << std::setw(PRINT_SPACING) << data[i][j];
             }
@@ -340,10 +340,10 @@ namespace iterateKT
         };
         out << std::endl;
 
-        for (int j = 0; j < data[0].size(); j++)
+        for (uint j = 0; j < data[0].size(); j++)
         {
             out << std::left;
-            for (int i = 0; i < N; i++)
+            for (uint i = 0; i < N; i++)
             {
                 out << std::setw(PRINT_SPACING) << data[i][j];
             }
@@ -437,7 +437,7 @@ namespace iterateKT
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
         std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
+        for (uint i = 0; i < lhs.size(); i++)
         {
             result.push_back( lhs[i] + rhs[i] );
         };
@@ -449,7 +449,7 @@ namespace iterateKT
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
         std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
+        for (uint i = 0; i < lhs.size(); i++)
         {
             result.push_back( lhs[i] - rhs[i] );
         };
@@ -460,7 +460,7 @@ namespace iterateKT
     inline std::vector<double> operator+(double lhs, std::vector<double> rhs)
     {
         std::vector<double> result;
-        for (int i = 0; i < rhs.size(); i++)
+        for (uint i = 0; i < rhs.size(); i++)
         {
             result.push_back( lhs + rhs[i] );
         };
@@ -474,7 +474,7 @@ namespace iterateKT
     inline std::vector<double> operator+(std::vector<double> lhs, double rhs)
     {
         std::vector<double> result;
-        for (int i = 0; i < lhs.size(); i++)
+        for (uint i = 0; i < lhs.size(); i++)
         {
             result.push_back( rhs + lhs[i] );
         };
@@ -490,7 +490,7 @@ namespace iterateKT
         if (in1.size() != in2.size()) warning("multiply_elementwise()", "Input vectors not the same size!");
 
         std::vector<double> out;
-        for (int i = 0; i < in1.size(); i++)
+        for (uint i = 0; i < in1.size(); i++)
         {
             out.push_back(in1[i]*in2[i]);
         }
