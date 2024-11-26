@@ -84,8 +84,9 @@ namespace iterateKT
         if (imag(s) < 0) return std::conj(omnes(std::conj(s)));
 
         // bounds of integration
-        double low = _kinematics->sth();
-        double high = std::numeric_limits<double>::infinity();
+        double low  = _kinematics->sth();
+        double mid  = _settings._intermediate_energy;
+        double high = _settings._omnes_cutoff;
         
         // If we're sufficiently far from the real axis just do the integral naively
         if (imag(s) > imag(_ieps))
@@ -99,8 +100,8 @@ namespace iterateKT
                 return integrand;
             };
             // If using gauss gauss-legendre, split the integral into two pieces to avoid systematic errors at low energies
-            complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._omnes_depth, 1.E-9, NULL)
-                                                           : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, 100*low) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, 100*low, high);
+            complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, mid, _settings._omnes_depth, 1.E-9, NULL) + gauss_kronrod<double,61>::integrate(fdx, mid, high, _settings._omnes_depth, 1.E-9, NULL)
+                                                           : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, mid) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, mid, high);
             return exp(integral/M_PI);
         }
 
@@ -118,8 +119,8 @@ namespace iterateKT
         };
 
         // If using gauss gauss-legendre, split the integral into two pieces to avoid systematic errors at low energies
-        complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, high, _settings._omnes_depth, 1.E-9, NULL)
-                                                       : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, 100*low) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, 100*low, high);
+        complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, mid, _settings._omnes_depth, 1.E-9, NULL) + gauss_kronrod<double,61>::integrate(fdx, mid, high, _settings._omnes_depth, 1.E-9, NULL)
+                                                       : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, mid) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, mid, high);
 
         complex logarithm = RHCs * log(1.-(s+_ieps) / low);
         return exp((integral-logarithm)/M_PI);
@@ -163,7 +164,7 @@ namespace iterateKT
             std::vector<double> re, im;
             for (auto s : _s_list)
             {
-                complex ksf_disc = LHC(s)*pinocchio_integral(i,s,previous)/pow(s,_max_sub);
+                complex ksf_disc = LHC(s)/pow(s,_max_sub)*pinocchio_integral(i,s,previous);
                 re.push_back( std::real(ksf_disc) );
                 im.push_back( std::imag(ksf_disc) );
             };
@@ -178,7 +179,7 @@ namespace iterateKT
     complex raw_isobar::pinocchio_integral(unsigned int basis_id, double s, std::vector<isobar> & previous)
     {
         if (s < _kinematics->A()) return error("isobar::angular_integral", 
-                                                "Trying to evaluate angular integral below threshold!", NaN<complex>());
+                                               "Trying to evaluate angular integral below threshold!", NaN<complex>());
         
         int region = (s > _kinematics->B()) + (s > _kinematics->C()) + (s > _kinematics->D());
         
@@ -190,7 +191,7 @@ namespace iterateKT
             {
                 double sp = std::real(_kinematics->t_plus(s));
                 double sm = std::real(_kinematics->t_minus(s));
-                return linear_segment(basis_id, {sm, sp, 0.}, s, previous);
+                return linear_segment(basis_id, {sm, sp, 0}, s, previous);
             };
             // s+ is above cut but s- is below cut
             case 1:

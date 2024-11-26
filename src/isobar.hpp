@@ -127,7 +127,7 @@ namespace iterateKT
         inline double LHC(double s)
         { 
             if (!_lhc_interpolated) interpolate_lhc();
-            return (s >= _kinematics->sth()) ? _lhc.Eval(s) : NaN<double>(); 
+            return (s > _kinematics->sth()) ? _lhc.Eval(s) : 0.; 
         };
         
         // Calculate the angular integral along a straight line

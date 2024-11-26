@@ -26,6 +26,7 @@ namespace iterateKT
 
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
+        double _omnes_cutoff     = std::numeric_limits<double>::infinity();
         int  _omnes_depth        = 15;    
         int  _dispersion_depth   = 15;
         int  _angular_depth      = 15;   

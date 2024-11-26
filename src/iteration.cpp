@@ -73,7 +73,6 @@ namespace iterateKT
     // nu given by n_singularity
     complex raw_iteration::half_regularized_integrand(unsigned int i, double s)
     {
-        if (s <= _sth)    return 0.;
         if (_initialized) return _re_halfreg[i]->Eval(s) + I*_im_halfreg[i]->Eval(s);
 
         // If no interpolation is saved yet, calculate divide by nu explicitly

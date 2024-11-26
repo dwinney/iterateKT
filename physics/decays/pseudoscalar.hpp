@@ -37,19 +37,19 @@ namespace iterateKT { namespace pseudoscalar
         sets._adaptive_angular        = false;
         sets._adaptive_dispersion     = false;
 
-        int _exclusion_points                    = 20;
-        std::array<double,2> _exclusion_offsets  = {1, 7};
+        sets._exclusion_points        = 20;
+        sets._exclusion_offsets       = {2, 6};
 
-        sets._dispersion_depth        = 10;
         sets._infinitesimal           = 1E-5;
-        sets._intermediate_energy     = 30;
-        sets._cutoff                  = 1000;
+        sets._intermediate_energy     = 50;
+        sets._cutoff                  = 1E4;
+        sets._omnes_cutoff            = std::numeric_limits<double>::infinity();
         sets._interpolation_offset    = 0.5;
-        sets._interpolation_points    = {200, 50, 100};
+        sets._interpolation_points    = {200, 20, 200};
 
-        double xi_sth = 0.3,  eps_sth = 0.3;
-        double xi_pth = 1.0,  eps_pth = 0.9;
-        double xi_rth = 0.8,  eps_rth = 0.8;
+        double xi_sth = 1E-3,  eps_sth = 1E-3;
+        double xi_pth = 0.5,   eps_pth = 0.5;
+        double xi_rth = 1.3,   eps_rth = 1.3;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
