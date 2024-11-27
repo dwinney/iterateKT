@@ -18,11 +18,12 @@ namespace iterateKT
     {
         _sth = _kinematics->sth(); _pth = _kinematics->pth(); _rth = _kinematics->rth();
 
+        auto interp_type = _settings._interpolation_type;
         // Load up the interpolators from the input data
         for (int i = 0; i < dat.N_basis(); i++)
         {
-            _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i]));
-            _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i]));
+            _re_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._re_list[i], interp_type));
+            _im_inhom.push_back(new ROOT::Math::Interpolator(dat._s_list, dat._im_list[i], interp_type));
  
            // Also half-regularize them and save as an interpolations
             std::vector<double> re, im;
@@ -32,8 +33,8 @@ namespace iterateKT
                 re.push_back( std::real(half_reg) );
                 im.push_back( std::imag(half_reg) );
             };
-            _re_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, re));
-            _im_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, im));
+            _re_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, re, interp_type));
+            _im_halfreg.push_back(new ROOT::Math::Interpolator(dat._s_list, im, interp_type));
         };
 
         // Finally, because we have singularities at pth, evaluate below and above it
@@ -51,10 +52,12 @@ namespace iterateKT
                 rem.push_back( std::real(disp_minus) );
                 imm.push_back( std::imag(disp_minus) );
             };
-            _re_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, rep));
-            _im_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, imp));
-            _re_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, rem));
-            _im_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, imm));
+            // Use AKIMA interpolation instead of cspline
+            auto exc_interp_type = ROOT::Math::Interpolation::Type::kAKIMA;
+            _re_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, rep, exc_interp_type));
+            _im_excluded_plus.push_back (new ROOT::Math::Interpolator(dat._s_around_pth, imp, exc_interp_type));
+            _re_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, rem, exc_interp_type));
+            _im_excluded_minus.push_back(new ROOT::Math::Interpolator(dat._s_around_pth, imm, exc_interp_type));
         };
 
         _initialized = true;
@@ -240,7 +243,7 @@ namespace iterateKT
             switch (n)
             {
                 case 1: { b *= -I; d *=  I;  break;};
-                case 3: { c *= -I;           break; };
+                case 3: { c *= -I;        ;  break; };
                 default: break;
             };
         };
@@ -266,8 +269,8 @@ namespace iterateKT
 
         // Split the integrals into two pieces, one which contains the pth singularity
         // and another with the cauchy singularity
-        double p    = (s + _pth)/2;
-        std::array<double,2> lower = {_sth, p}, upper = {p, _settings._cutoff};
+        double p    = (s + _pth)/2.;
+        std::array<double,2> lower = {_sth, p}, upper  = {p, _settings._cutoff};
 
         // If we are evaluating exactly at this point we have a problem
         // If we're too close to pth just evaluate above and below it and linear interpolate
@@ -277,9 +280,8 @@ namespace iterateKT
                                                  : _re_excluded_minus[i]->Eval(s) + I*_im_excluded_minus[i]->Eval(s);
 
         // Else evaluate the integrals
-        bool below_pth  = (p <= _pth);
-        if (below_pth) return disperse_with_cauchy(i, s+ieps, lower) + disperse_with_pth(i, s+ieps, upper);
-        return disperse_with_pth(i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
+        if (p <= _pth) return disperse_with_cauchy(i, s+ieps, lower) + disperse_with_pth   (i, s+ieps, upper);
+                       return disperse_with_pth   (i, s+ieps, lower) + disperse_with_cauchy(i, s+ieps, upper);
     };
 
     // -----------------------------------------------------------------------
@@ -311,17 +313,18 @@ namespace iterateKT
         if (!is_odd(n)) return NaN<complex>();
         double s = real(sc);
         if (are_equal(s,_sth)) return 0.;
-        
+
         double  x  = bounds[0], y = bounds[1], z = _pth;
         complex ks = k(s), kx = k(x), ky = k(y);
 
         complex argx = (kx+ks)/(kx-ks);
         complex argy = (ks-ky)/(ks+ky);
-        complex R1 = (log(argx)-sign(s - _pth)*(log(argy)+I*sign(imag(sc))*PI))/ks;
+
+        complex R1 = (log(argx)+(conj(log(argy))+I*sign(imag(sc))*sign(_pth-s)*PI))/ks;
 
         if (n == 1) return R1;
 
-        complex R3 = (2*(1/ky-1/kx) + R1)/(_pth-s);
+        complex R3 = (2*(1./ky-1./kx) + R1)/(_pth-s);
         
         if (n == 3) return R3;
 
@@ -345,9 +348,9 @@ namespace iterateKT
         
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
 
-        bool use_adaptive = (_settings._adaptive_dispersion);
-        complex integral = (use_adaptive) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
-                                          : gauss<double,N_GAUSS_DISPERSIVE>::   integrate(fdx, bounds[0], bounds[1]);
+        bool use_adaptive = (_settings._adaptive_pseudo);
+        complex integral = (use_adaptive) ? gauss_kronrod<double,61>::    integrate(fdx, bounds[0], bounds[1], _settings._pseudo_depth, 1.E-9, NULL)
+                                          : gauss<double,N_GAUSS_PSEUDO>::integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*Q(n,s,bounds) + b*Q(n-2,s,bounds);
     };
@@ -363,8 +366,8 @@ namespace iterateKT
         { 
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(k(x),n); 
         };
-        complex integral = (_settings._adaptive_dispersion) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._dispersion_depth, 1.E-9, NULL)
-                                                            : gauss<double,N_GAUSS_DISPERSIVE>::   integrate(fdx, bounds[0], bounds[1]);
+        complex integral = (_settings._adaptive_cauchy) ? gauss_kronrod<double,61>::    integrate(fdx, bounds[0], bounds[1], _settings._cauchy_depth, 1.E-9, NULL)
+                                                        : gauss<double,N_GAUSS_CAUCHY>::integrate(fdx, bounds[0], bounds[1]);
 
         return integral + a*R(n,s,bounds);
     };

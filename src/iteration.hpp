@@ -108,11 +108,7 @@ namespace iterateKT
         double _sth, _pth, _rth;
 
         // The threshold square root continuation
-        inline complex k(double s)
-        { 
-            complex ieps = I*_settings._infinitesimal;
-            return (s <= _pth) ? csqrt(_pth + ieps -s) : +I*csqrt(s-_pth - ieps); 
-        };
+        inline complex k(double s){ return (s <= _pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);  };
 
         // The saved data and interpolation of the discontinuity
         std::vector<ROOT::Math::Interpolator*> _re_inhom, _im_inhom;

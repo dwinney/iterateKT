@@ -11,6 +11,7 @@
 #define SETTINGS_HPP
 
 #include "utilities.hpp"
+#include <Math/Interpolator.h>
 
 namespace iterateKT
 {
@@ -21,15 +22,20 @@ namespace iterateKT
         // We have three types of integrations, we can choose whether to evaluate them
         // using adaptive integration or not
         bool _adaptive_omnes       = false; 
-        bool _adaptive_dispersion  = false; 
+        bool _adaptive_pseudo      = false; 
+        bool _adaptive_cauchy      = false; 
         bool _adaptive_angular     = false; 
 
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
         double _omnes_cutoff     = std::numeric_limits<double>::infinity();
-        int  _omnes_depth        = 15;    
-        int  _dispersion_depth   = 15;
-        int  _angular_depth      = 15;   
+        int  _omnes_depth        = 5;    
+        int  _cauchy_depth       = 5;
+        int  _pseudo_depth       = 5;
+        int  _angular_depth      = 5;   
+        
+        // Which type of interpolation to use, kCSPLINE or kAKIMA
+         ROOT::Math::Interpolation::Type _interpolation_type = ROOT::Math::Interpolation::Type::kCSPLINE;
 
         // The infinitesimal to use for ieps inside Cauchy kernels
         double _infinitesimal      = 1E-5;

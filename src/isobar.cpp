@@ -28,8 +28,8 @@ namespace iterateKT
         // interval is monotonic increasing
         double eps = _settings._interpolation_offset;
         double s0  = _kinematics->sth();
-        double s1  = pth - 1.2*_settings._expansion_offsets[1] - eps; // This region is around the point we will 
-        double s2  = pth + 1.2*_settings._expansion_offsets[1];       // expand the angular average around pth
+        double s1  = pth - 1.5*_settings._expansion_offsets[1] - eps; // This region is around the point we will 
+        double s2  = pth + 1.5*_settings._expansion_offsets[1];       // expand the angular average around pth
         double s3  = _settings._intermediate_energy;
         double s4  = _settings._cutoff;
 

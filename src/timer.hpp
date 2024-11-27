@@ -43,19 +43,28 @@ namespace iterateKT
         inline auto lap(std::string message = "")
         {
             auto now = std::chrono::high_resolution_clock::now();
-            auto x = std::chrono::duration_cast< std::chrono::seconds>(now - _lap).count();
+            auto x = std::chrono::duration_cast< std::chrono::milliseconds>(now - _lap).count();
+
+            std::stringstream ss;
+            ss << std::setprecision(3) << double(x)*1.E-3;
+
             std::string extra = (message == "") ? "" : " (" + message + ")";
-            if (_messages) print("Lap time" + extra + ": " + std::to_string(x) + "s!");
+            if (_messages) print("Lap time" + extra + ": " + ss.str() + "s!");
             _lap = now;
             return x;
         };
         inline auto elapsed()
         {
-            auto x = std::chrono::duration_cast< std::chrono::seconds>(_end - _start).count(); 
-            return x;
+            auto x = std::chrono::duration_cast< std::chrono::milliseconds>(_end - _start).count(); 
+            return (x < 0) ? 0 : double(x)*1E-3;
         };
             
-        inline void print_elapsed(){ print("Time elapsed: " + std::to_string(elapsed()) + "s!"); };
+        inline void print_elapsed()
+        { 
+            std::stringstream ss;
+            ss << std::setprecision(3) << elapsed() ;
+            print("Time elapsed: " +  ss.str() + "s!"); 
+        };
 
         private: 
         
