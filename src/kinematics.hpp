@@ -52,6 +52,7 @@ namespace iterateKT
         // Masses squared
         inline double m2(){ return m()*m(); };
         inline double M2(){ return M()*M(); };
+
         
         // Threshold & pseudo-threshold and final state threshold
         inline double sth() { return 4.*m2(); };
@@ -61,6 +62,7 @@ namespace iterateKT
         // Sum of masses squared
         // s + t + u = Sigma (note no factor of 3!)
         inline double Sigma(){ return M2() + 3*m2(); };
+        inline double r(){ return Sigma()/3; };
 
         // Special points along the pinnochio path
         inline double A(){ return sth(); };
@@ -69,7 +71,8 @@ namespace iterateKT
         inline double D(){ return rth(); };
 
         // Analytic continuation of barrier factor along real line
-        complex kacser (complex s);
+        complex kacser   (complex s);
+        inline complex kz(complex s, complex t){ return 2*t + s - M2() - 3*m2(); };
 
         // Kacser with removed singularities at regular thresholds removed
         // xi is the radius of validity to remove the singularities analytically

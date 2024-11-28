@@ -61,7 +61,7 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
 
-        virtual unsigned int id() = 0;
+        virtual id get_id() = 0;
 
         // The power (p q)^n that appears in angular momentum barrier factor
         // This determines the type of matching required at pseudothreshold
@@ -71,7 +71,7 @@ namespace iterateKT
         virtual double phase_shift(double s) = 0;
 
         // Kernel which appears in the angular average
-        virtual complex ksf_kernel(int iso_id, complex s, complex t) = 0;
+        virtual complex ksf_kernel(id iso_id, complex s, complex t) = 0;
 
         // ----------------------------------------------------------------------- 
         // Things related to dispersion integrals and such
@@ -105,7 +105,7 @@ namespace iterateKT
         // Utilities
 
         // Thing related to the options
-        inline uint option(){ return _option; };
+        inline         uint option()          { return _option; };
         virtual inline void set_option(uint x){ _option = x; };
 
         // Flag used for internal debugging

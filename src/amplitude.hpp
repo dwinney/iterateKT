@@ -50,9 +50,9 @@ namespace iterateKT
         virtual complex evaluate(complex s, complex t, complex u);
 
         // Need to specify how to combine the isobars into the full amplitude
-        virtual complex prefactor_s(unsigned int id, complex s, complex t, complex u){ return 0.; };
-        virtual complex prefactor_t(unsigned int id, complex s, complex t, complex u){ return 0.; };
-        virtual complex prefactor_u(unsigned int id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_s(id iso_id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_t(id iso_id, complex s, complex t, complex u){ return 0.; };
+        virtual complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
 
         // Calculate one iteration of the KT equations
         void iterate();
@@ -80,9 +80,9 @@ namespace iterateKT
         // Isobar management
         
         // Retrieve an isobar with index i
-        inline isobar get_isobar(unsigned int i)
+        inline isobar get_isobar(id i)
         { 
-            for (auto f : _isobars) if (i == f->id()) return f;
+            for (auto f : _isobars) if (i == f->get_id()) return f;
             return error("amplitude::get_isobar", "Index out of scope!", nullptr);
         };
 
@@ -91,11 +91,11 @@ namespace iterateKT
         inline void add_isobar(int nsub, settings sets = T::default_settings())
         { 
             isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
-
+            
             // Check for uniqueness
             for (auto old_iso : _isobars)
             {
-                if (old_iso->id() == new_iso->id())
+                if (old_iso->get_id() == new_iso->get_id())
                 {
                     warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
                     return;
@@ -106,7 +106,7 @@ namespace iterateKT
             // Need to update _subtractions to know about new polynomials
             for (int i = 0; i < nsub; i++)
             {
-                _subtractions->_ids.push_back(new_iso->id());
+                _subtractions->_ids.push_back(new_iso->get_id());
                 _subtractions->_powers.push_back(i);
             };
         };

@@ -21,8 +21,8 @@
 
 namespace iterateKT
 { 
-    // Isobar id's
-    static const int kP_wave = 0;
+    // Ids for all our isobars, we only have one though
+    enum class id : unsigned int { P_wave };
 
     // This defines the full amplitude, i.e. how the isobars are combined
     // Here is where we usually put the isospin combinations etc
@@ -36,9 +36,9 @@ namespace iterateKT
 
         // We have no kinematic factors and only one isobar so simply return 1.
         // We're completely symmetric here so these are all the same
-        inline complex prefactor_s(uint id, complex s, complex t, complex u){ return (id == kP_wave); };
-        inline complex prefactor_t(uint id, complex s, complex t, complex u){ return prefactor_s(id, t, s, u); };
-        inline complex prefactor_u(uint id, complex s, complex t, complex u){ return prefactor_s(id, u, t, s); };
+        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave); };
+        inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, t, s, u); };
+        inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, u, t, s); };
 
         class P_wave;
     };
@@ -57,7 +57,7 @@ namespace iterateKT
         {};
 
         // Virtual functions
-        inline unsigned int id() { return kP_wave;  };
+        inline id get_id() { return id::P_wave;  };
 
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
@@ -69,10 +69,10 @@ namespace iterateKT
 
         // Kernels is 3*(1-z^2) but to remove kinematic singularities
         // we multiply by two powers of kappa
-        inline complex ksf_kernel(int iso_id, complex s, complex t)
+        inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             // Only P-wave allowed in the cross channel
-            if (iso_id != kP_wave) return 0.;
+            if (iso_id != id::P_wave) return 0.;
 
             double m2  = _kinematics->m2(), M2 = _kinematics->M2();
             complex k  = _kinematics->kacser(s);
@@ -84,9 +84,6 @@ namespace iterateKT
         inline static const settings default_settings()
         {
             settings sets;
-            sets._adaptive_omnes          = false;
-            sets._adaptive_angular        = false;
-            sets._adaptive_dispersion     = false;
             sets._infinitesimal           = 1E-5;
             sets._intermediate_energy     = 60;
             sets._cutoff                  = 400;

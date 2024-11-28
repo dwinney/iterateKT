@@ -136,7 +136,7 @@ namespace iterateKT
         if (iter_id  >  _iterations.size())        return error("Requested iteration does not exist!", NaN<complex>());
         if (basis_id >= _subtractions->N_basis())  return error("Requested basis function does not exist!", NaN<complex>());
 
-        bool no_poly = (_subtractions->get_id(basis_id) != id());
+        bool no_poly = (_subtractions->get_id(basis_id) != get_id());
         complex polynomial = (no_poly) ? 0 : pow(s, _subtractions->get_power(basis_id));
 
         return omnes(s)*(polynomial + pow(s,_max_sub)/PI*_iterations[iter_id]->integral(basis_id, s));
@@ -220,7 +220,7 @@ namespace iterateKT
             complex sum = 0;
             for (auto previous : previous_list) 
             {
-                complex K = ksf_kernel(previous->id(),s,t);
+                complex K = ksf_kernel(previous->get_id(),s,t);
                 if (is_zero(K)) continue;
                 sum += K*previous->basis_function(basis_id,t+pm*_ieps);
 
@@ -243,7 +243,7 @@ namespace iterateKT
             for (auto previous : previous_list) 
             {
                 complex t = this->_kinematics->t_curve(phi);
-                complex K = ksf_kernel(previous->id(),s,t);
+                complex K = ksf_kernel(previous->get_id(),s,t);
                 if (is_zero(K)) continue;
                 sum += K*previous->basis_function(basis_id,t);
             };

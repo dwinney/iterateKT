@@ -22,10 +22,10 @@ namespace iterateKT
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
         double _omnes_cutoff     = std::numeric_limits<double>::infinity();
-        int  _omnes_integrator_depth        = 5;    
-        int  _cauchy_integrator_depth       = 5;
-        int  _pseudo_integrator_depth       = 5;
-        int  _angular_integrator_depth      = 5;   
+        int  _omnes_integrator_depth        = 0;    
+        int  _cauchy_integrator_depth       = 0;
+        int  _pseudo_integrator_depth       = 0;
+        int  _angular_integrator_depth      = 0;   
 
         // Which type of interpolation to use, kCSPLINE or kAKIMA
          ROOT::Math::Interpolation::Type _interpolation_type = ROOT::Math::Interpolation::Type::kCSPLINE;

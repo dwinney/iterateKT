@@ -38,7 +38,7 @@ void omega_decay()
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
     amplitude->add_isobar<vector::P_wave>(2);
-    isobar pwave = amplitude->get_isobar(kP_wave);
+    isobar pwave = amplitude->get_isobar(id::P_wave);
     
     // -----------------------------------------------------------------------
     
