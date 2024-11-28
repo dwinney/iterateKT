@@ -48,7 +48,7 @@ void eta_decay()
     // -----------------------------------------------------------------------
     // Iterate N times
 
-    int N = 4;
+    int N = 5;
     
     timer timer;
     timer.start();
@@ -65,14 +65,14 @@ void eta_decay()
 
     plotter plotter;
     double smin =  -10;
-    double smax =  +70;
+    double smax =  +100;
 
-    std::array<std::string,5> labels = {"#Omega", "1st", "2nd", "3rd", "4th"};
+    std::array<std::string,6> labels = {"0th", "1st", "2nd", "3rd", "4th", "5th"};
 
     auto plot_basis = [&](isobar isobar, int i, std::string label)
     {
         plot p = plotter.new_plot();
-        p.set_curve_points(200);
+        p.set_curve_points(1000);
         p.set_legend(false);
         p.set_labels("#it{s} / #it{m}_{#pi}^{2}", label);
         for (int j = 0; j <= N; j++)
@@ -98,6 +98,6 @@ void eta_decay()
     plot f1g = plot_basis(P1, 2, "F_{1}^{#gamma}(#it{s})");
     plot f2g = plot_basis(S2, 2, "F_{2}^{#gamma}(#it{s})");
 
-    f1a.set_legend(0.2, 0.3);
+    f0a.set_legend(0.2, 0.3);
     plotter.combine({3,3}, {f0a, f1a, f2a, f0b, f1b, f2b, f0g, f1g, f2g}, "eta_isobars.pdf");
 };

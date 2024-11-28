@@ -364,12 +364,13 @@ namespace iterateKT
         using namespace boost::math::quadrature;
 
         int n = _n_singularity;
-        complex a = half_regularized_integrand(i, std::real(s));
+        complex a = half_regularized_integrand(i, real(s));
         auto fdx = [this,i,s,a,n](double x)
         { 
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(k(x),n); 
         };
-        complex integral = gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, bounds[0], bounds[1], _settings._cauchy_integrator_depth, 1.E-9, NULL);
+        complex integral = gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, bounds[0], real(s), _settings._cauchy_integrator_depth, 1.E-9, NULL)
+                         + gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, real(s), bounds[1], _settings._cauchy_integrator_depth, 1.E-9, NULL);
 
         return integral + a*R(n,s,bounds);
     };

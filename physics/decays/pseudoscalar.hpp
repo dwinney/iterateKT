@@ -43,16 +43,16 @@ namespace iterateKT { namespace pseudoscalar
         sets._interpolation_type = ROOT::Math::Interpolation::Type::kCSPLINE;
 
         sets._exclusion_points        = 10;
-        sets._exclusion_offsets       = {3, 3};
+        sets._exclusion_offsets       = {2, 3};
         sets._infinitesimal           = 1E-5;
         sets._intermediate_energy     = 100;
         sets._cutoff                  = 1000;
         sets._interpolation_offset    = 0.1;
-        sets._interpolation_points    = {300, 16, 100};
+        sets._interpolation_points    = {300, 22, 150};
 
-        double xi_sth = 0.1,   eps_sth = 0.1;
+        double xi_sth = 0.2,   eps_sth = 0.2;
         double xi_pth = 0.5,   eps_pth = 0.5;
-        double xi_rth = 1.5,   eps_rth = 1.5;
+        double xi_rth = 0.2,   eps_rth = 1.7;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
