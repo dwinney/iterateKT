@@ -33,25 +33,24 @@ namespace iterateKT { namespace pseudoscalar
     inline static const settings default_settings()
     {
         settings sets;
-        sets._adaptive_omnes          = false;
-        sets._adaptive_angular        = false;
-        sets._adaptive_cauchy         = true; 
-        sets._adaptive_pseudo         = true; 
-
-        sets._pseudo_depth = 10;
-        sets._cauchy_depth = 5;
+        
+        // All depths to zero, we use non-adaptive integration
+        sets._pseudo_integrator_depth  = 0;
+        sets._cauchy_integrator_depth  = 0;
+        sets._angular_integrator_depth = 0;
+        sets._omnes_integrator_depth   = 0;
 
         sets._interpolation_type = ROOT::Math::Interpolation::Type::kCSPLINE;
 
         sets._exclusion_points        = 10;
-        sets._exclusion_offsets       = {1, 3};
+        sets._exclusion_offsets       = {3, 3};
         sets._infinitesimal           = 1E-5;
         sets._intermediate_energy     = 100;
         sets._cutoff                  = 1000;
         sets._interpolation_offset    = 0.1;
         sets._interpolation_points    = {300, 16, 100};
 
-        double xi_sth = 0.3,   eps_sth = 0.3;
+        double xi_sth = 0.1,   eps_sth = 0.1;
         double xi_pth = 0.5,   eps_pth = 0.5;
         double xi_rth = 1.5,   eps_rth = 1.5;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };

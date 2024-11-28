@@ -100,8 +100,8 @@ namespace iterateKT
                 return integrand;
             };
             // If using gauss gauss-legendre, split the integral into two pieces to avoid systematic errors at low energies
-            complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, mid, _settings._omnes_depth, 1.E-9, NULL) + gauss_kronrod<double,61>::integrate(fdx, mid, high, _settings._omnes_depth, 1.E-9, NULL)
-                                                           : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, mid) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, mid, high);
+            complex integral = gauss_kronrod<double,N_GAUSS_OMNES>::integrate(fdx, low, mid,  _settings._omnes_integrator_depth, 1.E-9, NULL) 
+                             + gauss_kronrod<double,N_GAUSS_OMNES>::integrate(fdx, mid, high, _settings._omnes_integrator_depth, 1.E-9, NULL);
             return exp(integral/M_PI);
         }
 
@@ -119,8 +119,8 @@ namespace iterateKT
         };
 
         // If using gauss gauss-legendre, split the integral into two pieces to avoid systematic errors at low energies
-        complex integral = (_settings._adaptive_omnes) ? gauss_kronrod<double,61>::integrate(fdx, low, mid, _settings._omnes_depth, 1.E-9, NULL) + gauss_kronrod<double,61>::integrate(fdx, mid, high, _settings._omnes_depth, 1.E-9, NULL)
-                                                       : gauss<double,N_GAUSS_OMNES>::integrate(fdx, low, mid) + gauss<double,N_GAUSS_OMNES>::integrate(fdx, mid, high);
+        complex integral = gauss_kronrod<double,N_GAUSS_OMNES>::integrate(fdx, low, mid,  _settings._omnes_integrator_depth, 1.E-9, NULL) 
+                         + gauss_kronrod<double,N_GAUSS_OMNES>::integrate(fdx, mid, high, _settings._omnes_integrator_depth, 1.E-9, NULL);
 
         complex logarithm = RHCs * log(1.-(s+_ieps) / low);
         return exp((integral-logarithm)/M_PI);
@@ -227,8 +227,7 @@ namespace iterateKT
             };
             return sum;
         };
-        return (_settings._adaptive_angular) ? gauss_kronrod<double,61>::integrate(fdx, bounds[0], bounds[1], _settings._angular_depth, 1.E-9, NULL)
-                                             : gauss<double,N_GAUSS_ANGULAR>::   integrate(fdx, bounds[0], bounds[1]);
+        return gauss_kronrod<double,N_GAUSS_ANGULAR>::integrate(fdx, bounds[0], bounds[1], _settings._angular_integrator_depth, 1.E-9, NULL);
     };
 
     // Integrate along the curved segment of pinnochio's head
@@ -251,7 +250,6 @@ namespace iterateKT
             sum *= this->_kinematics->jacobian(phi);
             return sum;
         };
-        return (_settings._adaptive_angular) ? gauss_kronrod<double,61>::integrate(fdx, _kinematics->phi_minus(s), _kinematics->phi_plus(s), _settings._angular_depth, 1.E-9, NULL)
-                                             : gauss<double,N_GAUSS_ANGULAR>::   integrate(fdx, _kinematics->phi_minus(s), _kinematics->phi_plus(s));
+        return gauss_kronrod<double,N_GAUSS_ANGULAR>::integrate(fdx, _kinematics->phi_minus(s), _kinematics->phi_plus(s), _settings._angular_integrator_depth, 1.E-9, NULL);
     };
 }; // namespace iterateKT
