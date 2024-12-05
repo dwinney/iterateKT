@@ -1,4 +1,4 @@
-// delta I = 1 transition amplitude for eta->3pi
+// Basis functions for eta -> 3pi following [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -7,7 +7,7 @@
 // Email:        daniel.winney@gmail.com
 // ------------------------------------------------------------------------------
 // REFERENCES: 
-// [1] -  https://arxiv.org/abs/2111.02417
+// [1] - https://arxiv.org/abs/2111.02417
 // ------------------------------------------------------------------------------
 
 #include "kinematics.hpp"
@@ -18,9 +18,7 @@
 #include "timer.hpp"
 #include "basis.hpp"
 #include "decays/isoscalar_pseudoscalar.hpp"
-
 #include "plotter.hpp"
-
 
 void eta_decay()
 {
@@ -32,21 +30,17 @@ void eta_decay()
     // Assume masses are given in terms of pion mass
     kinematics kin = new_kinematics(M_ETA/M_PION, 1.);
 
-    // Significant points in integration path
-    double A = kin->A();
-    double B = kin->B();
-    double C = kin->C();
-    double D = kin->D();
-
     // Set up our amplitude 
     amplitude amp = new_amplitude<charged_mode>(kin);
 
-    amp->add_isobar<dI1_S0>(2); 
-    amp->add_isobar<dI1_P1>(1); 
-    amp->add_isobar<dI1_S2>(0);
-    amp->add_isobar<dI0_P1>(1);
-    amp->add_isobar<dI2_P1>(1); 
-    amp->add_isobar<dI2_S2>(0);
+    // Add all the isobars, note the order they are added will be the order
+    // the basis functions are generated
+    amp->add_isobar<dI1_S0>({0,1}, 2); 
+    amp->add_isobar<dI1_P1>({0},   1); 
+    amp->add_isobar<dI1_S2>({},    1);
+    amp->add_isobar<dI0_P1>({0},   1);
+    amp->add_isobar<dI2_P1>({0},   1); 
+    amp->add_isobar<dI2_S2>({},    1);
 
     // -----------------------------------------------------------------------
     // Iterate N times

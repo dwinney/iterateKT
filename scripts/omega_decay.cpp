@@ -1,10 +1,13 @@
-// Evaluate the functions which arise from cauchy integrals done analytically
+// Twice subtracted KT amplitudes for omega decay with only P-wave in [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
 // Affiliation:  Universitat Bonn
 //               Helmholtz Institute (HISKP)
 // Email:        daniel.winney@gmail.com
+// ------------------------------------------------------------------------------
+// REFERENCES: 
+// [1] - https://arxiv.org/abs/2006.01058
 // ------------------------------------------------------------------------------
 
 #include "kinematics.hpp"
@@ -37,7 +40,7 @@ void omega_decay()
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<vector::P_wave>(2);
+    amplitude->add_isobar<vector::P_wave>({0, 1}, 2);
     isobar pwave = amplitude->get_isobar(id::P_wave);
     
     // -----------------------------------------------------------------------

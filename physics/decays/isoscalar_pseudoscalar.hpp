@@ -25,16 +25,18 @@ namespace iterateKT
     // ------------------------------------------------------------------------------
     // All id's for different isobars
  
+    // All isobars couple the 3pi state to the isospin-0
+    // Since all particles are iso-bosons, we only need to specify the \delta I
     enum class id : unsigned int
-    {
-        dI0_P1,
-        dI1_S0, dI1_P1, dI1_S2,
-        dI2_P1, dI2_S2
+    {   
+                                   //  Isospin violating?  |  C-violating?
+        dI0_P1,                    //        no            |      yes
+        dI1_S0, dI1_P1, dI1_S2,    //        yes           |      no
+        dI2_P1, dI2_S2             //        yes           |      yes
     };
 
     // ------------------------------------------------------------------------------
     // Amplitudes
-
 
     // Isospin breaking normalization
     constexpr double XI = -0.140;
@@ -105,20 +107,11 @@ namespace iterateKT
     };
 
     // ------------------------------------------------------------------------------
-    // Isobars involved in the transitions with integer total \delta I 
+    // Isobars 
 
     inline static const settings default_settings()
     {
         settings sets;
-        
-        // All depths to zero, we use non-adaptive integration
-        sets._pseudo_integrator_depth  = 0;
-        sets._cauchy_integrator_depth  = 0;
-        sets._angular_integrator_depth = 0;
-        sets._omnes_integrator_depth   = 0;
-
-        sets._interpolation_type = ROOT::Math::Interpolation::Type::kCSPLINE;
-
         sets._exclusion_points        = 10;
         sets._exclusion_offsets       = {2, 3};
         sets._infinitesimal           = 1E-5;
@@ -134,6 +127,11 @@ namespace iterateKT
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
     };
+
+
+    // ------------------------------------------------------------------------------
+    // Isobars with total \delta I = 0
+    // These are isospin conserving but C-violating
 
     // dI = 0, I = 0, P-wave isobar
     class dI0_P1 : public raw_isobar
@@ -159,6 +157,10 @@ namespace iterateKT
         class phase_shift _delta1;
     };
 
+    // ------------------------------------------------------------------------------
+    // Isobars with total \delta I = 1
+    // These are C-conserving but isospin violating
+    
     // dI = 1, I = 0, S-wave isobar
     class dI1_S0 : public raw_isobar
     {
@@ -236,6 +238,10 @@ namespace iterateKT
         };
         class phase_shift _delta2;
     };
+
+    // ------------------------------------------------------------------------------
+    // Isobars with total \delta I = 2
+    // These are both C and isospin violating
 
     // dI = 2, I = 1, P-wave
     class dI2_P1 : public raw_isobar
