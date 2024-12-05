@@ -150,8 +150,8 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI0_P1: return -3*kz*(3*(s-r)+kz);
-                default:         return 0.;
+                case id::dI0_P1: return -9*kz*(s-r+kz/3);
+                default:         return 0;
             };
         };
         class phase_shift _delta1;
@@ -178,10 +178,10 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI1_S0: return 2./3;
-                case id::dI1_P1: return 2.*((s-r)+kz/3);
-                case id::dI1_S2: return 20./9;
-                default:         return 0.;
+                case id::dI1_S0: return 2/3;
+                case id::dI1_P1: return 2*(s-r+kz/3);
+                case id::dI1_S2: return 20/9;
+                default:         return 0;
             };
         };
         class phase_shift _delta0;
@@ -205,9 +205,9 @@ namespace iterateKT
             switch (iso_id)
             {
                 case id::dI1_S0: return 3*kz;
-                case id::dI1_P1: return 3*kz/2*(3*(s-r)+kz);
+                case id::dI1_P1: return 9/2*kz*(s-r+kz/3);
                 case id::dI1_S2: return -5*kz;
-                default:         return 0.;
+                default:         return 0;
             };
         };
         class phase_shift _delta1;
@@ -230,10 +230,10 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI1_S0: return 1.;
-                case id::dI1_P1: return -(3*(s-r)+kz)/2;
-                case id::dI1_S2: return 2./3;
-                default:         return 0.;
+                case id::dI1_S0: return 1;
+                case id::dI1_P1: return -3/2*(s-r+kz/3);
+                case id::dI1_S2: return 2/3;
+                default:         return 0;
             };
         };
         class phase_shift _delta2;
@@ -260,9 +260,9 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI2_P1: return 3*kz/2*(3*(s-r)+kz);
+                case id::dI2_P1: return 9*kz/2*(s-r+kz/3);
                 case id::dI2_S2: return 3*kz;
-                default:         return 0.;
+                default:         return 0;
             };
         };
         class phase_shift _delta1;
@@ -285,9 +285,9 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI2_P1: return 3./2*(3*(s-r)+kz);
-                case id::dI2_S2: return -1.;
-                default:         return 0.;
+                case id::dI2_P1: return 9/2*(s-r+kz/3);
+                case id::dI2_S2: return -1;
+                default:         return 0;
             };
         };
         class phase_shift _delta2;
