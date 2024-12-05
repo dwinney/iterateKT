@@ -133,11 +133,6 @@ namespace iterateKT
             // Need to update _subtractions to know about new polynomials
             for (auto order : poly)
             {
-                if (order >= nsub)
-                {
-                    warning("add_isobar", "Requested polynomial subtraction with order greater than max subtractions!");
-                    continue;
-                };
                 _subtractions->_ids.push_back(new_iso->get_id());
                 _subtractions->_powers.push_back(order);
             };
