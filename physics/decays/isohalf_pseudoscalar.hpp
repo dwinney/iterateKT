@@ -63,7 +63,7 @@ namespace iterateKT
         sets._intermediate_energy     = 1.0;
         sets._cutoff                  = 40.0;
         sets._interpolation_offset    = 1E-4;
-        sets._interpolation_points    = {2000, 14, 200};
+        sets._interpolation_points    = {400, 14, 200};
 
         double xi_sth = 0,      eps_sth = 1E-3;
         double xi_pth = 1E-3,   eps_pth = 1E-3;
