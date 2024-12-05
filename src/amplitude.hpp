@@ -87,8 +87,10 @@ namespace iterateKT
         };
 
         // Load up a new isobar
+
+        // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
-        inline void add_isobar(int nsub, settings sets = T::default_settings())
+        inline void add_isobar(uint nsub, settings sets = T::default_settings())
         { 
             isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
             
@@ -108,6 +110,36 @@ namespace iterateKT
             {
                 _subtractions->_ids.push_back(new_iso->get_id());
                 _subtractions->_powers.push_back(i);
+            };
+        };
+
+        // Else you can pass a vector of uints with the orders which get 
+        template<class T>
+        inline void add_isobar(std::vector<uint> poly, uint nsub, settings sets = T::default_settings())
+        { 
+            isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
+            
+            // Check for uniqueness
+            for (auto old_iso : _isobars)
+            {
+                if (old_iso->get_id() == new_iso->get_id())
+                {
+                    warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
+                    return;
+                };
+            };
+            _isobars.push_back(new_iso);
+
+            // Need to update _subtractions to know about new polynomials
+            for (auto order : poly)
+            {
+                if (order >= nsub)
+                {
+                    warning("add_isobar", "Requested polynomial subtraction with order greater than max subtractions!");
+                    continue;
+                };
+                _subtractions->_ids.push_back(new_iso->get_id());
+                _subtractions->_powers.push_back(order);
             };
         };
 
