@@ -1,4 +1,4 @@
-// Isobars relevant for the decay of meson with JPC = 1-- into 3pi as in Ref. [1]
+// Isobars relevant for the decay of meson with JP = 1-- into 3pi as in Ref. [1]
 // 
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -10,8 +10,8 @@
 // [1] -  https://arxiv.org/abs/2006.01058
 // ------------------------------------------------------------------------------
 
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef OMEGA_HPP
+#define OMEGA_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -52,12 +52,9 @@ namespace iterateKT
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin, subtractions subs, int maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets)
+        P_wave(kinematics xkin, id id, subtractions subs, int maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets)
         {};
-
-        // Virtual functions
-        inline id get_id() { return id::P_wave;  };
 
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
@@ -99,4 +96,4 @@ namespace iterateKT
     };
 }; // namespace iterateKT 
 
-#endif // VECTOR_HPP
+#endif // OMEGA_HPP

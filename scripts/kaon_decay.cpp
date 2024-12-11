@@ -17,7 +17,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/isohalf_pseudoscalar.hpp"
+#include "decays/kaon.hpp"
 #include "plotter.hpp"
 
 void kaon_decay()
@@ -35,12 +35,12 @@ void kaon_decay()
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    amp->add_isobar<dI1_tI1_S0>({0, 1, 2}, 2); 
-    amp->add_isobar<dI1_tI1_P1>({1},       1); 
-    amp->add_isobar<dI1_tI1_S2>({},        2); 
-    amp->add_isobar<dI3_tI2_P1>({0, 1},    1); 
-    amp->add_isobar<dI3_tI2_S2>({},        2); 
-    amp->add_isobar<dI1_tI0_P1>({1},       1);
+    amp->add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); 
+    amp->add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); 
+    amp->add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); 
+    amp->add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); 
+    amp->add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); 
+    amp->add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1);
 
     // -----------------------------------------------------------------------
     // Iterate N times

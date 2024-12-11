@@ -16,7 +16,7 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "decays/vector.hpp"
+#include "decays/omega.hpp"
 
 #include "plotter.hpp"
 
@@ -36,11 +36,11 @@ void omega_decay()
     double D = kinematics->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<vector>(kinematics);
+    amplitude amplitude = new_amplitude(kinematics);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<vector::P_wave>({0, 1}, 2);
+    amplitude->add_isobar<vector::P_wave>({0, 1}, 2, id::P_wave);
     isobar pwave = amplitude->get_isobar(id::P_wave);
     
     // -----------------------------------------------------------------------

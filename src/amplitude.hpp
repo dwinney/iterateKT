@@ -27,7 +27,7 @@ namespace iterateKT
     using amplitude  = std::shared_ptr<raw_amplitude>;
 
     // This function serves as our "constructor"
-    template<class A>
+    template<class A=raw_amplitude>
     inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude")
     {
         auto x = std::make_shared<A>(kin, id);
@@ -90,9 +90,9 @@ namespace iterateKT
 
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
-        inline void add_isobar(uint nsub, settings sets = T::default_settings())
+        inline void add_isobar(uint nsub, id id, settings sets = T::default_settings())
         { 
-            isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
+            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
             
             // Check for uniqueness
             for (auto old_iso : _isobars)
@@ -115,9 +115,9 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<uint> poly, uint nsub, settings sets = T::default_settings())
+        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, settings sets = T::default_settings())
         { 
-            isobar new_iso = new_isobar<T>(_kinematics, _subtractions, nsub, sets);
+            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
             
             // Check for uniqueness
             for (auto old_iso : _isobars)

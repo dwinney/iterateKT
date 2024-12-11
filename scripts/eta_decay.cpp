@@ -17,7 +17,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/isoscalar_pseudoscalar.hpp"
+#include "decays/eta.hpp"
 #include "plotter.hpp"
 
 void eta_decay()
@@ -35,12 +35,12 @@ void eta_decay()
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    amp->add_isobar<dI1_S0>({0,1}, 2); 
-    amp->add_isobar<dI1_P1>({0},   1); 
-    amp->add_isobar<dI1_S2>({},    1);
-    amp->add_isobar<dI0_P1>({0},   1);
-    amp->add_isobar<dI2_P1>({0},   1); 
-    amp->add_isobar<dI2_S2>({},    1);
+    amp->add_isobar<dI1_S0>({0,1}, 2, id::dI1_S0); 
+    amp->add_isobar<dI1_P1>({0},   1, id::dI1_P1); 
+    amp->add_isobar<dI1_S2>({},    1, id::dI1_S2);
+    amp->add_isobar<dI0_P1>({0},   1, id::dI0_P1);
+    amp->add_isobar<dI2_P1>({0},   1, id::dI2_P1); 
+    amp->add_isobar<dI2_S2>({},    1, id::dI2_S2);
 
     // -----------------------------------------------------------------------
     // Iterate N times

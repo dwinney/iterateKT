@@ -14,8 +14,8 @@
 // [1] - https://arxiv.org/abs/2403.17570
 // ------------------------------------------------------------------------------
 
-#ifndef ISOHALF_PSEUDOSCALAR_HPP
-#define ISOHALF_PSEUDOSCALAR_HPP
+#ifndef KAON_HPP
+#define KAON_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -80,11 +80,10 @@ namespace iterateKT
     class dI1_tI0_P1 : public raw_isobar
     {
         public: 
-        dI1_tI0_P1(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
+        dI1_tI0_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
         {};
 
-        inline id           get_id()                   { return id::dI1_tI0_P1;  };
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -104,11 +103,10 @@ namespace iterateKT
     class dI1_tI1_S0 : public raw_isobar
     {
         public: 
-        dI1_tI1_S0(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta0("orsay/phase00.dat", 9.99, 1)
+        dI1_tI1_S0(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta0("orsay/phase00.dat", 9.99, 1)
         {};
 
-        inline id           get_id()                   { return id::dI1_tI1_S0;  };
         inline unsigned int singularity_power()        { return 0; };
         inline double       phase_shift(double s)      { return _delta0(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -130,11 +128,10 @@ namespace iterateKT
     class dI1_tI1_P1 : public raw_isobar
     {
         public: 
-        dI1_tI1_P1(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
+        dI1_tI1_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
         {};
 
-        inline id           get_id()                   { return id::dI1_tI1_P1;  };
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -156,11 +153,10 @@ namespace iterateKT
     class dI1_tI1_S2 : public raw_isobar
     {
         public: 
-        dI1_tI1_S2(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta2("orsay/phase02.dat", 9.9, 0)
+        dI1_tI1_S2(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta2("orsay/phase02.dat", 9.9, 0)
         {};
 
-        inline id           get_id()                   { return id::dI1_tI1_S2;  };
         inline unsigned int singularity_power()        { return 0; };
         inline double       phase_shift(double s)      { return _delta2(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -185,11 +181,10 @@ namespace iterateKT
     class dI3_tI2_P1 : public raw_isobar
     {
         public: 
-        dI3_tI2_P1(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
+        dI3_tI2_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
         {};
 
-        inline id           get_id()                   { return id::dI3_tI2_P1;  };
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -210,11 +205,10 @@ namespace iterateKT
     class dI3_tI2_S2 : public raw_isobar
     {
         public: 
-        dI3_tI2_S2(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, subs, maxsub, sets), _delta2("orsay/phase02.dat", 9.99, 1)
+        dI3_tI2_S2(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta2("orsay/phase02.dat", 9.99, 1)
         {};
 
-        inline id           get_id()                   { return id::dI3_tI2_S2;  };
         inline unsigned int singularity_power()        { return 0; };
         inline double       phase_shift(double s)      { return _delta2(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -230,7 +224,5 @@ namespace iterateKT
         };
         class phase_shift _delta2;
     };
-
-    // The first set of these are actually identical to the above. The 
 }; /*  namespace iterateKT */
-#endif // ISOHALF_PSEUDOSCALAR_HPP
+#endif // KAON_HPP

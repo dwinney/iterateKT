@@ -33,9 +33,9 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin, subtractions subs, uint maxsub, settings sets = settings() )
+    inline isobar new_isobar(kinematics kin, id id, subtractions subs, uint maxsub, settings sets = settings())
     {
-        auto x = std::make_shared<A>(kin, subs, maxsub, sets);
+        auto x = std::make_shared<A>(kin, id, subs, maxsub, sets);
         return std::static_pointer_cast<raw_isobar>(x);
     };
 
@@ -45,8 +45,8 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin, subtractions subs, uint maxsub, settings sets) 
-        : _kinematics(xkin), _settings(sets), _subtractions(subs)
+        raw_isobar(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : _kinematics(xkin), _settings(sets), _subtractions(subs), _id(id)
         { 
             // When we have "unsubtracted" we assume we do have one but no polynomial
             _max_sub = (maxsub == 0) ? 1 : maxsub;
@@ -58,10 +58,11 @@ namespace iterateKT
         inline void set_name(std::string x){ _name = x; };
         inline std::string name(){ return _name; }; 
 
+        // Only way to publically access the isobars id
+        inline id get_id(){ return _id; };
+
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
-
-        virtual id get_id() = 0;
 
         // The power (p q)^n that appears in angular momentum barrier factor
         // This determines the type of matching required at pseudothreshold
@@ -116,6 +117,9 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         protected:
+
+        // Id of the isobar, see definition in basis.hpp
+        id _id;
 
         // Kinematics instance
         kinematics _kinematics;
