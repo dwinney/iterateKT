@@ -10,8 +10,8 @@
 // [1] -  https://arxiv.org/abs/2006.01058
 // ------------------------------------------------------------------------------
 
-#ifndef OMEGA_HPP
-#define OMEGA_HPP
+#ifndef OMEGA_ISOBARS_HPP
+#define OMEGA_ISOBARS_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -23,30 +23,10 @@ namespace iterateKT
 { 
     // Ids for all our isobars, we only have one though
     enum class id : unsigned int { P_wave };
-
-    // This defines the full amplitude, i.e. how the isobars are combined
-    // Here is where we usually put the isospin combinations etc
-    class vector : public raw_amplitude
-    {
-        public: 
-        
-        // Constructor
-        vector(kinematics kin, std::string id) : raw_amplitude(kin,id)
-        {};
-
-        // We have no kinematic factors and only one isobar so simply return 1.
-        // We're completely symmetric here so these are all the same
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave); };
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, t, s, u); };
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, u, t, s); };
-
-        class P_wave;
-    };
-
-    
+   
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
-    class vector::P_wave : public raw_isobar
+    class P_wave : public raw_isobar
     {
         // -----------------------------------------------------------------------
         public: 
@@ -96,4 +76,4 @@ namespace iterateKT
     };
 }; // namespace iterateKT 
 
-#endif // OMEGA_HPP
+#endif // OMEGA_ISOBARS_HPP

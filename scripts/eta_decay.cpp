@@ -17,8 +17,10 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/eta.hpp"
 #include "plotter.hpp"
+
+#include "isobars/eta.hpp"
+#include "amplitudes/eta.hpp"
 
 void eta_decay()
 {

@@ -14,8 +14,8 @@
 // [1] - https://arxiv.org/abs/2403.17570
 // ------------------------------------------------------------------------------
 
-#ifndef KAON_HPP
-#define KAON_HPP
+#ifndef KAON_ISOBARS_HPP
+#define KAON_ISOBARS_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -39,16 +39,6 @@ namespace iterateKT
         dI1_tI1_S0, dI1_tI1_P1, dI1_tI1_S2, //       1/2      |        1 
         dI3_tI1_S0, dI3_tI1_P1, dI3_tI1_S2, //       3/2      |        1 
         dI3_tI2_P1, dI3_tI2_S2              //       3/2      |        2 
-    };
-
-    // ------------------------------------------------------------------------------
-    // Amplitudes
-
-    class charged_mode : public raw_amplitude
-    {
-        public: 
-        charged_mode(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
     };
 
     // ------------------------------------------------------------------------------
@@ -225,4 +215,4 @@ namespace iterateKT
         class phase_shift _delta2;
     };
 }; /*  namespace iterateKT */
-#endif // KAON_HPP
+#endif // KAON_ISOBARS_HPP

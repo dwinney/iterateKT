@@ -17,8 +17,10 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "basis.hpp"
-#include "decays/kaon.hpp"
 #include "plotter.hpp"
+
+#include "amplitudes/kaon.hpp"
+#include "isobars/kaon.hpp"
 
 void kaon_decay()
 {
