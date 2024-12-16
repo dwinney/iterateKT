@@ -18,8 +18,8 @@
 #include "timer.hpp"
 #include "basis.hpp"
 #include "plotter.hpp"
+#include "kt_iterator.hpp"
 
-#include "amplitudes/kaon.hpp"
 #include "isobars/kaon.hpp"
 
 void kaon_decay()
@@ -33,16 +33,16 @@ void kaon_decay()
     kinematics kin = new_kinematics(M_KAON, M_PION);
 
     // Set up our amplitude 
-    amplitude amp = new_amplitude<charged_mode>(kin);
+    kt_iterator iterator(kin);
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    amp->add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); 
-    amp->add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); 
-    amp->add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); 
-    amp->add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); 
-    amp->add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); 
-    amp->add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1);
+    iterator.add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); 
+    iterator.add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); 
+    iterator.add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); 
+    iterator.add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); 
+    iterator.add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); 
+    iterator.add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1);
 
     // -----------------------------------------------------------------------
     // Iterate N times
@@ -53,7 +53,7 @@ void kaon_decay()
     timer.start();
     for (int i = 1; i <= N; i++)
     {
-        amp->iterate();
+        iterator.iterate();
         timer.lap("iteration " + std::to_string(i));
     }
     timer.stop();
@@ -101,12 +101,12 @@ void kaon_decay()
     };
 
     // Grab out isobars for plotting
-    isobar S0  = amp->get_isobar(id::dI1_tI1_S0);
-    isobar P1  = amp->get_isobar(id::dI1_tI1_P1);
-    isobar S2  = amp->get_isobar(id::dI1_tI1_S2);
-    isobar P1t = amp->get_isobar(id::dI3_tI2_P1);
-    isobar S2t = amp->get_isobar(id::dI3_tI2_S2);
-    isobar S1t = amp->get_isobar(id::dI1_tI0_P1);
+    isobar S0  = iterator.get_isobar(id::dI1_tI1_S0);
+    isobar P1  = iterator.get_isobar(id::dI1_tI1_P1);
+    isobar S2  = iterator.get_isobar(id::dI1_tI1_S2);
+    isobar P1t = iterator.get_isobar(id::dI3_tI2_P1);
+    isobar S2t = iterator.get_isobar(id::dI3_tI2_S2);
+    isobar S1t = iterator.get_isobar(id::dI1_tI0_P1);
 
     // Labels for the legends of all the plots
     std::array<std::string,4> f0_labels =  {"S_{0}^{0}", "10 S_{0}^{1}", "10^{2} S_{0}^{2}", "10^{3} S_{0}^{3}"};

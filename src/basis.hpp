@@ -35,7 +35,9 @@ namespace iterateKT
 
         private: 
 
+        friend class kt_iterator;
         friend class raw_amplitude;
+
         std::vector<id>           _ids;     // The id of the isobar this subtraction coeff appears in
         std::vector<unsigned int> _powers;  // The power of s i nthe polynomial this coeff multiplies
         std::vector<std::string>  _names;   // Optional to give each parameter a name

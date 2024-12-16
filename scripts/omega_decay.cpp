@@ -17,7 +17,7 @@
 #include "constants.hpp"
 #include "timer.hpp"
 
-#include "amplitudes/omega.hpp"
+#include "kt_iterator.hpp"
 #include "isobars/omega.hpp"
 
 #include "plotter.hpp"
@@ -37,12 +37,12 @@ void omega_decay()
     double D = kinematics->D();
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude(kinematics);
+    kt_iterator iterator(kinematics);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>({0, 1}, 2, id::P_wave);
-    isobar pwave = amplitude->get_isobar(id::P_wave);
+    iterator.add_isobar<P_wave>({0, 1}, 2, id::P_wave);
+    isobar pwave = iterator.get_isobar(id::P_wave);
     
     // -----------------------------------------------------------------------
     
@@ -74,7 +74,7 @@ void omega_decay()
     std::array<std::string,4> labels = {"1st", "2nd", "3rd", "4th"};
     for (int i = 1; i <= 4; i++)
     {
-        amplitude->iterate();
+        iterator.iterate();
         p1.add_curve( {-15, 70.}, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, labels[i-1]);
         p1.add_dashed({-15, 70.}, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
         p2.add_curve( {-15, 70.}, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, labels[i-1]);

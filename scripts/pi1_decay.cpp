@@ -16,9 +16,11 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
-#include "decays/pi1.hpp"
-
 #include "plotter.hpp"
+#include "kt_iterator.hpp"
+
+#include "isobars/pi1.hpp"
+
 
 void pi1_decay()
 {
@@ -81,7 +83,7 @@ void pi1_decay()
         p2.add_dashed({-15, smax}, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
     };
 
-    plotter.combine({2,1}, {p1,p2}, "omega_isobars.pdf");
+    plotter.combine({2,1}, {p1,p2}, "pi1_isobars.pdf");
 
     timer.stop();
     timer.print_elapsed();

@@ -17,6 +17,7 @@
 #include "utilities.hpp"
 #include "basis.hpp"
 #include "isobar.hpp"
+#include "kt_iterator.hpp"
 
 namespace iterateKT
 {
@@ -35,15 +36,14 @@ namespace iterateKT
     };
 
 
-    class raw_amplitude
+    class raw_amplitude : public kt_iterator
     {
         // -----------------------------------------------------------------------
         public:
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        raw_amplitude(kinematics xkin, std::string id)
-        : _kinematics(xkin), _id(id), _subtractions(std::make_shared<raw_subtractions>())
+        raw_amplitude(kinematics xkin, std::string id) : kt_iterator(xkin)
         {};
 
         // Evaluate the full amplitude. This will 
@@ -53,10 +53,6 @@ namespace iterateKT
         virtual complex prefactor_s(id iso_id, complex s, complex t, complex u){ return 0.; };
         virtual complex prefactor_t(id iso_id, complex s, complex t, complex u){ return 0.; };
         virtual complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
-
-        // Calculate one iteration of the KT equations
-        void iterate();
-        inline void iterate(unsigned int N){ for (int i = 0; i < N; i++) iterate(); };
         
         // -----------------------------------------------------------------------
         // Utilities
@@ -77,82 +73,7 @@ namespace iterateKT
         };
 
         // -----------------------------------------------------------------------
-        // Isobar management
-        
-        // Retrieve an isobar with index i
-        inline isobar get_isobar(id i)
-        { 
-            for (auto f : _isobars) if (i == f->get_id()) return f;
-            return error("amplitude::get_isobar", "Index out of scope!", nullptr);
-        };
-
-        // Load up a new isobar
-
-        // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
-        template<class T>
-        inline void add_isobar(uint nsub, id id, settings sets = T::default_settings())
-        { 
-            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
-            
-            // Check for uniqueness
-            for (auto old_iso : _isobars)
-            {
-                if (old_iso->get_id() == new_iso->get_id())
-                {
-                    warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
-                    return;
-                };
-            };
-            _isobars.push_back(new_iso);
-
-            // Need to update _subtractions to know about new polynomials
-            for (int i = 0; i < nsub; i++)
-            {
-                _subtractions->_ids.push_back(new_iso->get_id());
-                _subtractions->_powers.push_back(i);
-            };
-        };
-
-        // Else you can pass a vector of uints with the orders which get 
-        template<class T>
-        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, settings sets = T::default_settings())
-        { 
-            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
-            
-            // Check for uniqueness
-            for (auto old_iso : _isobars)
-            {
-                if (old_iso->get_id() == new_iso->get_id())
-                {
-                    warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
-                    return;
-                };
-            };
-            _isobars.push_back(new_iso);
-
-            // Need to update _subtractions to know about new polynomials
-            for (auto order : poly)
-            {
-                _subtractions->_ids.push_back(new_iso->get_id());
-                _subtractions->_powers.push_back(order);
-            };
-        };
-
-        // Access the full vector of isobar pointers
-        inline std::vector<isobar> get_isobars(){return _isobars;};
-
-        // -----------------------------------------------------------------------
-
         private:
-
-        // Kinematics object, contains all masses, angles, etc
-        kinematics _kinematics;
-
-        // Store isobars here to be called later
-        std::vector<isobar> _isobars;
-
-        // Store info regarding the subtraction polynomials
-        subtractions _subtractions;
 
         // Options flag
         int _option;

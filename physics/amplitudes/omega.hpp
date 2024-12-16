@@ -25,12 +25,12 @@ namespace iterateKT
 { 
     // This defines the full amplitude, i.e. how the isobars are combined
     // Here is where we usually put the isospin combinations etc
-    class vector : public raw_amplitude
+    class omega : public raw_amplitude
     {
         public: 
         
         // Constructor
-        vector(kinematics kin, std::string id) : raw_amplitude(kin,id)
+        omega(kinematics kin, std::string id) : raw_amplitude(kin,id)
         {};
 
         // We have no kinematic factors and only one isobar so simply return 1.
