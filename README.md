@@ -12,7 +12,7 @@ For maximum flexibility, the code only requires specifying the elastic phase shi
 
 ##  INSTALLATION
 
-Compilation of the base library requires only [ROOT](https://root.cern.ch/) (tested with version 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library) and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68) libraries.
+Compilation of the base library requires only [CMake](https://cmake.org/) (version $\geq$ 3.30), [ROOT](https://root.cern.ch/) (tested with version 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library), and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68).
 
 To install, clone normally and use:
 ```bash
