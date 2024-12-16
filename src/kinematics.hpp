@@ -64,6 +64,9 @@ namespace iterateKT
         inline double Sigma(){ return M2() + 3*m2(); };
         inline double r(){ return Sigma()/3; };
 
+        // Kibble function
+        inline complex kibble(complex s, complex t, complex u){ return s*t*u - m2()*pow(M2()-m2(), 2); };
+
         // Special points along the pinnochio path
         inline double A(){ return sth(); };
         inline double B(){ return (M2()-m2())/2; };

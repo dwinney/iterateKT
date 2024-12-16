@@ -45,7 +45,7 @@ namespace iterateKT
         int region; 
         region = (s >= Sth + xi[0])  // 1
                + (s >= Rth - xi[2])  // 2
-               + (s >= Rth)       // 3
+               + (s >= Rth)          // 3
                + (s >= Rth + xi[2]); // 4
 
         switch (region)

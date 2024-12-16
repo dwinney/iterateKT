@@ -18,6 +18,7 @@
 #include "basis.hpp"
 #include "isobar.hpp"
 #include "kt_iterator.hpp"
+#include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
 {
@@ -46,14 +47,22 @@ namespace iterateKT
         raw_amplitude(kinematics xkin, std::string id) : kt_iterator(xkin)
         {};
 
-        // Evaluate the full amplitude. This will 
+        // Evaluate the full amplitude.
         virtual complex evaluate(complex s, complex t, complex u);
+
+        // Factor to divide by in width calculation
+        virtual double  helicity_factor(){ return 1; };
 
         // Need to specify how to combine the isobars into the full amplitude
         virtual complex prefactor_s(id iso_id, complex s, complex t, complex u){ return 0.; };
         virtual complex prefactor_t(id iso_id, complex s, complex t, complex u){ return 0.; };
         virtual complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
-        
+
+        // Calculate widths in the physical decay region
+        double differential_width(double s, double t);
+        double differential_width(double s);
+        double width();
+
         // -----------------------------------------------------------------------
         // Utilities
 
@@ -80,6 +89,9 @@ namespace iterateKT
 
         // Id string to identify the amplitude with
         std::string _id = "amplitude";
+
+        // prefactors for the differential width
+        inline double prefactors(){ return 32*pow(2*PI*_kinematics->M(),3); }
     };
 }; // namespace iterateOKT
 

@@ -33,9 +33,11 @@ namespace iterateKT
         omega(kinematics kin, std::string id) : raw_amplitude(kin,id)
         {};
 
+        inline double helicity_factor(){ return 3; };
+        
         // We have no kinematic factors and only one isobar so simply return 1.
         // We're completely symmetric here so these are all the same
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave); };
+        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave) ? csqrt(_kinematics->kibble(s,t,u))/2 : 0; };
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, t, s, u); };
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, u, t, s); };
     };
