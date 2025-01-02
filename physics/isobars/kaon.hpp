@@ -214,5 +214,83 @@ namespace iterateKT
         };
         class phase_shift _delta2;
     };
+
+    // The following are actually identical to those of dI = 1/2 but need to be 
+    // reintroduced because they require different ids and different coefficients
+
+    // N_0
+    class dI3_tI1_S0 : public raw_isobar
+    {
+        public: 
+        dI3_tI1_S0(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta0("orsay/phase00.dat", 9.99, 1)
+        {};
+
+        inline unsigned int singularity_power()        { return 0; };
+        inline double       phase_shift(double s)      { return _delta0(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+        inline complex ksf_kernel(id iso_id, complex s, complex t)
+        { 
+            double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
+            switch (iso_id)
+            {
+                case id::dI3_tI1_S0: return 2/3;
+                case id::dI3_tI1_P1: return 2*(s-r+kz/3);
+                case id::dI3_tI1_S2: return 20/9;
+                default:             return 0;
+            };
+        };
+        class phase_shift _delta0;
+    };
+
+    // N_1
+    class dI3_tI1_P1 : public raw_isobar
+    {
+        public: 
+        dI3_tI1_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("orsay/phase11.dat", 9.99, 1)
+        {};
+
+        inline unsigned int singularity_power()        { return 2; };
+        inline double       phase_shift(double s)      { return _delta1(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+        inline complex ksf_kernel(id iso_id, complex s, complex t)
+        { 
+            double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
+            switch (iso_id)
+            {
+                case id::dI3_tI1_S0: return 3*kz;
+                case id::dI3_tI1_P1: return 9/2*kz*(s-r+kz*kz/3);
+                case id::dI3_tI1_S2: return -5*kz;
+                default:             return 0;
+            };
+        };
+        class phase_shift _delta1;
+    };
+
+    // N_0
+    class dI3_tI1_S2 : public raw_isobar
+    {
+        public: 
+        dI3_tI1_S2(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
+        : raw_isobar(xkin, id, subs, maxsub, sets), _delta2("orsay/phase02.dat", 9.9, 0)
+        {};
+
+        inline unsigned int singularity_power()        { return 0; };
+        inline double       phase_shift(double s)      { return _delta2(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+        inline complex ksf_kernel(id iso_id, complex s, complex t)
+        { 
+            double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
+            switch (iso_id)
+            {
+                case id::dI3_tI1_S0: return 1;
+                case id::dI3_tI1_P1: return -3/2*(s-r+kz/3);
+                case id::dI3_tI1_S2: return 1/3;
+                default:     return 0;
+            };
+        };
+        class phase_shift _delta2;
+    };
 }; /*  namespace iterateKT */
 #endif // KAON_ISOBARS_HPP

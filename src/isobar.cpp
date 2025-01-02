@@ -133,8 +133,8 @@ namespace iterateKT
     // Specify a given iteration to use when outputting the basis_function
     complex raw_isobar::basis_function(unsigned int iter_id, unsigned int basis_id, complex s)
     {
-        if (iter_id  >=  _iterations.size())       return error("Requested iteration does not exist!",      NaN<complex>());
-        if (basis_id >= _subtractions->N_basis())  return error("Requested basis function does not exist!", NaN<complex>());
+        if (iter_id  >=  _iterations.size())       return 0;
+        if (basis_id >= _subtractions->N_basis())  return 0;
 
         bool no_poly = (_subtractions->get_id(basis_id) != get_id());
         complex polynomial = (no_poly) ? 0 : pow(s, _subtractions->get_power(basis_id));

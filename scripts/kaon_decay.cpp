@@ -37,17 +37,17 @@ void kaon_decay()
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    solver.add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); 
-    solver.add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); 
-    solver.add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); 
-    solver.add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); 
-    solver.add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); 
-    solver.add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1);
+    solver.add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); // M0
+    solver.add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); // M1
+    solver.add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); // M2
+    solver.add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); // Nt1
+    solver.add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); // Nt2
+    solver.add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1); // Mt1
 
     // -----------------------------------------------------------------------
     // Iterate N times
 
-    int N = 5;
+    int N = 4;
     
     timer timer;
     timer.start();
@@ -101,12 +101,12 @@ void kaon_decay()
     };
 
     // Grab out isobars for plotting
-    isobar S0  = solver.get_isobar(id::dI1_tI1_S0);
-    isobar P1  = solver.get_isobar(id::dI1_tI1_P1);
-    isobar S2  = solver.get_isobar(id::dI1_tI1_S2);
-    isobar P1t = solver.get_isobar(id::dI3_tI2_P1);
-    isobar S2t = solver.get_isobar(id::dI3_tI2_S2);
-    isobar S1t = solver.get_isobar(id::dI1_tI0_P1);
+    isobar M0  = solver.get_isobar(id::dI1_tI1_S0);
+    isobar M1  = solver.get_isobar(id::dI1_tI1_P1);
+    isobar M2  = solver.get_isobar(id::dI1_tI1_S2);
+    isobar Nt1 = solver.get_isobar(id::dI3_tI2_P1);
+    isobar Nt2 = solver.get_isobar(id::dI3_tI2_S2);
+    isobar Mt1 = solver.get_isobar(id::dI1_tI0_P1);
 
     // Labels for the legends of all the plots
     std::array<std::string,4> f0_labels =  {"S_{0}^{0}", "10 S_{0}^{1}", "10^{2} S_{0}^{2}", "10^{3} S_{0}^{3}"};
@@ -115,24 +115,24 @@ void kaon_decay()
 
 
     // S functions
-    plot f0 = plot_basis(S0, {1, 10, 1E2, 1E3}, f0_labels);
+    plot f0 = plot_basis(M0, {1, 10, 1E2, 1E3}, f0_labels);
     f0.set_ranges({smin, smax}, {-0.3, 3.0});
     f0.set_legend(0.25, 0.7);
 
-    plot f1 = plot_basis(P1, {1, 10, 1E2, 1},  f1_labels);
+    plot f1 = plot_basis(M1, {1, 10, 1E2, 1},  f1_labels);
     f1.set_ranges({smin, smax}, {-0.4, 0.3});
     f1.set_legend(0.25, 0.2);
 
-    plot f2 = plot_basis(S2, {1, 10, 1E2, 1E2}, f2_labels);
+    plot f2 = plot_basis(M2, {1, 10, 1E2, 1E2}, f2_labels);
     f2.set_ranges({smin, smax}, {-0.12, 0.06});
     f2.set_legend(0.25, 0.2);
 
     // Stilde functions
-    plot f2t = plot_basis_tilde(S2t, {1, 10}, {"#tilde{S}_{2}^{0}", "10 #tilde{S}_{2}^{1}"});
+    plot f2t = plot_basis_tilde(Nt2, {1, 10}, {"#tilde{S}_{2}^{0}", "10 #tilde{S}_{2}^{1}"});
     f2t.set_legend(0.25, 0.7);
     f2t.set_ranges({smin,smax}, {-0.04, 0.05});
     
-    plot f1t = plot_basis_tilde(P1t, {1, 10}, {"#tilde{S}_{1}^{0}", "10 #tilde{S}_{1}^{1}"});
+    plot f1t = plot_basis_tilde(Nt1, {1, 10}, {"#tilde{S}_{1}^{0}", "10 #tilde{S}_{1}^{1}"});
     f1t.set_legend(0.25, 0.7);
     f1t.set_ranges({smin,smax}, {-0.06, 2});
 
@@ -141,8 +141,8 @@ void kaon_decay()
     s1t.set_labels("#it{s} [GeV^{2}]", "");
     s1t.set_legend(0.25, 0.7);
     s1t.set_ranges({smin,smax}, {-0.01, 0.2});
-    s1t.add_curve({smin, smax}, [&](double s){ return     std::real(S1t->basis_function(6, s+IEPS)); }, solid(jpacColor::Blue,  "Re #tilde{S}_{1}"));
-    s1t.add_curve({smin, smax}, [&](double s){ return 100*std::imag(S1t->basis_function(6, s+IEPS)); }, dashed(jpacColor::Blue, "10^{2} Im #tilde{S}_{1}"));
+    s1t.add_curve({smin, smax}, [&](double s){ return     std::real(Mt1->basis_function(6, s+IEPS)); }, solid(jpacColor::Blue,  "Re #tilde{S}_{1}"));
+    s1t.add_curve({smin, smax}, [&](double s){ return 100*std::imag(Mt1->basis_function(6, s+IEPS)); }, dashed(jpacColor::Blue, "10^{2} Im #tilde{S}_{1}"));
 
     plotter.combine({3,2}, {f0,f1,f2,f2t,f1t,s1t}, "kaon_isobars.pdf");
 };

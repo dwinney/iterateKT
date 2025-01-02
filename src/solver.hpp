@@ -8,8 +8,8 @@
 // Email:        daniel.winney@gmail.com
 // ------------------------------------------------------------------------------
 
-#ifndef ITERATOR_HPP
-#define ITERATOR_HPP
+#ifndef SOLVER_HPP
+#define SOLVER_HPP
 
 #include <memory>
 #include "kinematics.hpp"
@@ -128,4 +128,4 @@ namespace iterateKT
 
 }; // namespace iterateKT
 
-#endif // ITERATOR_HPP
+#endif // SOLVER_HPP
