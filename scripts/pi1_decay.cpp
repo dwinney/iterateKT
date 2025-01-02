@@ -17,7 +17,6 @@
 #include "constants.hpp"
 #include "timer.hpp"
 #include "plotter.hpp"
-#include "kt_iterator.hpp"
 
 #include "isobars/pi1.hpp"
 

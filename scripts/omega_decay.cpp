@@ -17,7 +17,6 @@
 #include "constants.hpp"
 #include "timer.hpp"
 
-#include "kt_iterator.hpp"
 #include "isobars/omega.hpp"
 #include "amplitudes/omega.hpp"
 

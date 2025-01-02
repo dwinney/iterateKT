@@ -19,12 +19,12 @@
 
 namespace iterateKT
 {
-    class kt_iterator 
+    class solver 
     {
         // -----------------------------------------------------------------------
         public: 
 
-        kt_iterator(kinematics xkin)
+        solver(kinematics xkin)
         : _kinematics(xkin), _subtractions(std::make_shared<raw_subtractions>())
         {};
 

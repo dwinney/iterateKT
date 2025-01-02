@@ -60,6 +60,7 @@ namespace iterateKT
             double xi_rth = 0.8,  eps_rth = 1.5;
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
+            sets._exclusion_offsets   = {1, 1};
             return sets;
         };
     };

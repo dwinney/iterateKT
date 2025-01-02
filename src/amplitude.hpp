@@ -17,7 +17,7 @@
 #include "utilities.hpp"
 #include "basis.hpp"
 #include "isobar.hpp"
-#include "kt_iterator.hpp"
+#include "solver.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -37,14 +37,14 @@ namespace iterateKT
     };
 
 
-    class raw_amplitude : public kt_iterator
+    class raw_amplitude : public solver
     {
         // -----------------------------------------------------------------------
         public:
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        raw_amplitude(kinematics xkin, std::string id) : kt_iterator(xkin)
+        raw_amplitude(kinematics xkin, std::string id) : solver(xkin)
         {};
 
         // Evaluate the full amplitude.
@@ -68,8 +68,11 @@ namespace iterateKT
 
         // Retrieve or set the option flag.
         // set_option can be overloaded if you want to do more than just save it      
-        inline int option(){ return _option; };
-        virtual inline void set_option(int x){ _option = x; for (auto f : _isobars) f->set_option(x); };
+        virtual inline uint option(){ return _option; };
+
+        // Set the option of an isobar
+        inline void set_isobar_option(uint i, uint x){ if (i < _isobars.size()) _isobars[i]->set_option(x); };
+        inline void set_isobar_option(uint x){ for (auto f : _isobars) f->set_option(x); };
 
         inline void set_parameters( std::vector<complex> pars)
         {
@@ -85,12 +88,12 @@ namespace iterateKT
         private:
 
         // Options flag
-        int _option;
+        uint _option;
 
         // Id string to identify the amplitude with
         std::string _id = "amplitude";
 
-        // prefactors for the differential width
+        // (inverse of) prefactors for the differential width
         inline double prefactors(){ return 32*pow(2*PI*_kinematics->M(),3); }
     };
 }; // namespace iterateOKT

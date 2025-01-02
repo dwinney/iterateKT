@@ -146,7 +146,7 @@ namespace iterateKT
         private:
 
         // Private method only accessible to raw_amplitude
-        friend class kt_iterator;
+        friend class solver;
 
         // Overal option flag 
         uint _option = 0;

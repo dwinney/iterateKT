@@ -18,8 +18,8 @@
 #include "timer.hpp"
 #include "basis.hpp"
 #include "plotter.hpp"
+#include "solver.hpp"
 
-#include "kt_iterator.hpp"
 #include "isobars/eta.hpp"
 
 void eta_decay()
@@ -33,16 +33,16 @@ void eta_decay()
     kinematics kin = new_kinematics(M_ETA/M_PION, 1.);
 
     // Set up our amplitude 
-    kt_iterator iterator(kin);
+    solver solver(kin);
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    iterator.add_isobar<dI1_S0>({0,1}, 2, id::dI1_S0); 
-    iterator.add_isobar<dI1_P1>({0},   1, id::dI1_P1); 
-    iterator.add_isobar<dI1_S2>({},    1, id::dI1_S2);
-    iterator.add_isobar<dI0_P1>({0},   1, id::dI0_P1);
-    iterator.add_isobar<dI2_P1>({0},   1, id::dI2_P1); 
-    iterator.add_isobar<dI2_S2>({},    1, id::dI2_S2);
+    solver.add_isobar<dI1_S0>({0,1}, 2, id::dI1_S0); 
+    solver.add_isobar<dI1_P1>({0},   1, id::dI1_P1); 
+    solver.add_isobar<dI1_S2>({},    1, id::dI1_S2);
+    solver.add_isobar<dI0_P1>({0},   1, id::dI0_P1);
+    solver.add_isobar<dI2_P1>({0},   1, id::dI2_P1); 
+    solver.add_isobar<dI2_S2>({},    1, id::dI2_S2);
 
     // -----------------------------------------------------------------------
     // Iterate N times
@@ -53,7 +53,7 @@ void eta_decay()
     timer.start();
     for (int i = 1; i <= N; i++)
     {
-        iterator.iterate();
+        solver.iterate();
         timer.lap("iteration " + std::to_string(i));
     }
     timer.stop();
@@ -85,12 +85,12 @@ void eta_decay()
     };
 
     // Grab out isobars for plotting
-    isobar dI1_S0 = iterator.get_isobar(id::dI1_S0);
-    isobar dI1_P1 = iterator.get_isobar(id::dI1_P1);
-    isobar dI1_S2 = iterator.get_isobar(id::dI1_S2);
-    isobar dI0_P1 = iterator.get_isobar(id::dI0_P1);
-    isobar dI2_P1 = iterator.get_isobar(id::dI2_P1);
-    isobar dI2_S2 = iterator.get_isobar(id::dI2_S2);
+    isobar dI1_S0 = solver.get_isobar(id::dI1_S0);
+    isobar dI1_P1 = solver.get_isobar(id::dI1_P1);
+    isobar dI1_S2 = solver.get_isobar(id::dI1_S2);
+    isobar dI0_P1 = solver.get_isobar(id::dI0_P1);
+    isobar dI2_P1 = solver.get_isobar(id::dI2_P1);
+    isobar dI2_S2 = solver.get_isobar(id::dI2_S2);
 
     plot f0a = plot_basis(dI1_S0, 0, "F_{0}^{#alpha}(#it{s})");
     plot f1a = plot_basis(dI1_P1, 0, "F_{1}^{#alpha}(#it{s})");

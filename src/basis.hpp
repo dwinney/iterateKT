@@ -35,7 +35,7 @@ namespace iterateKT
 
         private: 
 
-        friend class kt_iterator;
+        friend class solver;
         friend class raw_amplitude;
 
         std::vector<id>           _ids;     // The id of the isobar this subtraction coeff appears in
