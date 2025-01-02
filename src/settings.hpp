@@ -40,7 +40,7 @@ namespace iterateKT
         // We exclude a specific range around pth when evaluating the basis functions
         // and allow an interpolation to fit in the middle.
         int _exclusion_points = 10;
-        std::array<double,2> _exclusion_offsets  = {1, 8};
+        std::array<double,2> _exclusion_offsets  = {0, 0};
 
         // Interpolation settings
         double _intermediate_energy  = 5;    // interpolate from sth to this value

@@ -42,7 +42,7 @@ namespace iterateKT
         inline unsigned int singularity_power(){ return 2; };
 
         // Use GKPY phase shift, smoothly extrapolated to pi 
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, M_PION*M_PION*s); };
+        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
 
         // Kernels is 3*(1-z^2) but to remove kinematic singularities
         // we multiply by two powers of kappa
@@ -50,10 +50,7 @@ namespace iterateKT
         { 
             // Only P-wave allowed in the cross channel
             if (iso_id != id::P_wave) return 0.;
-
-            double m2  = _kinematics->m2(), M2 = _kinematics->M2();
-            complex k  = _kinematics->kacser(s);
-            complex kz = 2*t+s-M2-3*m2;
+            complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
             return 3*(k*k - kz*kz); // We've multiplied by k^2 which is why singularity_power() = 2
         };
 
@@ -61,14 +58,16 @@ namespace iterateKT
         inline static const settings default_settings()
         {
             settings sets;
-            sets._infinitesimal           = 1E-5;
-            sets._intermediate_energy     = 60;
-            sets._cutoff                  = 400;
-            sets._interpolation_offset    = 1;
+            sets._infinitesimal           = 1E-8;
+            sets._intermediate_energy     = 1.5;
+            sets._cutoff                  = 20;
+            sets._interpolation_offset    = 0.1;
             sets._interpolation_points    = {400, 10, 200};
-            double xi_sth = 0.3,  eps_sth = 0.5;
-            double xi_pth = 0.3,  eps_pth = 0.3;
-            double xi_rth = 0.8,  eps_rth = 1.5;
+            double xi_sth = 1E-3,  eps_sth = 1E-3;
+            double xi_pth = 1E-3,  eps_pth = 1E-3;
+            double xi_rth = 1E-3,  eps_rth = 1E-3;
+
+            sets._exclusion_offsets   = {1E-1, 1E-1};
             sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
             return sets;
