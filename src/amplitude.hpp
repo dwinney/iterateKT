@@ -85,30 +85,6 @@ namespace iterateKT
         };
 
         // -----------------------------------------------------------------------
-        // Utilities
-
-        inline void add_isobar(isobar new_iso)
-        {
-            // Check for uniqueness
-            for (auto old_iso : _isobars)
-            {
-                if (old_iso->get_id() == new_iso->get_id())
-                {
-                    warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
-                    return;
-                };
-            };
-            _isobars.push_back(new_iso);
-
-            // Need to update _subtractions to know about new polynomials
-            for (int i = 0; i < nsub; i++)
-            {
-                _subtractions->_ids.push_back(new_iso->get_id());
-                _subtractions->_powers.push_back(i);
-            };
-        };
-
-        // -----------------------------------------------------------------------
         private:
 
         // Options flag
