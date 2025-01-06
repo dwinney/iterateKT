@@ -227,7 +227,6 @@ namespace iterateKT
     const int PRINT_SPACING    = 15;
     const int PRINT_PRECISION  = 9;    
     const int STRING_PRECISION = 3;
-    const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
 
     // ---------------------------------------------------------------------------   
     // Output an empty line to the terminal
@@ -237,17 +236,20 @@ namespace iterateKT
     };
 
     // Print out a horizontal line
+    template<uint N=TEXT_WIDTH>
     inline void divider()
     {
-        std::cout << std::string(TEXT_WIDTH, '-') << std::endl;
+        std::cout << std::string(N, '-') << std::endl;
     };
 
+    template<uint N=PRINT_SPACING>
     inline void divider(int n)
     {
+        std::string unit_div = std::string(N, '-');
         std::string div;
         for (int i = 0; i < n; i++)
         {
-            div = div + UNIT_DIV;
+            div = div + unit_div;
         }
         std::cout << div << std::endl;
     };
@@ -257,28 +259,28 @@ namespace iterateKT
         std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
     };
 
-    template<typename T>
+    template<uint N=PRINT_SPACING, typename T>
     inline void print(T x)
     {
         std::cout << std::boolalpha << std::left << std::setprecision(9);  
-        std::cout << std::setw(PRINT_SPACING) << x << std::endl;
+        std::cout << std::setw(N) << x << std::endl;
     };
 
-    template <typename First, typename... Rest>
+    template <uint N=PRINT_SPACING, typename First, typename... Rest>
     inline void print(First first, Rest... rest)
     {
         std::cout << std::boolalpha << std::left << std::setprecision(9);  
-        std::cout << std::setw(PRINT_SPACING) << first;
+        std::cout << std::setw(N) << first;
         print(rest...);
     } 
 
-    template<typename T>
+    template<uint N=PRINT_SPACING, typename T>
     inline void print(std::vector<T> v)
     {
         std::cout << std::boolalpha << std::setprecision(9);  
         for (auto vi : v)
         {
-            std::cout << std::left << std::setw(PRINT_SPACING) << vi << std::endl;
+            std::cout << std::left << std::setw(N) << vi << std::endl;
         };
     };
 
