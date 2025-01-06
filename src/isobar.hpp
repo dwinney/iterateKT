@@ -104,10 +104,6 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // Utilities
 
-        // Thing related to the options
-        inline         uint option()          { return _option; };
-        virtual inline void set_option(uint x){ _option = x; };
-
         // Flag used for internal debugging
         inline void set_debug(uint x){ _debug = x; };
 
@@ -147,9 +143,6 @@ namespace iterateKT
 
         // Private method only accessible to raw_amplitude
         friend class solver;
-
-        // Overal option flag 
-        uint _option = 0;
 
         // IDs
         std::string _name = "isobar";

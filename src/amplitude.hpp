@@ -22,6 +22,9 @@
 
 namespace iterateKT
 {
+    // Forward declare the option type
+    enum class option : unsigned int;
+
     // Forward declare for the typedef below
     class raw_amplitude;
 
@@ -66,13 +69,9 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // Utilities
 
-        // Retrieve or set the option flag.
-        // set_option can be overloaded if you want to do more than just save it      
-        virtual inline uint option(){ return _option; };
-
-        // Set the option of an isobar
-        inline void set_isobar_option(uint i, uint x){ if (i < _isobars.size()) _isobars[i]->set_option(x); };
-        inline void set_isobar_option(uint x){ for (auto f : _isobars) f->set_option(x); };
+        // Pass an option flag and so something. By default we dont do anything 
+        // Can be overloaded to do whatever you want 
+        virtual inline void set_option(option opt){ return; }; 
 
         inline void set_parameters( std::vector<complex> pars)
         {
@@ -86,9 +85,6 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         private:
-
-        // Options flag
-        uint _option;
 
         // Id string to identify the amplitude with
         std::string _id = "amplitude";
