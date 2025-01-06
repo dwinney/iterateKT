@@ -18,13 +18,14 @@
 #include "timer.hpp"
 #include "basis.hpp"
 #include "plotter.hpp"
-#include "solver.hpp"
 
 #include "isobars/kaon.hpp"
+#include "amplitudes/kaon.hpp"
 
 void kaon_decay()
 {
     using namespace iterateKT;
+    using iterateKT::complex;
 
     // -----------------------------------------------------------------------
     
@@ -33,31 +34,67 @@ void kaon_decay()
     kinematics kin = new_kinematics(M_KAON, M_PION);
 
     // Set up our amplitude 
-    solver solver(kin);
+    amplitude amplitude = new_amplitude<K_3Pi>(kin);
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    solver.add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); // M0
-    solver.add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); // M1
-    solver.add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); // M2
-    solver.add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); // Nt1
-    solver.add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); // Nt2
-    solver.add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1); // Mt1
+    amplitude->add_isobar<dI1_tI1_S0>({0, 1, 2}, 2, id::dI1_tI1_S0); // M0
+    amplitude->add_isobar<dI1_tI1_P1>({1},       1, id::dI1_tI1_P1); // M1
+    amplitude->add_isobar<dI1_tI1_S2>({},        2, id::dI1_tI1_S2); // M2
+    amplitude->add_isobar<dI3_tI1_S0>({0, 1, 2}, 2, id::dI3_tI1_S0); // N0
+    amplitude->add_isobar<dI3_tI1_P1>({1},       1, id::dI3_tI1_P1); // N1
+    amplitude->add_isobar<dI3_tI1_S2>({},        2, id::dI3_tI1_S2); // N2
+    amplitude->add_isobar<dI1_tI0_P1>({1},       1, id::dI1_tI0_P1); // Mt1
+    amplitude->add_isobar<dI3_tI2_P1>({0, 1},    1, id::dI3_tI2_P1); // Nt1
+    amplitude->add_isobar<dI3_tI2_S2>({},        2, id::dI3_tI2_S2); // Nt2
+
+    // Grab out isobars for plotting later
+    isobar M0  = amplitude->get_isobar(id::dI1_tI1_S0);
+    isobar M1  = amplitude->get_isobar(id::dI1_tI1_P1);
+    isobar M2  = amplitude->get_isobar(id::dI1_tI1_S2);
+    isobar N0  = amplitude->get_isobar(id::dI3_tI1_S0);
+    isobar N1  = amplitude->get_isobar(id::dI3_tI1_P1);
+    isobar N2  = amplitude->get_isobar(id::dI3_tI1_S2);
+    isobar Mt1 = amplitude->get_isobar(id::dI1_tI0_P1);
+    isobar Nt1 = amplitude->get_isobar(id::dI3_tI2_P1);
+    isobar Nt2 = amplitude->get_isobar(id::dI3_tI2_S2);
 
     // -----------------------------------------------------------------------
     // Iterate N times
 
-    int N = 4;
+    int N = 1;
     
     timer timer;
     timer.start();
     for (int i = 1; i <= N; i++)
     {
-        solver.iterate();
+        amplitude->iterate();
         timer.lap("iteration " + std::to_string(i));
     }
     timer.stop();
     timer.print_elapsed();
+    line();
+
+    // -----------------------------------------------------------------------
+    // Compare the decay widths with measurements
+
+    // Subtraction coefficients from [1]
+    complex mu0, mu1, mu2, mu3, nu0, nu1, nu2, nu3, mut1, nut0, nut1;
+    mu0  = +3.8    - I*0.570,  nu0 = -4.7   - I*2.37E-2;
+    mu1  = -676.1  + I*7.27,   nu1 = +26.7  + I*0.30;
+    mu2  = +559.7  - I*16.80,  nu2 = -46.0  - I*0.74;
+    mu3  = -1072.6 + I*7.57,   nu3 = +123.9 - I*0.28;
+    nut0 = -2.04 + I*4.8E-4,  nut1 = +433.2 - I*6.0E-4; 
+    mut1 = 0.; // Redundant parameter
+
+    // Order of parameters in the order we initialized the isobars above
+    amplitude->set_parameters({mu0, mu1, mu2, mu3, nu0, nu1, nu2, nu3, mut1, nut0, nut1});
+
+    // Print decay widths
+    amplitude->set_option(option::Kp_PipPipPim);
+    divider<25>(2);
+    print<25>("K+ -> pi+ pi+ pi0-", amplitude->width());
+    divider<25>(2);
 
     // -----------------------------------------------------------------------
     // Plot Results
@@ -66,11 +103,15 @@ void kaon_decay()
     double smin =  +0.06;
     double smax =  +0.15;
 
-    auto plot_basis = [&](isobar isobar, std::array<double,4> scale, std::array<std::string,4> labels)
+    // Aux functions
+    auto plot_basis = [&](isobar isobar, std::array<double,4> scale, std::array<double,2> ranges, std::array<std::string,4> labels)
     {
         plot p = plotter.new_plot();
         p.set_curve_points(1000);
         p.set_labels("#it{s} [GeV^{2}]", "");
+        p.set_legend(0.35, 0.7);
+        p.set_ranges({smin, smax}, ranges);
+        p.shade_region({kin->sth(), kin->pth()});
 
         p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::real(isobar->basis_function(0, s+IEPS)); }, solid(jpacColor::Brown, labels[0]));
         p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::imag(isobar->basis_function(0, s+IEPS)); }, dashed(jpacColor::Brown));
@@ -86,63 +127,49 @@ void kaon_decay()
         return p;
     };
 
-    auto plot_basis_tilde = [&](isobar isobar, std::array<double,2> scale, std::array<std::string,2> labels)
+    auto plot_basis_tilde = [&](isobar isobar, std::array<double,2> scale, std::array<double,2> ranges, std::array<std::string,2> labels)
     {
         plot p = plotter.new_plot();
         p.set_curve_points(1000);
         p.set_labels("#it{s} [GeV^{2}]", "");
+        p.set_legend(0.35, 0.7);
+        p.set_ranges({smin, smax}, ranges);
+        p.shade_region({kin->sth(), kin->pth()});
 
-        p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::real(isobar->basis_function(4, s+IEPS)); }, solid(jpacColor::Brown, labels[0]));
-        p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::imag(isobar->basis_function(4, s+IEPS)); }, dashed(jpacColor::Brown));
+        p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::real(isobar->basis_function(9, s+IEPS)); }, solid(jpacColor::Brown, labels[0]));
+        p.add_curve({smin, smax}, [&](double s){ return scale[0]*std::imag(isobar->basis_function(9, s+IEPS)); }, dashed(jpacColor::Brown));
 
-        p.add_curve({smin, smax}, [&](double s){ return scale[1]*std::real(isobar->basis_function(5, s+IEPS)); }, solid(jpacColor::Blue, labels[1]));
-        p.add_curve({smin, smax}, [&](double s){ return scale[1]*std::imag(isobar->basis_function(5, s+IEPS)); }, dashed(jpacColor::Blue));
+        p.add_curve({smin, smax}, [&](double s){ return scale[1]*std::real(isobar->basis_function(10, s+IEPS)); }, solid(jpacColor::Blue, labels[1]));
+        p.add_curve({smin, smax}, [&](double s){ return scale[1]*std::imag(isobar->basis_function(10, s+IEPS)); }, dashed(jpacColor::Blue));
         return p;
     };
-
-    // Grab out isobars for plotting
-    isobar M0  = solver.get_isobar(id::dI1_tI1_S0);
-    isobar M1  = solver.get_isobar(id::dI1_tI1_P1);
-    isobar M2  = solver.get_isobar(id::dI1_tI1_S2);
-    isobar Nt1 = solver.get_isobar(id::dI3_tI2_P1);
-    isobar Nt2 = solver.get_isobar(id::dI3_tI2_S2);
-    isobar Mt1 = solver.get_isobar(id::dI1_tI0_P1);
 
     // Labels for the legends of all the plots
     std::array<std::string,4> f0_labels =  {"S_{0}^{0}", "10 S_{0}^{1}", "10^{2} S_{0}^{2}", "10^{3} S_{0}^{3}"};
     std::array<std::string,4> f1_labels =  {"S_{1}^{0}", "10 S_{1}^{1}", "10^{2} S_{1}^{2}", "S_{1}^{3}"};
     std::array<std::string,4> f2_labels =  {"S_{2}^{0}", "10 S_{2}^{1}", "10^{2} S_{2}^{2}", "S_{2}^{3}"} ;
 
-
     // S functions
-    plot f0 = plot_basis(M0, {1, 10, 1E2, 1E3}, f0_labels);
-    f0.set_ranges({smin, smax}, {-0.3, 3.0});
-    f0.set_legend(0.25, 0.7);
+    plot f0 = plot_basis(M0, {1, 10, 1E2, 1E3}, {-0.3, 3.0},   f0_labels);
+    plot f1 = plot_basis(M1, {1, 10, 1E2, 1},   {-0.4, 0.3},   f1_labels);
+    plot f2 = plot_basis(M2, {1, 10, 1E2, 1E2}, {-0.12, 0.06}, f2_labels);
 
-    plot f1 = plot_basis(M1, {1, 10, 1E2, 1},  f1_labels);
-    f1.set_ranges({smin, smax}, {-0.4, 0.3});
-    f1.set_legend(0.25, 0.2);
-
-    plot f2 = plot_basis(M2, {1, 10, 1E2, 1E2}, f2_labels);
-    f2.set_ranges({smin, smax}, {-0.12, 0.06});
-    f2.set_legend(0.25, 0.2);
+    // Put the legends of these two in the bottom instead of the top
+    f1.set_legend(0.35, 0.2);
+    f2.set_legend(0.35, 0.2);
 
     // Stilde functions
-    plot f2t = plot_basis_tilde(Nt2, {1, 10}, {"#tilde{S}_{2}^{0}", "10 #tilde{S}_{2}^{1}"});
-    f2t.set_legend(0.25, 0.7);
-    f2t.set_ranges({smin,smax}, {-0.04, 0.05});
-    
-    plot f1t = plot_basis_tilde(Nt1, {1, 10}, {"#tilde{S}_{1}^{0}", "10 #tilde{S}_{1}^{1}"});
-    f1t.set_legend(0.25, 0.7);
-    f1t.set_ranges({smin,smax}, {-0.06, 2});
+    plot f2t = plot_basis_tilde(Nt2, {1, 10}, {-0.04, 0.05}, {"#tilde{S}_{2}^{0}", "10 #tilde{S}_{2}^{1}"});    
+    plot f1t = plot_basis_tilde(Nt1, {1, 10}, {-0.06, 2},    {"#tilde{S}_{1}^{0}", "10 #tilde{S}_{1}^{1}"});
 
     plot s1t = plotter.new_plot();
     s1t.set_curve_points(1000);
     s1t.set_labels("#it{s} [GeV^{2}]", "");
-    s1t.set_legend(0.25, 0.7);
+    s1t.set_legend(0.35, 0.7);
+    s1t.shade_region({kin->sth(), kin->pth()});
     s1t.set_ranges({smin,smax}, {-0.01, 0.2});
-    s1t.add_curve({smin, smax}, [&](double s){ return     std::real(Mt1->basis_function(6, s+IEPS)); }, solid(jpacColor::Blue,  "Re #tilde{S}_{1}"));
-    s1t.add_curve({smin, smax}, [&](double s){ return 100*std::imag(Mt1->basis_function(6, s+IEPS)); }, dashed(jpacColor::Blue, "10^{2} Im #tilde{S}_{1}"));
+    s1t.add_curve( {smin, smax}, [&](double s){ return     std::real(Mt1->basis_function(8, s+IEPS)); }, solid(jpacColor::Blue,  "Re #tilde{S}_{1}"));
+    s1t.add_curve( {smin, smax}, [&](double s){ return 100*std::imag(Mt1->basis_function(8, s+IEPS)); }, dashed(jpacColor::Blue, "10^{2} Im #tilde{S}_{1}"));
 
     plotter.combine({3,2}, {f0,f1,f2,f2t,f1t,s1t}, "kaon_isobars.pdf");
 };
