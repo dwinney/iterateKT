@@ -105,11 +105,10 @@ namespace iterateKT
         for (int i = 0; i < _n_interp; i++)
         {
             double phi_i = (2*PI)*double(i)/double(_n_interp-1);
-            complex jacobian_i = _re_tphi.Deriv(phi_i) + I*_im_tphi.Deriv(phi_i);
 
             phi.push_back(phi_i);
-            re.push_back( std::real(jacobian_i) );
-            im.push_back( std::imag(jacobian_i) );
+            re.push_back( _re_tphi.Deriv(phi_i) );
+            im.push_back( _im_tphi.Deriv(phi_i) );
         };
 
         _re_jac.SetData(phi, re);

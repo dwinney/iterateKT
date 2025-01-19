@@ -87,14 +87,17 @@ void omega_decay()
         p1.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
         p2.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, labels[i-1]);
         p2.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
+        timer.lap("Iteration " + std::to_string(i));
     };
 
     plotter.combine({2,1}, {p1,p2}, "omega_isobars.pdf");
 
-    timer.stop();
-    timer.print_elapsed();
 
     line();
     print("Cal. width:", amplitude->width());
     print("Exp. width:", 8.49E-3*0.893);
+    line();
+    
+    timer.stop();
+    timer.print_elapsed();
 };
