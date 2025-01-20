@@ -87,9 +87,9 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_P1): return -(t-u);
+                case (id::dI1_tI1_P1): return -    (t-u);
                 case (id::dI1_tI1_S2): return +1;
-                case (id::dI3_tI1_P1): return -(t-u);
+                case (id::dI3_tI1_P1): return -    (t-u);
                 case (id::dI3_tI1_S2): return +1;
                 case (id::dI3_tI2_P1): return +3/2*(t-u);
                 case (id::dI3_tI2_S2): return -1/2;
@@ -129,7 +129,7 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_P1): return +(t-u);
+                case (id::dI1_tI1_P1): return +  (t-u);
                 case (id::dI1_tI1_S2): return -1;
                 case (id::dI3_tI1_P1): return -2*(t-u);
                 case (id::dI3_tI1_S2): return +2;

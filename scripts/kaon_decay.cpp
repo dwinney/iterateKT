@@ -62,7 +62,7 @@ void kaon_decay()
     // -----------------------------------------------------------------------
     // Iterate N times
 
-    int N = 1;
+    int N = 5;
     
     timer timer;
     timer.start();
@@ -80,21 +80,15 @@ void kaon_decay()
 
     // Subtraction coefficients from [1]
     complex mu0, mu1, mu2, mu3, nu0, nu1, nu2, nu3, mut1, nut0, nut1;
-    mu0  = +3.8    - I*0.570,  nu0 = -4.7   - I*2.37E-2;
-    mu1  = -676.1  + I*7.27,   nu1 = +26.7  + I*0.30;
-    mu2  = +559.7  - I*16.80,  nu2 = -46.0  - I*0.74;
-    mu3  = -1072.6 + I*7.57,   nu3 = +123.9 - I*0.28;
-    nut0 = -2.04 + I*4.8E-4,  nut1 = +433.2 - I*6.0E-4; 
+    mu0  = +3.8    - I*0.570,  nu0  = -4.7   - I*2.37E-2;
+    mu1  = -676.1  + I*7.27,   nu1  = +26.7  + I*0.30;
+    mu2  = +559.7  - I*16.80,  nu2  = -46.0  - I*0.74;
+    mu3  = -1072.6 + I*7.57,   nu3  = +123.9 - I*0.28;
+    nut0 = -2.04   + I*4.8E-4, nut1 = +433.2 - I*6.0E-4; 
     mut1 = 0.; // Redundant parameter
 
     // Order of parameters in the order we initialized the isobars above
     amplitude->set_parameters({mu0, mu1, mu2, mu3, nu0, nu1, nu2, nu3, mut1, nut0, nut1});
-
-    // Print decay widths
-    amplitude->set_option(option::Kp_PipPipPim);
-    divider<25>(2);
-    print<25>("K+ -> pi+ pi+ pi0-", amplitude->width());
-    divider<25>(2);
 
     // -----------------------------------------------------------------------
     // Plot Results
