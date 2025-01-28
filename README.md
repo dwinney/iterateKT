@@ -10,6 +10,7 @@ satisfying the unitarity condition
 ```
 For maximum flexibility, the code only requires specifying the elastic phase shift $\delta_i(s)$ and kernel functions $K_{ij}(s,t)$ of each isobar. Things such as isospin and/or helicity amplitudes can be built outside of the core iterative functionality by combining isobars into a full amplitude.
 
+Note that convergence of the KT equations is not guaranteed! This may depend on the number of isobars, number of subtractions, and quantum numbers considered.
 ##  INSTALLATION
 
 Compilation of the base library requires only [CMake](https://cmake.org/) (version $\geq$ 3.30), [ROOT](https://root.cern.ch/) (tested with version 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library), and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68).
