@@ -39,6 +39,7 @@
 /lib/
 physics/phase_shifts/bern/
 scripts/tests/comparisons/
+/dev/
 
 # Outputs 
 *.pdf
