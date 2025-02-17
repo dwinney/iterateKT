@@ -157,8 +157,8 @@ namespace iterateKT
     {
         basis_grid output;
         output._n_singularity = singularity_power()+1;
-        output._s_list = _s_list;
-        output._s_around_pth = _s_around_pth;
+        output._s_list        = _s_list;
+        output._s_around_pth  = _s_around_pth;
         
         // Sum over basis functions
         for (int i = 0; i < _subtractions->N_basis(); i++)

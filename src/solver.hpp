@@ -29,23 +29,7 @@ namespace iterateKT
         {};
 
         // Calculate one iteration of the KT equations
-        inline void iterate()
-        {
-            if (_isobars.size() == 0)
-            { warning("amplitude::iterate()", "No isobars have been initialized!"); return; }
-
-            // To not advance to the next iteration before looping over all isobars
-            //  we save the "next" discontinuities here first
-            std::vector<basis_grid> next;
-
-            // Each isobar takes full list of other isobars with which to calculate angular avgs
-            for (auto previous : _isobars) next.emplace_back( previous->calculate_next(_isobars) );
-
-            // Save all the new iterations thereby pushing every isobar up by one iteration
-            for (int i = 0; i < next.size(); i++) _isobars[i]->save_iteration(next[i]);
-
-            return;
-        };
+        void iterate();
         inline void iterate(unsigned int N){ for (int i = 0; i < N; i++) iterate(); };
 
         // -----------------------------------------------------------------------
@@ -57,8 +41,6 @@ namespace iterateKT
             for (auto f : _isobars) if (i == f->get_id()) return f;
             return error("amplitude::get_isobar", "Index out of scope!", nullptr);
         };
-
-        // Load up a new isobar
 
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
@@ -111,8 +93,11 @@ namespace iterateKT
         };
 
         // Access the full vector of isobar pointers
-        inline std::vector<isobar> get_isobars(){return _isobars;};
+        inline std::vector<isobar> get_isobars(){ return _isobars; };
 
+        // Print to file necessary info to reconstruct isobars later
+        void export_solution(std::string prefix);
+      
         // -----------------------------------------------------------------------
         protected: 
         

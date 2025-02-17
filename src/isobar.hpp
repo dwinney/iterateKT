@@ -18,6 +18,7 @@
 #include "iteration.hpp"
 #include "settings.hpp"
 #include "basis.hpp"
+#include "data_set.hpp"
 #include "timer.hpp"
 #include <Math/Interpolator.h>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
@@ -51,14 +52,6 @@ namespace iterateKT
             _max_sub = (maxsub == 0) ? 1 : maxsub;
             initialize();
         };
-
-        // Each isobar should have an identifying int (suggest implementing this with enums)
-        //  and a string name for human readable id
-        inline void set_name(std::string x){ _name = x; };
-        inline std::string name(){ return _name; }; 
-
-        // Only way to publically access the isobars id
-        inline id get_id(){ return _id; };
 
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
@@ -103,12 +96,41 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         // Utilities
+        
+        // Import an iteration that was previously saved to file
+        template<int N>
+        void import_iteration(std::string filename)
+        {
+            auto imported = import_data<2*N+1>(filename, true);
+            _s_list = std::move(imported[0]);
+
+            basis_grid grid;
+            grid._n_singularity = singularity_power()+1;
+            grid._s_list = _s_list;
+            grid._s_around_pth = _s_around_pth;
+            
+            for (int i = 0; i < N; i++)
+            {
+                grid._re_list.push_back(std::move(imported[1+2*i]));
+                grid._im_list.push_back(std::move(imported[2+2*i]));
+            };
+            save_iteration(grid);
+        };
 
         // Flag used for internal debugging
         inline void set_debug(uint x){ _debug = x; };
-
+        // Grab pointer to latest iteration
+        iteration get_iteration(){ return _iterations.back();};
         // Grab a pointer to a specific iteration of an isobar
         iteration get_iteration(uint id){ return _iterations[id];};
+
+        // Each isobar should have an identifying int (suggest implementing this with enums)
+        //  and a string name for human readable id
+        inline void set_name(std::string x){ _name = x; };
+        inline std::string name(){ return _name; }; 
+
+        // Only way to publically access the isobars id
+        inline id get_id(){ return _id; };
 
         // -----------------------------------------------------------------------
         protected:
@@ -168,7 +190,6 @@ namespace iterateKT
         ROOT::Math::Interpolator _lhc;
         bool _lhc_interpolated = false;
     };
-
 }; // namespace iterateKT
 
 #endif // ISOBAR_HPP

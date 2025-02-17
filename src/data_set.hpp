@@ -41,7 +41,7 @@ namespace iterateKT
     // Import a set of data with N columns with relative path 
     // and full path main_dir/ + rel_path
     template<int N> 
-    inline std::array<std::vector<double>,N> import_data(std::string rel_path)
+    inline std::array<std::vector<double>,N> import_data(std::string rel_path, bool quitonfail = false)
     {
         // Check if rel_path starts with a / or not
         // if not we add one
@@ -54,6 +54,10 @@ namespace iterateKT
 
         if (!infile.is_open())
         {
+            if (quitonfail)
+            {
+               fatal("import_data", "Cannot open file " + file_path + "!");
+            }
             return error("import_data: Cannot open file " + file_path + "!", result);
         };
 
