@@ -31,12 +31,22 @@ namespace iterateKT
     // Define isobars only as pointers
     using isobar  = std::shared_ptr<raw_isobar>;
 
+    // All the things you need to initialize an isobar can get lumped into a struct
+    struct isobar_args
+    {
+        kinematics _kin;
+        id _id;
+        subtractions _subs;
+        uint _maxsub;
+        std::string _name;
+        settings _sets;
+    };
+
     // This function serves as our "constructor"
     template<class A>
-    inline isobar new_isobar(kinematics kin, id id, subtractions subs, uint maxsub, settings sets = settings())
+    inline isobar new_isobar(isobar_args args)
     {
-        auto x = std::make_shared<A>(kin, id, subs, maxsub, sets);
-        return std::static_pointer_cast<raw_isobar>(x);
+        return std::static_pointer_cast<raw_isobar>(std::make_shared<A>(args));
     };
 
     class raw_isobar
@@ -45,11 +55,11 @@ namespace iterateKT
         public:
 
         // Default constructor
-        raw_isobar(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : _kinematics(xkin), _settings(sets), _subtractions(subs), _id(id)
+        raw_isobar(isobar_args args) 
+        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), _id(args._id), _name(args._name)
         { 
             // When we have "unsubtracted" we assume we do have one but no polynomial
-            _max_sub = (maxsub == 0) ? 1 : maxsub;
+            _max_sub = (args._maxsub == 0) ? 1 : args._maxsub;
             initialize();
         };
 

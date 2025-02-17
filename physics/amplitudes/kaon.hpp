@@ -46,14 +46,14 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_S0): return -1;
-                case (id::dI1_tI1_P1): return -(t-u);
-                case (id::dI1_tI1_S2): return -1/3;
-                case (id::dI3_tI1_S0): return -1;
-                case (id::dI3_tI1_P1): return -(t-u);
-                case (id::dI3_tI1_S2): return -1/3;
-                case (id::dI3_tI2_P1): return -3/2*(t-u);
-                case (id::dI3_tI2_S2): return +1/2;
+                case (id::dI1_I1_S0): return -1;
+                case (id::dI1_I1_P1): return -(t-u);
+                case (id::dI1_I1_S2): return -1/3;
+                case (id::dI3_I1_S0): return -1;
+                case (id::dI3_I1_P1): return -(t-u);
+                case (id::dI3_I1_S2): return -1/3;
+                case (id::dI3_I2_P1): return -3/2*(t-u);
+                case (id::dI3_I2_S2): return +1/2;
                 default: return 0;
             };
         };
@@ -67,9 +67,9 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_S2): return -2;
-                case (id::dI3_tI1_S2): return -2;
-                case (id::dI3_tI2_S2): return -1;
+                case (id::dI1_I1_S2): return -2;
+                case (id::dI3_I1_S2): return -2;
+                case (id::dI3_I2_S2): return -1;
                 default: return 0;
             };
         };
@@ -87,12 +87,12 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_P1): return -    (t-u);
-                case (id::dI1_tI1_S2): return +1;
-                case (id::dI3_tI1_P1): return -    (t-u);
-                case (id::dI3_tI1_S2): return +1;
-                case (id::dI3_tI2_P1): return +3/2*(t-u);
-                case (id::dI3_tI2_S2): return -1/2;
+                case (id::dI1_I1_P1): return -    (t-u);
+                case (id::dI1_I1_S2): return +1;
+                case (id::dI3_I1_P1): return -    (t-u);
+                case (id::dI3_I1_S2): return +1;
+                case (id::dI3_I2_P1): return +3/2*(t-u);
+                case (id::dI3_I2_S2): return -1/2;
                 default: return 0;
             };
         };
@@ -106,11 +106,11 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_S0): return +1;
-                case (id::dI1_tI1_S2): return -2/3;
-                case (id::dI3_tI1_S0): return +1;
-                case (id::dI3_tI1_S2): return -2/3;
-                case (id::dI3_tI2_S2): return +1;
+                case (id::dI1_I1_S0): return +1;
+                case (id::dI1_I1_S2): return -2/3;
+                case (id::dI3_I1_S0): return +1;
+                case (id::dI3_I1_S2): return -2/3;
+                case (id::dI3_I2_S2): return +1;
                 default: return 0;
             };
         };
@@ -129,10 +129,10 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_P1): return +  (t-u);
-                case (id::dI1_tI1_S2): return -1;
-                case (id::dI3_tI1_P1): return -2*(t-u);
-                case (id::dI3_tI1_S2): return +2;
+                case (id::dI1_I1_P1): return +  (t-u);
+                case (id::dI1_I1_S2): return -1;
+                case (id::dI3_I1_P1): return -2*(t-u);
+                case (id::dI3_I1_S2): return +2;
                 default: return 0;
             };
         };
@@ -146,10 +146,10 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_S0): return -1;
-                case (id::dI1_tI1_S2): return +2/3;
-                case (id::dI3_tI1_S0): return +2;
-                case (id::dI3_tI1_S2): return -4/3;
+                case (id::dI1_I1_S0): return -1;
+                case (id::dI1_I1_S2): return +2/3;
+                case (id::dI3_I1_S0): return +2;
+                case (id::dI3_I1_S2): return -4/3;
                 default: return 0;
             };
         };
@@ -167,9 +167,9 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI0_P1): return +(t-u);
-                case (id::dI3_tI2_P1): return +(t-u);
-                case (id::dI3_tI2_S2): return +1;
+                case (id::dI1_I0_P1): return +(t-u);
+                case (id::dI3_I2_P1): return +(t-u);
+                case (id::dI3_I2_S2): return +1;
                 default: return 0;
             };
         };
@@ -183,8 +183,8 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI0_P1): return +  (s-t);
-                case (id::dI3_tI2_P1): return -2*(s-t);
+                case (id::dI1_I0_P1): return +  (s-t);
+                case (id::dI3_I2_P1): return -2*(s-t);
                 default: return 0;
             };
         };
@@ -203,10 +203,10 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_tI1_S0): return +1;
-                case (id::dI1_tI1_S2): return +4/3;
-                case (id::dI3_tI1_S0): return -2;
-                case (id::dI3_tI1_S2): return -8/3;
+                case (id::dI1_I1_S0): return +1;
+                case (id::dI1_I1_S2): return +4/3;
+                case (id::dI3_I1_S0): return -2;
+                case (id::dI3_I1_S2): return -8/3;
                 default: return 0;
             };
         };

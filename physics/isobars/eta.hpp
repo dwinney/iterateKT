@@ -63,9 +63,7 @@ namespace iterateKT
     class dI0_P1 : public raw_isobar
     {
         public: 
-        dI0_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("bern/phase_pipi_1.dat", 80., 1)
-        {};
+        dI0_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
@@ -90,9 +88,7 @@ namespace iterateKT
     class dI1_S0 : public raw_isobar
     {
         public: 
-        dI1_S0(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta0("bern/phase_pipi_0.dat", 114., 1)
-        {};
+        dI1_S0(isobar_args args) : raw_isobar(args), _delta0("bern/phase_pipi_0.dat", 114., 1){};
 
         inline unsigned int singularity_power()        { return 0; };
         inline double phase_shift(double s)            { return _delta0(s); };
@@ -115,9 +111,7 @@ namespace iterateKT
     class dI1_P1 : public raw_isobar
     {
         public: 
-        dI1_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("bern/phase_pipi_1.dat", 80., 1)
-        {};
+        dI1_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
@@ -140,9 +134,7 @@ namespace iterateKT
     class dI1_S2 : public raw_isobar
     {
         public: 
-        dI1_S2(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta2("bern/phase_pipi_2.dat", 800, 0)
-        {};
+        dI1_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
 
         inline unsigned int singularity_power()        { return 0; };
         inline double phase_shift(double s)            { return _delta2(s); };
@@ -169,9 +161,7 @@ namespace iterateKT
     class dI2_P1 : public raw_isobar
     {
         public: 
-        dI2_P1(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta1("bern/phase_pipi_1.dat", 80., 1)
-        {};
+        dI2_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
@@ -193,9 +183,7 @@ namespace iterateKT
     class dI2_S2 : public raw_isobar
     {
         public: 
-        dI2_S2(kinematics xkin, id id, subtractions subs, uint maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets), _delta2("bern/phase_pipi_2.dat", 800, 0)
-        {};
+        dI2_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
 
         inline unsigned int singularity_power()        { return 0; };
         inline double       phase_shift(double s)      { return _delta2(s); };

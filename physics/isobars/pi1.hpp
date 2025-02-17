@@ -34,9 +34,7 @@ namespace iterateKT
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin, id id, subtractions subs, int maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets)
-        {};
+        P_wave(isobar_args args) : raw_isobar(args) {};
 
         inline uint    singularity_power()  { return 2; };
         inline double  phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };

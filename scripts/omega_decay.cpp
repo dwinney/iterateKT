@@ -41,7 +41,7 @@ void omega_decay()
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>({0, 1}, 2, id::P_wave);
+    amplitude->add_isobar<P_wave>({0, 1}, 2, id::P_wave, "pwave");
     isobar pwave = amplitude->get_isobar(id::P_wave);
 
     // Subtraction coefficients
@@ -91,7 +91,6 @@ void omega_decay()
     };
 
     plotter.combine({2,1}, {p1,p2}, "omega_isobars.pdf");
-
 
     line();
     print("Cal. width:", amplitude->width());

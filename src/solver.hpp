@@ -44,9 +44,16 @@ namespace iterateKT
 
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
-        inline void add_isobar(uint nsub, id id, settings sets = T::default_settings())
+        inline void add_isobar(uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
         { 
-            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
+            isobar_args args;
+            args._kin      = _kinematics;
+            args._id       = id;
+            args._subs     = _subtractions;
+            args._name     = name;
+            args._sets     = sets;
+            args._maxsub   = nsub;
+            isobar new_iso = new_isobar<T>(args);
             
             // Check for uniqueness
             for (auto old_iso : _isobars)
@@ -69,10 +76,17 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, settings sets = T::default_settings())
+        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
         { 
-            isobar new_iso = new_isobar<T>(_kinematics, id, _subtractions, nsub, sets);
-            
+            isobar_args args;
+            args._kin      = _kinematics;
+            args._id       = id;
+            args._subs     = _subtractions;
+            args._name     = name;
+            args._sets     = sets;
+            args._maxsub   = nsub;
+            isobar new_iso = new_isobar<T>(args);
+
             // Check for uniqueness
             for (auto old_iso : _isobars)
             {

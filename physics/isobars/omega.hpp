@@ -32,10 +32,8 @@ namespace iterateKT
         public: 
         
         // Constructor 
-        P_wave(kinematics xkin, id id, subtractions subs, int maxsub, settings sets) 
-        : raw_isobar(xkin, id, subs, maxsub, sets)
-        {};
-
+        P_wave(isobar_args args) : raw_isobar(args) {};
+        
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
         // The TOTAL singularity power is always +1 from this (one factor from the jacobian)
