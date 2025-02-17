@@ -69,6 +69,7 @@ namespace iterateKT
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
     {
+        if (i >= _re_inhom.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         if (s <= _sth || s >= _settings._cutoff || _zeroth) return 0.;
         return _re_inhom[i]->Eval(s) + I*_im_inhom[i]->Eval(s);
     };
@@ -78,8 +79,9 @@ namespace iterateKT
     // nu given by n_singularity
     complex raw_iteration::half_regularized_integrand(unsigned int i, double s)
     {
+        if (i >= _re_inhom.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         if (_initialized)       return _re_halfreg[i]->Eval(s) + I*_im_halfreg[i]->Eval(s); 
-        if (are_equal(s, _sth)) return 0.;
+        if (are_equal(s, _sth, _settings._infinitesimal)) return 0.;
 
         // If no interpolation is saved yet, calculate divide by nu explicitly
         int   n = _n_singularity;
