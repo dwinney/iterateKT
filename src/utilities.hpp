@@ -289,6 +289,13 @@ namespace iterateKT
 
     // Produce a string with the format "name = value units"
 
+    inline std::string to_string(double d, uint precision = 8)
+    {
+        std::stringstream ss;
+        ss << std::setprecision(precision) << d;
+        return ss.str();
+    };
+
     template <typename T>
     inline std::string var_def(std::string name, T value, std::string units = "")
     {

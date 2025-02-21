@@ -69,6 +69,10 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // Utilities
 
+        // Set and get the string id 
+        inline void set_name(std::string name){ _name = name; };
+        inline std::string name(){ return _name; };
+
         // Pass an option flag and so something. By default we dont do anything 
         // Can be overloaded to do whatever you want 
         virtual inline void set_option(option opt){ return; }; 
@@ -83,11 +87,16 @@ namespace iterateKT
             _subtractions->_values = pars;
         };
 
+        // Number of free parameters (used by fitters)
+        inline uint N_pars(){ return _subtractions->N_basis(); };
+
+        inline std::vector<complex> get_pars() { return _subtractions->_values; };
+
         // -----------------------------------------------------------------------
         private:
 
         // Id string to identify the amplitude with
-        std::string _id = "amplitude";
+        std::string _name = "amplitude";
 
         // (inverse of) prefactors for the differential width
         inline double prefactors(){ return 32*pow(2*PI*_kinematics->M(),3); }
