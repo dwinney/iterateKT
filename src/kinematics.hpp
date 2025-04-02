@@ -66,6 +66,7 @@ namespace iterateKT
 
         // Kibble function
         inline complex kibble(complex s, complex t, complex u){ return s*t*u - m2()*pow(M2()-m2(), 2); };
+        inline bool in_decay_region(double s, double t){ return real(kibble(s,t, Sigma()-s-t)) >= 0; };
 
         // Special points along the pinnochio path
         inline double A(){ return sth(); };

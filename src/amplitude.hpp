@@ -90,6 +90,7 @@ namespace iterateKT
         // Number of free parameters (used by fitters)
         inline uint N_pars(){ return _subtractions->N_basis(); };
 
+        // Get a vector of the currently saved subtraction parameters
         inline std::vector<complex> get_pars() { return _subtractions->_values; };
 
         // -----------------------------------------------------------------------
