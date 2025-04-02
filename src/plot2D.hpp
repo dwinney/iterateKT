@@ -33,7 +33,6 @@
 
 #include "data_set.hpp"
 #include "colors.hpp"
-#include "combinable.hpp"
 
 namespace iterateKT
 {
@@ -42,7 +41,7 @@ namespace iterateKT
     // This class contains the entries, data, and options of producing a single plot/file
     // These can be generated from the plotter->make_plot() method which applies
     // all global settings
-    class plot2D : public combinable
+    class plot2D
     {
         public:
 
@@ -59,8 +58,12 @@ namespace iterateKT
         // Custom plotting region
         inline void set_region(std::array<std::vector<double>,2> region){ _custom_region = true; _region = region; };
 
-        // Set title
+        // Set title and axis labels
         inline void set_title(std::string title){ _title = title; };
+        inline void set_labels(std::string xl, std::string yl){ _xlabel = xl; _ylabel = yl; };
+
+        // Set a custom plotting range
+        inline void set_ranges(std::array<double,2> xr, std::array<double,2> yr){ _custom_ranges = true; _xbounds = xr; _ybounds = yr; };
 
         private: 
 
@@ -85,10 +88,14 @@ namespace iterateKT
         
         // Plot title and axis labels
         std::string _title = "";
+        std::string _xlabel = "", _ylabel = "";
+
+        // Custom ranges for both x and y axis
+        bool _custom_ranges = false;
+        std::array<double,2> _xbounds, _ybounds;
 
         // Apply all settings and draw onto the saved _canvas
         void draw();
-        void combine_draw(double scale){ draw(); };
     };
 };
 

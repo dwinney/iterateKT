@@ -74,12 +74,12 @@ namespace iterateKT
             // Set up a new canvas 
             _Nplots++;
             std::string name = "c" + std::to_string(_Nplots);
-            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 800, 600);
+            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 600);
             canvas->UseCurrentStyle();
             canvas->SetTopMargin(0.1);
             canvas->SetRightMargin(0.15);
-            canvas->SetLeftMargin(0.13);
-            canvas->SetBottomMargin(0.15);
+            canvas->SetLeftMargin(0.14);
+            canvas->SetBottomMargin(0.13);
             canvas->SetFixedAspectRatio();
             
             if (file == "") file += "plot" + std::to_string(_Nplots) + ".pdf";
@@ -92,7 +92,7 @@ namespace iterateKT
         static void combine(std::array<int,2> dims, std::vector<plot> plots, std::string filename);
 
         // Same thing as above except allow different typed (plot and plot2D) to be combined
-        static void combine(std::array<int,2> dims, std::vector<combinable*> hists, std::string filename);
+        static void combine(std::array<int,2> dims, std::vector<plot2D> hists, std::string filename);
 
         static void stack(std::vector<plot> plots, std::string filename);
 

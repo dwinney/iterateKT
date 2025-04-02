@@ -145,4 +145,30 @@ namespace iterateKT
         else return (Sigma()/3)*(1+2*cos(theta+PI/3.))/2/cosphi;
     };  
 
+    // -----------------------------------------------------------------------
+    plot2D raw_kinematics::new_dalitz_plot(plotter & pltr, int N)
+    {
+        std::array<std::vector<double>,2> dalitz_boundary;
+        // Go clockwise around the dalitz region, first tmax
+        for (int i = 0; i <= N; i++)
+        {
+            double s = sth() + (pth() - sth())*i/double(N);
+            double t = real(t_plus(s));
+    
+            dalitz_boundary[0].push_back(s); dalitz_boundary[1].push_back(t);
+        };
+        // then tmin going backwards in s
+        for (int i = 0; i <= N; i++)
+        {
+            double s = pth() + (sth() - pth())*i/double(N);
+            double t = real(t_minus(s));
+    
+            dalitz_boundary[0].push_back(s); dalitz_boundary[1].push_back(t);
+        };
+
+        plot2D p = pltr.new_plot2D();
+        p.set_region(dalitz_boundary);
+        return p;
+    };
+
 }; // namespace iterateKT

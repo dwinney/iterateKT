@@ -29,7 +29,7 @@ execute_process(COMMAND root-config --prefix
 list(APPEND CMAKE_MODULE_PATH "${ROOT_PREFIX}/share/root/cmake")
 
 # Find ROOT
-find_package(ROOT REQUIRED COMPONENTS MathMore)
+find_package(ROOT REQUIRED COMPONENTS Core MathMore RIO Rint Hist Gpad)
 if (ROOT_FOUND)
     message("-- Found ROOT: ${ROOT_INCLUDE_DIRS}")
     #---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)

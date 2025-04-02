@@ -14,9 +14,11 @@
 #define KINEMATICS_HPP
 
 #include <memory>
-#include "TMath.h"
-#include "utilities.hpp"
 #include <Math/Interpolator.h>
+#include <TMath.h>
+#include "utilities.hpp"
+#include "plotter.hpp"
+#include "plot2D.hpp" 
 
 namespace iterateKT
 {
@@ -92,6 +94,9 @@ namespace iterateKT
         double phi_plus (double s);
         double phi_minus(double s);
         double radius(double phi);
+
+        // Set up a plot2D in the physical decay region
+        plot2D new_dalitz_plot(plotter & pltr, int N = 300);
 
         // -----------------------------------------------------------------------
         private: 

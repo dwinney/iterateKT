@@ -29,8 +29,24 @@ namespace iterateKT
     void plot2D::draw()
     {
         TGraph2D* graph = new TGraph2D(_data[0].size(), &(_data[0][0]), &(_data[1][0]), &(_data[2][0]));
+        graph->SetName(_filename.c_str());
+
         graph->SetTitle(_title.c_str());
-        
+
+        TAxis* xAxis = graph->GetHistogram()->GetXaxis();
+        xAxis->SetTitle(_xlabel.c_str());
+        xAxis->CenterTitle(true);
+
+        TAxis* yAxis = graph->GetHistogram()->GetYaxis();
+        yAxis->SetTitle(_ylabel.c_str());
+        yAxis->CenterTitle(true);
+     
+        if (_custom_ranges)
+        {
+            xAxis->SetLimits(_xbounds[0], _xbounds[1]);
+            yAxis->SetLimits(_ybounds[0], _ybounds[1]);
+        };
+
         if (_custom_region)
         {
             // Make an exclusion of the dalitz region
@@ -47,7 +63,7 @@ namespace iterateKT
                 outline->SetPoint(i, _region[0][i], _region[1][i]);
             };
             graph->Draw("COLZ0 [cut]");
-            outline->Draw("L SAME");
+            outline->Draw("L SAME");      
             return;
         };
 

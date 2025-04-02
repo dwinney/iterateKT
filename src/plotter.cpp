@@ -154,7 +154,7 @@ namespace iterateKT
         };
     };
 
-    void plotter::combine(std::array<int,2> dims, std::vector<combinable*> hists, std::string filename)
+    void plotter::combine(std::array<int,2> dims, std::vector<plot2D> hists, std::string filename)
     {
         // Make it the global default style
         gROOT->SetStyle("jpacStyle");
@@ -183,7 +183,13 @@ namespace iterateKT
         {
             // Move to sub-canvas
             canvas->cd(index);
-            if (hist != nullptr) hist->combine_draw(scale);
+            gPad->UseCurrentStyle();
+            gPad->SetTopMargin(0.1);
+            gPad->SetRightMargin(0.15);
+            gPad->SetLeftMargin(0.14);
+            gPad->SetBottomMargin(0.13);
+            gPad->SetFixedAspectRatio();
+            hist.draw();
             index++;
         };
 
