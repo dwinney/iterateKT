@@ -96,6 +96,15 @@ void omega_decay()
     print("Cal. width:", amplitude->width());
     print("Exp. width:", 8.49E-3*0.893);
     line();
+
+    auto ps = amplitude->make_plots(plotter);
+    ps[0].set_ranges({0.05, 0.45}, {0.05, 0.45});
+    ps[1].set_ranges({0.05, 0.45}, {0.05, 0.45});
+    ps[2].set_ranges({0.05, 0.45}, {0.05, 0.45});
+    ps[0].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
+    ps[1].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
+    ps[2].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
+    plotter.combine({3,1}, ps, "omega_dalitz.pdf");
     
     timer.stop();
     timer.print_elapsed();

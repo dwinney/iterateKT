@@ -104,4 +104,55 @@ namespace iterateKT
         double max = _kinematics->pth();
         return gauss_kronrod<double,N_GAUSS_ANGULAR>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
+
+    // -----------------------------------------------------------------------
+    // Automate making plots of the amplitude
+
+    // Instead of outputting an array, we output a vector to make it 
+    // compatible right away with plotter.combine
+    std::vector<plot2D> raw_amplitude::make_plots(plotter & pltr, int N)
+    {
+        double smin  = _kinematics->sth();
+        double smax  = _kinematics->pth();
+        double sigma = _kinematics->Sigma();
+
+        std::vector<double> s, t, re, im, abs; 
+        for (int i = 0; i < N; i++)
+        {
+            double si = smin+(smax-smin)*i/double(N-1);
+
+            double tmin = real(_kinematics->t_minus(si));
+            double tmax = real(_kinematics->t_plus (si));
+            for (int j = 0; j < N; j++)
+            {
+                double tij = tmin+(tmax-tmin)*j/double(N-1);
+                
+                complex ampij = evaluate(si, tij, sigma - si - tij);
+
+                s.push_back(si); t.push_back(tij);
+                re.push_back(  real(ampij) );
+                im.push_back(  imag(ampij) );
+                abs.push_back( norm(ampij) );
+            };
+        };
+
+        plot2D p_re = _kinematics->new_dalitz_plot(pltr);
+        p_re.set_data({s,t,re});
+        p_re.set_title("Re#kern[0.2]{(}#it{A})");
+        p_re.set_labels("#it{s}", "#it{t}");
+
+
+        plot2D p_im = _kinematics->new_dalitz_plot(pltr);
+        p_im.set_data({s,t,im});
+        p_im.set_title("Im#kern[0.2]{(}#it{A})");
+        p_im.set_labels("#it{s}", "#it{t}");
+
+        plot2D p_abs = _kinematics->new_dalitz_plot(pltr);
+        p_abs.set_data({s,t,abs});
+        p_abs.set_title("|#kern[0.3]{#it{A}}|#kern[0.2]{^{2}}");
+        p_abs.set_labels("#it{s}", "#it{t}");
+
+        return {p_re, p_im, p_abs};
+    };
+
 }; // namespace iterateKT

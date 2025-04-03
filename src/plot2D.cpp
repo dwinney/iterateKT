@@ -20,7 +20,9 @@ namespace iterateKT
         draw();
 
         // Draw the canvas
-        _canvas->Draw();
+        // _canvas->Draw();
+        _canvas->Update();
+        _canvas->Modified();
 
         // and print to file
         _canvas->Print(_filename.c_str());
@@ -31,20 +33,18 @@ namespace iterateKT
         TGraph2D* graph = new TGraph2D(_data[0].size(), &(_data[0][0]), &(_data[1][0]), &(_data[2][0]));
         graph->SetName(_filename.c_str());
 
-        graph->SetTitle(_title.c_str());
+        std::string frame_labels = _title + ";" + _xlabel + ";" + _ylabel + ";";
+        graph->SetTitle(frame_labels.c_str());
+        graph->GetHistogram()->GetXaxis()->CenterTitle(true);
+        graph->GetHistogram()->GetYaxis()->CenterTitle(true);
+        std::string draw_options = "COLZ0";
 
-        TAxis* xAxis = graph->GetHistogram()->GetXaxis();
-        xAxis->SetTitle(_xlabel.c_str());
-        xAxis->CenterTitle(true);
-
-        TAxis* yAxis = graph->GetHistogram()->GetYaxis();
-        yAxis->SetTitle(_ylabel.c_str());
-        yAxis->CenterTitle(true);
-     
         if (_custom_ranges)
-        {
-            xAxis->SetLimits(_xbounds[0], _xbounds[1]);
-            yAxis->SetLimits(_ybounds[0], _ybounds[1]);
+        { 
+            auto frame = gPad->DrawFrame(_xbounds[0], _ybounds[0], _xbounds[1], _ybounds[1], frame_labels.c_str());
+            frame->GetXaxis()->CenterTitle(true);
+            frame->GetYaxis()->CenterTitle(true);
+            draw_options += " SAME";
         };
 
         if (_custom_region)
@@ -55,18 +55,22 @@ namespace iterateKT
             cut->SetVarX("y");
             cut->SetVarY("x");
 
-            TGraph *outline = new TGraph(Nreg);
+            TGraph* outline = new TGraph(Nreg);
             outline->SetLineWidth(2);
             for (int i = 0; i < Nreg; i++) 
             {
-                cut->SetPoint(i, _region[0][i], _region[1][i]);
+                cut->SetPoint    (i, _region[0][i], _region[1][i]);
                 outline->SetPoint(i, _region[0][i], _region[1][i]);
             };
-            graph->Draw("COLZ0 [cut]");
+            draw_options += " [cut]";
+
+            graph->Draw(draw_options.c_str());
             outline->Draw("L SAME");      
             return;
         };
 
-        graph->Draw("COLZ0");
+        graph->Draw(draw_options.c_str());
+
+        return;
     };
 };

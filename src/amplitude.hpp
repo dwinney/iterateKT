@@ -18,6 +18,8 @@
 #include "basis.hpp"
 #include "isobar.hpp"
 #include "solver.hpp"
+#include "plotter.hpp"
+#include "plot2D.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -92,6 +94,15 @@ namespace iterateKT
 
         // Get a vector of the currently saved subtraction parameters
         inline std::vector<complex> get_pars() { return _subtractions->_values; };
+
+        // -----------------------------------------------------------------------
+        // Automate making plots of the amplitude
+
+        // Make standard plots in the entire decay region
+        // output[0] = Re(A)
+        // output[1] = Im(A)
+        // output[2] = |A|^2
+        std::vector<plot2D> make_plots(plotter & pltr, int N = 100);
 
         // -----------------------------------------------------------------------
         private:
