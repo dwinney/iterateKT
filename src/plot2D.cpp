@@ -32,18 +32,25 @@ namespace iterateKT
     {
         TGraph2D* graph = new TGraph2D(_data[0].size(), &(_data[0][0]), &(_data[1][0]), &(_data[2][0]));
         graph->SetName(_filename.c_str());
-
+        
         std::string frame_labels = _title + ";" + _xlabel + ";" + _ylabel + ";";
         graph->SetTitle(frame_labels.c_str());
         graph->GetHistogram()->GetXaxis()->CenterTitle(true);
         graph->GetHistogram()->GetYaxis()->CenterTitle(true);
+        // gStyle->SetPalette(_palette);
         std::string draw_options = "COLZ0";
+
+        std::string command = "gStyle->SetPalette(" + to_string(_palette)+");";
+        TExec *ex = new TExec("ex", command.c_str());
 
         if (_custom_ranges)
         { 
             auto frame = gPad->DrawFrame(_xbounds[0], _ybounds[0], _xbounds[1], _ybounds[1], frame_labels.c_str());
             frame->GetXaxis()->CenterTitle(true);
             frame->GetYaxis()->CenterTitle(true);
+
+            if (_custom_z){ graph->SetMinimum(_zbounds[0]); graph->SetMaximum(_zbounds[1]); };
+            
             draw_options += " SAME";
         };
 
@@ -64,13 +71,14 @@ namespace iterateKT
             };
             draw_options += " [cut]";
 
+            ex->Draw();  
             graph->Draw(draw_options.c_str());
-            outline->Draw("L SAME");      
+            outline->Draw("L SAME");    
             return;
         };
 
+        ex->Draw();
         graph->Draw(draw_options.c_str());
-
         return;
     };
 };

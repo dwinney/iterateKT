@@ -77,7 +77,7 @@ namespace iterateKT
             TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 600);
             canvas->UseCurrentStyle();
             canvas->SetTopMargin(0.1);
-            canvas->SetRightMargin(0.15);
+            canvas->SetRightMargin(0.16);
             canvas->SetLeftMargin(0.14);
             canvas->SetBottomMargin(0.13);
             canvas->SetFixedAspectRatio();

@@ -183,9 +183,10 @@ namespace iterateKT
         {
             // Move to sub-canvas
             canvas->cd(index);
+            
             gPad->UseCurrentStyle();
             gPad->SetTopMargin(0.1);
-            gPad->SetRightMargin(0.15);
+            gPad->SetRightMargin(0.16);
             gPad->SetLeftMargin(0.14);
             gPad->SetBottomMargin(0.13);
             gPad->SetFixedAspectRatio();
@@ -193,9 +194,7 @@ namespace iterateKT
             index++;
         };
 
-        // Draw the canvas
         canvas->cd();
-        canvas->Draw();
 
         // and print to file
         canvas->Print(filename.c_str());

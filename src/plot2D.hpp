@@ -30,6 +30,7 @@
 #include <TLatex.h>
 #include <TLine.h>
 #include <TStyle.h>
+#include <TExec.h>
 
 #include "data_set.hpp"
 #include "colors.hpp"
@@ -65,6 +66,13 @@ namespace iterateKT
 
         // Set a custom plotting range
         inline void set_ranges(std::array<double,2> xr, std::array<double,2> yr){ _custom_ranges = true; _xbounds = xr; _ybounds = yr; };
+        inline void set_ranges(std::array<double,2> xr, std::array<double,2> yr, std::array<double,2> zr)
+        {
+             _custom_ranges = true; _xbounds = xr; _ybounds = yr; 
+             _custom_z = true;      _zbounds = zr; 
+        };
+
+        inline void set_palette(int x){ _palette = x; };
 
         private: 
 
@@ -92,8 +100,10 @@ namespace iterateKT
         std::string _xlabel = "", _ylabel = "";
 
         // Custom ranges for both x and y axis
-        bool _custom_ranges = false;
-        std::array<double,2> _xbounds, _ybounds;
+        bool _custom_ranges = false, _custom_z = false;
+        std::array<double,2> _xbounds, _ybounds, _zbounds;
+
+        int _palette = kBird;
 
         // Apply all settings and draw onto the saved _canvas
         void draw();
