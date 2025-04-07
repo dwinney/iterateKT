@@ -54,6 +54,7 @@ namespace iterateKT
 
         // Set and clear data
         inline void set_data(std::array<std::vector<double>,3> data){ clear_data(); _data = data; };
+        inline void set_data(data_set data){ clear_data(); set_data({data._x, data._y, data._z}); };
 
         // Custom plotting region
         inline void set_region(std::array<std::vector<double>,2> region){ _custom_region = true; _region = region; };

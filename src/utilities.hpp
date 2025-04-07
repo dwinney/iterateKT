@@ -379,6 +379,9 @@ namespace iterateKT
         return std::string(env);  
     };
 
+    // Another directory that comes up often is the data folder
+    inline std::string data_dir(){ return main_dir() + "/data/"; };
+
     // Same as above but looks for DESKTOP
     inline std::string desktop()
     {
@@ -505,7 +508,7 @@ namespace iterateKT
         }
         return out;
     };
-    inline std::vector<double> square(std::vector<double> in){ return multiply_elementwise(in, in); };
+    inline std::vector<double> square_elementwise(std::vector<double> in){ return multiply_elementwise(in, in); };
 
 };
 // ---------------------------------------------------------------------------

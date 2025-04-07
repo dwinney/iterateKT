@@ -49,7 +49,7 @@ namespace iterateKT
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        raw_amplitude(kinematics xkin, std::string id) : solver(xkin)
+        raw_amplitude(kinematics xkin, std::string id) : solver(xkin), _name(id)
         {};
    
         // Evaluate the full amplitude.
@@ -93,7 +93,8 @@ namespace iterateKT
         inline uint N_pars(){ return _subtractions->N_basis(); };
 
         // Get a vector of the currently saved subtraction parameters
-        inline std::vector<complex> get_pars() { return _subtractions->_values; };
+        inline std::vector<complex> get_pars()       { return _subtractions->_values; };
+        inline std::vector<complex> get_parameters() { return get_pars(); };
 
         // -----------------------------------------------------------------------
         // Automate making plots of the amplitude
@@ -102,7 +103,7 @@ namespace iterateKT
         // output[0] = Re(A)
         // output[1] = Im(A)
         // output[2] = |A|^2
-        std::vector<plot2D> make_plots(plotter & pltr, int N = 100);
+        std::vector<plot2D> make_plots(plotter & pltr, std::string units = "", int N = 100);
 
         // -----------------------------------------------------------------------
         private:

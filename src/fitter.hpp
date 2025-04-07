@@ -39,11 +39,10 @@ namespace iterateKT
 
         uint         _i;
         std::string _label;
-        std::string _message;
+        std::string _mod_message = "[ ≥ 0 ]", _arg_message = "[-π, π]";
         bool   _fixed         = false;
         std::string mod_label(){ return "|" + _label + "|";    };
         std::string arg_label(){ return "arg(" + _label + ")"; };
-
 
         // Each parameter is complex so store both mod and phase seperately
         double _mod           = 0;
@@ -86,6 +85,10 @@ namespace iterateKT
 
         inline void add_data(data_set data){ _N += data._N; _data.push_back(data); };
         inline void add_data(std::vector<data_set> data){ for (auto datum : data) add_data(datum); };
+
+        template <int N>
+        inline void add_data(std::array<data_set,N> data){ for (auto datum : data) add_data(datum); };
+        
         inline void clear_data(){ _data.clear(); _N = 0; };
 
         // -----------------------------------------------------------------------
@@ -123,7 +126,8 @@ namespace iterateKT
             par._fixed   = true;
             par._mod     = std::abs(val);
             par._arg     = std::arg(val);
-            par._message = "[FIXED]";
+            par._mod_message = "[FIXED]";
+            par._arg_message = "[FIXED]";
         };
 
         inline void fix_parameter(std::string label, complex val)
@@ -138,7 +142,8 @@ namespace iterateKT
             // if not fixed, this does nothing
             if (!par._fixed) return;
             par._fixed   = false;
-            par._message = "";
+            par._arg_message = "[-π, π]";
+            par._mod_message = "[ ≥ 0 ]";
             _Nfree++;
         };
 
@@ -162,7 +167,7 @@ namespace iterateKT
             set_up(starting_guess);
 
             if (show_data) { line(); data_info(); };
-            parameter_info(starting_guess);
+            parameter_info();
 
             auto start = std::chrono::high_resolution_clock::now();
             std::cout << "Beginning fit..." << std::flush; 
@@ -236,13 +241,13 @@ namespace iterateKT
                 // Set up the starting guess
                 par._mod = std::abs(starting_guess[i]);
                 par._arg = std::arg(starting_guess[i]);
-                _minuit->SetVariable(i,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
-                _minuit->SetVariableLowerLimit(i, 0.);    // mod is positive definite
+                _minuit->SetVariable(2*i,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
+                _minuit->SetVariableLowerLimit(2*i, 0.);    // mod is positive definite
                 
-                _minuit->SetVariable(i+1, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
-                _minuit->SetVariableLimits(i+1, -PI, PI); // angle from [-pi,pi]
+                _minuit->SetVariable(2*i+1, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
+                _minuit->SetVariableLimits(2*i+1, -PI, PI); // angle from [-pi,pi]
 
-                i+=2; // move index up
+                i+=1; // move index up
             };
         
             _wfcn = ROOT::Math::Functor(this, &fitter::fit_fcn, 2*_Nfree);
@@ -302,7 +307,7 @@ namespace iterateKT
             int i = 0;
             for (auto par : _pars)
             {
-                if (par._fixed) result.push_back(par.value());
+                if   (par._fixed) result.push_back(par.value());
                 else { result.push_back(cpars[i]*exp(I*cpars[i+1])); i+=2; };
             };
 
@@ -329,11 +334,11 @@ namespace iterateKT
             divider();
             cout << "Fitting amplitude (\"" << _amplitude->name() << "\") to " << _N << " data points:" << endl;
             line();
-            cout << setw(25) << "DATA SET"         << setw(30) << "TYPE     "      << setw(10) << "POINTS" << endl;
-            cout << setw(25) << "----------------" << setw(30) << "--------------" << setw(10) << "-------" << endl;
+            cout << setw(29) << "DATA SET"              << setw(25) << "TYPE     "       << setw(10) << "POINTS" << endl;
+            cout << setw(29) << "---------------------" << setw(25) << "-------------"   << setw(10) << "-------" << endl;
             for (auto data : _data)
             {
-                cout << setw(25) << data._id  << setw(30)  << F::data_type(data._type)  << setw(10) << data._N << endl;  
+                cout << setw(30) << data._id  << setw(25)  << F::data_type(data._type)  << setw(10) << data._N << endl;  
             };
         };
 
@@ -341,7 +346,7 @@ namespace iterateKT
         // Display alongside a vector of current parameter values
         // bool start is whether this is the starting guess vector or the 
         // best fit results
-        inline void parameter_info(std::vector<complex> starting_guess)
+        inline void parameter_info()
         {
             using std::cout; using std::left; using std::endl; using std::setw;
 
@@ -359,8 +364,8 @@ namespace iterateKT
             for (auto par : _pars)
             {
                 cout << left << setw(10) << par._i << setw(17) << par._label  << setw(20) << endl;
-                cout << left << setw(10) << ""     << setw(17) << "  -> mod"   << setw(20) << par._mod << setw(20) << par._message << endl;
-                cout << left << setw(10) << ""     << setw(17) << "  -> arg"   << setw(20) << par._arg << setw(20) << par._message << endl;
+                cout << left << setw(10) << ""     << setw(17) << "  -> mod"   << setw(20) << par._mod << setw(20) << par._mod_message << endl;
+                cout << left << setw(10) << ""     << setw(17) << "  -> arg"   << setw(20) << par._arg << setw(20) << par._arg_message << endl;
             };
 
             line(); divider(); line();
@@ -398,8 +403,8 @@ namespace iterateKT
                 if (par._fixed)
                 {
                     cout << left << setw(10) << par._i << setw(16) << par._label  << setw(18) << endl;
-                    cout << left << setw(10) << ""     << setw(16) << "  -> mod"   << setw(18) << par._mod << setw(18) << par._message << endl;
-                    cout << left << setw(10) << ""     << setw(16) << "  -> arg"   << setw(18) << par._arg << setw(18) << par._message << endl;
+                    cout << left << setw(10) << ""     << setw(16) << "  -> mod"   << setw(18) << par._mod << setw(18) << par._mod_message << endl;
+                    cout << left << setw(10) << ""     << setw(16) << "  -> arg"   << setw(18) << par._arg << setw(18) << par._arg_message << endl;
                     continue;
                 }
 
