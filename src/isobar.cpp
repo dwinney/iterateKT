@@ -138,6 +138,8 @@ namespace iterateKT
         if (iter_id  >=  _iterations.size())       return 0;
         if (basis_id >= _subtractions->N_basis())  return 0;
 
+        if ( is_zero(s) ) return (_subtractions->get_power(basis_id) == 0) ? omnes(s) : 0.;
+
         bool no_poly = (_subtractions->get_id(basis_id) != get_id());
         complex polynomial = (no_poly) ? 0 : pow(s, _subtractions->get_power(basis_id));
 

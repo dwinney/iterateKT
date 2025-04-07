@@ -55,6 +55,10 @@ namespace iterateKT
         // Evaluate the full amplitude.
         virtual complex evaluate(complex s, complex t, complex u);
 
+        // If we only have two mandelstams and both are real
+        // output u from the on-shell condition
+        inline  complex evaluate(double s, double t){ return evaluate(s, t, _kinematics->Sigma() - s - t); };
+
         // Factor to divide by in width calculation
         virtual double  helicity_factor(){ return 1; };
 
