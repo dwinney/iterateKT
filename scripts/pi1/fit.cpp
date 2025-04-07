@@ -1,4 +1,4 @@
-// Twice subtracted KT amplitudes for π1(1600) decay with only P-wave in [1]
+// Fit KT amplitudes for π1(1600) decay with only P-wave in [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -37,8 +37,8 @@ void fit()
     double m3pi = data[0]._extras["m3pi"]; // 3pi decay mass in GeV
     double mt   = data[1]._extras["t"];    // Production -t
 
-    int Niter = 5; // Number of KT iterations
-    int Nsub  = 2; // Number of subtractions
+    int Niter = 0; // Number of KT iterations
+    int Nsub  = 1; // Number of subtractions
 
     // These vectors should be same size as Nsub above
     std::vector<std::string> par_labels = {"a", "b"};
@@ -57,8 +57,22 @@ void fit()
     amp->add_isobar<P_wave>(Nsub, id::P_wave);
 
     // Iterate
-    amp->iterate(Niter);
-    
+    divider();
+    print("Solving KT with " + to_string(Nsub) + " subtractions and " + to_string(Niter) + " iterations:");
+    line();
+    timer timer; 
+    timer.start();
+    for (int i = 0; i < Niter; i++)
+    {
+        amp->iterate();
+        timer.lap("iteration " + to_string(i+1));
+    };
+    timer.stop();
+    line();
+
+    timer.print_elapsed();
+    divider(); 
+
     // -----------------------------------------------------------------------
     // Set up fitter
 
@@ -71,32 +85,55 @@ void fit()
     // Plot results
 
     plotter plotter;
-    auto plots = amp->make_plots(plotter, "[GeV^{2}]");
-    
-    // Plot Dalitz Plots
 
+    // ------------------------------------------------------------
+    // 3D PLOTS 
+
+    // These two plots are of the amplitude
+    auto plots = amp->make_plots(plotter, "[GeV^{2}]");
+    plots[0].set_title("Re(Fit)");
+    plots[0].set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
+    plots[1].set_title("Im(Fit)"); 
+    plots[1].set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
+    
+    // Next we make plots the raw data
     plot2D rep = kin->new_dalitz_plot(plotter);
     rep.set_data(data[0]);
     rep.set_title("Re(Data)");
     rep.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
+    rep.set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
 
     plot2D imp = kin->new_dalitz_plot(plotter);
     imp.set_data(data[1]);
     imp.set_title("Im(Data)");
     imp.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
+    imp.set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
 
-    plotter.combine({2,2}, {rep, imp, plots[0], plots[1]}, "dalitz.pdf");
+    // Finally we can calculate and plot the difference
+    // between the two
+    std::vector<double> dre, dim;
+    for (int i = 0; i < data[0]._N; i++)
+    {
+        double s1 = data[0]._x[i], s2 = data[0]._y[i];
+        complex model = amp->evaluate(s1, s2);
+        dre.push_back(data[0]._z[i] - real(model));
+        dim.push_back(data[1]._z[i] - imag(model));
+    };
 
-    // Plot the isobar compares to the Omness
-    isobar pwave = amp->get_isobar(id::P_wave);
-    complex norm = amp->get_parameters().front();
+    plot2D drep = kin->new_dalitz_plot(plotter);
+    drep.set_palette(kTemperatureMap);
+    drep.set_data({data[0]._x, data[0]._y, dre});
+    drep.set_title("Re(Data - #it{A})");
+    drep.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
+    drep.set_ranges( {0, 1.7}, {0, 1.7});
 
-    plot p = plotter.new_plot();
-    p.set_legend(0.7, 0.7);
-    p.set_labels("#sigma  [GeV^{2}]", "#it{f}#kern[-0.4]{_{1}}#kern[-1]{^{1}}(#sigma)");
-    p.add_curve({0, 1.5}, [&](double s){ return real(pwave->omnes(s+IEPS)); },          solid( jpacColor::Blue, "Omn#grave{e}s"));
-    p.add_curve({0, 1.5}, [&](double s){ return imag(pwave->omnes(s+IEPS)); },          dotted(jpacColor::Blue));
-    p.add_curve({0, 1.5}, [&](double s){ return real(pwave->evaluate(s+IEPS)/norm); },  solid( jpacColor::Red,  "KT ("+to_string(Nsub)+"-sub)"));
-    p.add_curve({0, 1.5}, [&](double s){ return imag(pwave->evaluate(s+IEPS)/norm ); }, dotted(jpacColor::Red));
-    p.save("isobar.pdf");
+    plot2D dimp = kin->new_dalitz_plot(plotter);
+    dimp.set_palette(kTemperatureMap);
+    dimp.set_data({data[0]._x, data[0]._y, dim});
+    dimp.set_title("Im(Data - #it{A})");
+    dimp.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
+    dimp.set_ranges( {0, 1.7}, {0, 1.7});
+
+    // Combine them all in one file
+    plotter.combine({2,3}, {rep, imp, plots[0], plots[1], drep, dimp}, "dalitz.pdf");
 };
