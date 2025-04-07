@@ -47,3 +47,6 @@ scripts/tests/comparisons/
 *.ps
 *.root
 *.dat
+
+# hide nonpublic data
+/data/COMPASS/raw_files
