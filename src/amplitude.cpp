@@ -110,13 +110,13 @@ namespace iterateKT
 
     // Instead of outputting an array, we output a vector to make it 
     // compatible right away with plotter.combine
-    std::vector<plot2D> raw_amplitude::make_plots(plotter & pltr, std::string units, int N)
+    std::vector<plot2D> raw_amplitude::plot_ReIm(plotter & pltr, std::string units, int N)
     {
         double smin  = _kinematics->sth();
         double smax  = _kinematics->pth();
         double sigma = _kinematics->Sigma();
 
-        std::vector<double> s, t, re, im, abs; 
+        std::vector<double> s, t, re, im; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
@@ -132,7 +132,6 @@ namespace iterateKT
                 s.push_back(si); t.push_back(tij);
                 re.push_back(  real(ampij) );
                 im.push_back(  imag(ampij) );
-                abs.push_back( norm(ampij) );
             };
         };
 
@@ -156,12 +155,49 @@ namespace iterateKT
         p_im.set_title("Im#kern[0.2]{(}#it{A})");
         p_im.set_labels(xlabel, ylabel);
 
-        plot2D p_abs = _kinematics->new_dalitz_plot(pltr);
-        p_abs.set_data({s,t,abs});
-        p_abs.set_title("|#kern[0.3]{#it{A}}|#kern[0.2]{^{2}}");
-        p_abs.set_labels(xlabel, ylabel);
+        return {p_re, p_im};
+    };
 
-        return {p_re, p_im, p_abs};
+    // Plot |A|
+    plot2D raw_amplitude::plot_dalitz(plotter & pltr, std::string units, int N)
+    {
+        double smin  = _kinematics->sth();
+        double smax  = _kinematics->pth();
+        double sigma = _kinematics->Sigma();
+
+        std::vector<double> s, t, abs; 
+        for (int i = 0; i < N; i++)
+        {
+            double si = smin+(smax-smin)*i/double(N-1);
+
+            double tmin = real(_kinematics->t_minus(si));
+            double tmax = real(_kinematics->t_plus (si));
+            for (int j = 0; j < N; j++)
+            {
+                double tij = tmin+(tmax-tmin)*j/double(N-1);
+                
+                complex ampij = evaluate(si, tij);
+
+                s.push_back(si); t.push_back(tij);
+                abs.push_back(  std::abs(ampij) );
+            };
+        };
+
+        std::string xlabel = "#sigma_{1}";
+        std::string ylabel = "#sigma_{2}";
+
+        if (units != "")
+        {
+            xlabel += " " + units;
+            ylabel += " " + units;
+        }
+
+        plot2D p = _kinematics->new_dalitz_plot(pltr);
+        p.set_data({s,t,abs});
+        p.set_title("Re#kern[0.2]{(}#it{A})");
+        p.set_labels(xlabel, ylabel);
+
+        return p;
     };
 
 }; // namespace iterateKT

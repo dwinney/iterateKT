@@ -199,7 +199,10 @@ namespace iterateKT
         // Change tolerance
         inline void set_tolerance(double tol){ _tolerance = tol; };
 
-        // private:
+        // Number of degrees of freedom
+        inline int dof(){ return _N - _minuit->NFree(); };
+
+        private:
 
         // This ptr should point to the amplitude to be fit
         amplitude _amplitude = nullptr;
@@ -382,9 +385,8 @@ namespace iterateKT
             cout << std::setprecision(8);
             cout << left;
 
-            int dof                  = _N - _minuit->NFree();
             double fcn               = _minuit->MinValue();
-            double fcn_dof           = _minuit->MinValue() / double(dof);
+            double fcn_dof           = _minuit->MinValue() / double(dof());
             std::vector<double> pars = convert(_minuit->X());
             std::vector<double> errs = convert(_minuit->Errors());
             

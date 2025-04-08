@@ -32,20 +32,20 @@ void fit()
 
     // Data file
     std::string data_file = "dalitz_m3pi_bin_number_22_tBin_3.json";
-    auto data   = COMPASS::parse_JSON(data_file);
 
-    double m3pi = data[0]._extras["m3pi"]; // 3pi decay mass in GeV
-    double mt   = data[1]._extras["t"];    // Production -t
-
-    int Niter = 0; // Number of KT iterations
+    int Niter = 5; // Number of KT iterations
     int Nsub  = 1; // Number of subtractions
-
+    
     // These vectors should be same size as Nsub above
     std::vector<std::string> par_labels = {"a", "b"};
     std::vector<complex> initial_guess  = { 1.,  1.};
-
+    
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
+    
+    // Import our data set first so we can know the m3pi bin
+    data_set data   = COMPASS::parse_JSON(data_file);
+    double m3pi     = data._extras["m3pi"];
 
     // Set up general kinematics so everything knows masses
     kinematics kin = new_kinematics(m3pi, M_PION);
@@ -78,7 +78,7 @@ void fit()
 
     fitter<COMPASS::fit> fitter(amp);
     fitter.set_parameter_labels(par_labels);
-    fitter.add_data<2>(data);
+    fitter.add_data(data);
     fitter.do_fit(initial_guess);
 
     // -----------------------------------------------------------------------
@@ -86,54 +86,32 @@ void fit()
 
     plotter plotter;
 
-    // ------------------------------------------------------------
-    // 3D PLOTS 
+    std::array<double,2> bounds = {0, 1.7};
+    std::string xlabel = "#sigma_{1} [GeV^{2}]", ylabel =  "#sigma_{2} [GeV^{2}]";
 
-    // These two plots are of the amplitude
-    auto plots = amp->make_plots(plotter, "[GeV^{2}]");
-    plots[0].set_title("Re(Fit)");
-    plots[0].set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
-    plots[1].set_title("Im(Fit)"); 
-    plots[1].set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
+    // Plot the amplitude
+    plot2D p1 = amp->plot_dalitz(plotter, "[GeV^{2}]");
+    p1.set_title("|Fit|");
+    p1.set_ranges(bounds, bounds, {-EPS, 1000});
     
-    // Next we make plots the raw data
-    plot2D rep = kin->new_dalitz_plot(plotter);
-    rep.set_data(data[0]);
-    rep.set_title("Re(Data)");
-    rep.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
-    rep.set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
-
-    plot2D imp = kin->new_dalitz_plot(plotter);
-    imp.set_data(data[1]);
-    imp.set_title("Im(Data)");
-    imp.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
-    imp.set_ranges( {0, 1.7}, {0, 1.7}, {-1200, 1200});
-
-    // Finally we can calculate and plot the difference
-    // between the two
-    std::vector<double> dre, dim;
-    for (int i = 0; i < data[0]._N; i++)
+    // Finally calculatet the chi2 per bin
+    std::vector<double> chi2;
+    for (int i = 0; i < data._N; i++)
     {
-        double s1 = data[0]._x[i], s2 = data[0]._y[i];
+        double s1 = data._x[i], s2 = data._y[i];
         complex model = amp->evaluate(s1, s2);
-        dre.push_back(data[0]._z[i] - real(model));
-        dim.push_back(data[1]._z[i] - imag(model));
+
+        double fcn = (is_zero(data._dz[i])) ? 0. : std::norm(data._z[i] - std::abs(model))/data._dz[i];
+        chi2.push_back(fcn/fitter.dof());
     };
 
-    plot2D drep = kin->new_dalitz_plot(plotter);
-    drep.set_palette(kTemperatureMap);
-    drep.set_data({data[0]._x, data[0]._y, dre});
-    drep.set_title("Re(Data - #it{A})");
-    drep.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
-    drep.set_ranges( {0, 1.7}, {0, 1.7});
-
-    plot2D dimp = kin->new_dalitz_plot(plotter);
-    dimp.set_palette(kTemperatureMap);
-    dimp.set_data({data[0]._x, data[0]._y, dim});
-    dimp.set_title("Im(Data - #it{A})");
-    dimp.set_labels("#sigma_{1} [GeV^{2}]", "#sigma_{2} [GeV^{2}]");
-    dimp.set_ranges( {0, 1.7}, {0, 1.7});
+    plot2D p2 = kin->new_dalitz_plot(plotter);
+    p2.set_palette(kTemperatureMap);
+    p2.set_data({data._x, data._y, chi2});
+    p2.set_title("#chi^{2} / dof");
+    p2.set_labels(xlabel, ylabel);
+    p2.set_ranges(bounds, bounds, {-EPS, 7});
 
     // Combine them all in one file
-    plotter.combine({2,3}, {rep, imp, plots[0], plots[1], drep, dimp}, "dalitz.pdf");
+    plotter.combine({2,1}, {p1,p2}, "results.pdf");
 };

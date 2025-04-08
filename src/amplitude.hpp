@@ -106,8 +106,11 @@ namespace iterateKT
         // Make standard plots in the entire decay region
         // output[0] = Re(A)
         // output[1] = Im(A)
-        // output[2] = |A|^2
-        std::vector<plot2D> make_plots(plotter & pltr, std::string units = "", int N = 100);
+        std::vector<plot2D> plot_ReIm(plotter & pltr, std::string units = "", int N = 100);
+
+        // Only plot |A|
+        plot2D plot_dalitz(plotter & pltr, std::string units = "", int N = 100);
+
 
         // -----------------------------------------------------------------------
         private:

@@ -34,12 +34,12 @@ void compare()
 
     int Niter = 5; // Number of KT iterations
 
-    // Best fit parameters for each of the three parameterizations
-    complex omnes_norm              =  1379.5423*exp(I*-1.4768058);
-    std::vector<complex> pars_1sub  = {1223.4514*exp(I*-1.4036273)};
-    std::vector<complex> pars_2sub  = {34883.276*exp(I*-2.4690205),  59611.345*exp(I*0.69909863)};
-
-    double smin = 0, smax = 1.5;
+    // Best fit parameters for each of the three parameterizations 
+    complex omnes_norm              =  1300.4729;
+    std::vector<complex> pars_1sub  = {1162.9588};
+    std::vector<complex> pars_2sub  = {43741.973*exp(I*-1.6436183),  75194.435*exp(I*1.5296475)};
+    
+    double smin = 0, smax = 2.5;
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -72,30 +72,42 @@ void compare()
     timer.print_elapsed();
     divider(); 
 
+    isobar pwave1 = amp_1sub->get_isobar(id::P_wave);
+    isobar pwave2 = amp_2sub->get_isobar(id::P_wave);
+
+    amp_1sub->set_parameters(pars_1sub);
+    amp_2sub->set_parameters(pars_2sub);
+
     // -----------------------------------------------------------------------
     // Plot results
 
     plotter plotter;
 
-    plot p = plotter.new_plot();
-    p.set_ranges({smin, smax}, {-5.5,10});
-    p.set_legend(0.65, 0.75);
-    p.set_labels("#sigma  [GeV^{2}]", "[ #it{f}#kern[-0.4]{_{1}}#kern[-1]{^{1}}(#sigma) - #it{f}#kern[-0.4]{_{1}}#kern[-1]{^{1}}(0) ] / 10^{3}");
+    plot p1 = plotter.new_plot();
+    p1.set_curve_points(400);
+    p1.set_ranges({smin, smax}, {-5.5,10});
+    p1.set_legend(0.68, 0.75);
+    p1.set_labels("#sigma  [GeV^{2}]", "( #it{f}(#sigma) - #it{f}(0) ) #times 10^{-3}");
 
-    isobar pwave1 = amp_1sub->get_isobar(id::P_wave);
-    isobar pwave2 = amp_2sub->get_isobar(id::P_wave);
+    p1.add_curve({smin, smax}, [&](double s){ return real(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, solid( jpacColor::Blue, "Omnes"));
+    p1.add_curve({smin, smax}, [&](double s){ return imag(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, dashed(jpacColor::Blue));
+    p1.add_curve({smin, smax}, [&](double s){ return real(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1E3; },                 solid( jpacColor::Red,  "Unsubtracted"));
+    p1.add_curve({smin, smax}, [&](double s){ return imag(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1E3; },                 dashed(jpacColor::Red));
+    p1.add_curve({smin, smax}, [&](double s){ return real(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1E3; },                 solid( jpacColor::Green,"Once-subtracted"));
+    p1.add_curve({smin, smax}, [&](double s){ return imag(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1E3; },                 dashed(jpacColor::Green));
+    p1.shade_region({kin->sth(), kin->pth()});
+
+    plot p2 = plotter.new_plot();
+    p2.set_curve_points(400);
+    p2.set_ranges({smin, smax}, {0, 10});
+    p2.set_legend(0.68, 0.75);
+    p2.set_labels("#sigma  [GeV^{2}]", "| #it{f}(#sigma) - #it{f}(0) | #times 10^{-3}");
     
-    p.add_curve({smin, smax}, [&](double s){ return real(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1000; }, solid( jpacColor::Blue, "Omn#grave{e}s"));
-    p.add_curve({smin, smax}, [&](double s){ return imag(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1000; }, dashed(jpacColor::Blue));
+    p2.add_curve({smin, smax}, [&](double s){ return abs(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, solid(jpacColor::Blue, "Omnes"));
+    p2.add_curve({smin, smax}, [&](double s){ return abs(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1E3; },                 solid(jpacColor::Red,  "Unsubtracted"));
+    p2.add_curve({smin, smax}, [&](double s){ return abs(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1E3; },                 solid(jpacColor::Green,"Once-subtracted"));
+    p2.shade_region({kin->sth(), kin->pth()});
 
-    amp_1sub->set_parameters(pars_1sub);
-    p.add_curve({smin, smax}, [&](double s){ return real(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1000; }, solid( jpacColor::Red, "Unsubtracted"));
-    p.add_curve({smin, smax}, [&](double s){ return imag(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1000; }, dashed(jpacColor::Red));
-    
-    amp_2sub->set_parameters(pars_2sub);
-    p.add_curve({smin, smax}, [&](double s){ return real(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1000; }, solid( jpacColor::Green, "Once-subtracted"));
-    p.add_curve({smin, smax}, [&](double s){ return imag(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1000; }, dashed(jpacColor::Green));
-
-    p.save("compare.pdf");
+    plotter.combine({2,1}, {p1,p2}, "compare.pdf");
    
 };

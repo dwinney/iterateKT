@@ -21,13 +21,13 @@
 #include "isobars/pi1.hpp"
 
 
-void pi1_decay()
+void iterations()
 {
     using namespace iterateKT;
 
     // Set up general kinematics so everything knows masses
     // Use masses in units of pion mass
-    kinematics kinematics = new_kinematics(1.60, M_PION);
+    kinematics kinematics = new_kinematics(1.40, M_PION);
     
     // Significant points in integration path
     double A = kinematics->A();
@@ -50,25 +50,25 @@ void pi1_decay()
 
     timer.start();
 
-    double smin = 0, smax = 2.;
-    uint N = 0;
+    double smin = 0, smax = 2.5;
+    uint N = 4;
 
     plot p1 = plotter.new_plot();
-    p1.set_legend(0.7, 0.7);
+    p1.set_legend(0.75, 0.7);
     p1.set_curve_points(1000);
     p1.set_ranges({smin, smax}, {-4, 7.5});
-    p1.set_labels("#it{s}   [GeV^{2}]", "F_{a}(#it{s} + #it{i}#epsilon)");
-    p1.add_vertical({A, C});
+    p1.set_labels("#sigma   [GeV^{2}]", "f_{a}(#sigma + #it{i}#epsilon)");
     p1.add_horizontal(0);
+    p1.shade_region({A,C});
     p1.add_curve( {smin, smax}, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, "#Omega_{1}");
     p1.add_dashed({smin, smax}, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
 
     plot p2 = plotter.new_plot();
-    p2.set_legend(0.7, 0.7);
+    p2.set_legend(0.75, 0.7);
     p2.set_curve_points(1000);
-    p2.set_ranges({smin, smax}, {-2.5, 4.5});
-    p2.set_labels("#it{s}   [GeV^{2}]", "F_{b}(#it{s} + #it{i}#epsilon)");
-    p2.add_vertical({A, C});
+    p2.set_ranges({smin, smax}, {-3, 4.5});
+    p2.set_labels("#sigma   [GeV^{2}]", "f_{b}(#sigma + #it{i}#epsilon)");
+    p2.shade_region({A,C});
     p2.add_horizontal(0);
     p2.add_curve( {smin, smax}, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, "s #Omega_{1}");
     p2.add_dashed({smin, smax}, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
