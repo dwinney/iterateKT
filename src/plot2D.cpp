@@ -25,7 +25,9 @@ namespace iterateKT
         _canvas->Modified();
 
         // and print to file
+        if (_inverted) TColor::InvertPalette();
         _canvas->Print(_filename.c_str());
+        if (_inverted) TColor::InvertPalette();
     };
 
     void plot2D::draw()
@@ -37,10 +39,9 @@ namespace iterateKT
         graph->SetTitle(frame_labels.c_str());
         graph->GetHistogram()->GetXaxis()->CenterTitle(true);
         graph->GetHistogram()->GetYaxis()->CenterTitle(true);
-        // gStyle->SetPalette(_palette);
         std::string draw_options = "COLZ0";
 
-        std::string command = "gStyle->SetPalette(" + to_string(_palette)+");";
+        std::string    command  = "gStyle->SetPalette(" + to_string(_palette)+");";
         TExec *ex = new TExec("ex", command.c_str());
 
         if (_custom_ranges)
@@ -50,7 +51,6 @@ namespace iterateKT
             frame->GetYaxis()->CenterTitle(true);
 
             if (_custom_z){ graph->SetMinimum(_zbounds[0]); graph->SetMaximum(_zbounds[1]); };
-            
             draw_options += " SAME";
         };
 
@@ -71,7 +71,7 @@ namespace iterateKT
             };
             draw_options += " [cut]";
 
-            ex->Draw();  
+            ex->Draw(); 
             graph->Draw(draw_options.c_str());
             outline->Draw("L SAME");    
             return;

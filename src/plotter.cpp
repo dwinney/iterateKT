@@ -191,6 +191,7 @@ namespace iterateKT
             gPad->SetBottomMargin(0.13);
             gPad->SetFixedAspectRatio();
             hist.draw();
+            if (hist._inverted) TColor::InvertPalette();
             index++;
         };
 

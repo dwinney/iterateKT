@@ -72,7 +72,7 @@ namespace iterateKT
              _custom_z = true;      _zbounds = zr; 
         };
 
-        inline void set_palette(int x){ _palette = x; };
+        inline void set_palette(int x, bool invert = false){ _palette = x; _inverted = invert; };
 
         private: 
 
@@ -103,7 +103,9 @@ namespace iterateKT
         bool _custom_ranges = false, _custom_z = false;
         std::array<double,2> _xbounds, _ybounds, _zbounds;
 
-        int _palette = kBird;
+        // Related to color options
+        int _palette   = kBird; 
+        bool _inverted = false;
 
         // Apply all settings and draw onto the saved _canvas
         void draw();
