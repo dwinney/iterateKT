@@ -258,7 +258,7 @@ namespace iterateKT
             }
             else if ((s >= 4.*M_KAON*M_KAON) && (s < sh))
             {
-                double lambda0, wK, KK;
+                double cot_lambda0, lambda0, wK, KK;
                 double lambda1, lambda2;
                 lambda1 = 1.38;
                 lambda2 = -1.70;
@@ -269,14 +269,14 @@ namespace iterateKT
                 B1 = .19;
                 KK = elastic_mom(4.*M_KAON*M_KAON, 4.*M_PION*M_PION);
                 wK = conformal(4.*M_KAON*M_KAON, s0);
-                temp1 = sqrt(4.*M_KAON*M_KAON)*(M_RHO*M_RHO - s)/(2. * pow(KK, 3.));
+                temp1 = sqrt(4.*M_KAON*M_KAON)*(M_RHO*M_RHO - 4.*M_KAON*M_KAON)/(2. * pow(KK, 3.));
                 temp2 = 2.*pow(M_PION, 3.)/(M_RHO*M_RHO*sqrt(4.*M_KAON*M_KAON));
-                lambda0 = temp1*(temp2 + B0 + B1* wK);
+                cot_lambda0 = temp1*(temp2 + B0 + B1* wK);
+                lambda0 = atan2(1., cot_lambda0);
 
                 temp3 = (sqrt(s) / (2.*M_KAON)) - 1.;
 
-                cot_delta = lambda0 + lambda1*temp3 + lambda2*temp3*temp3;
-                delta = atan2(1., cot_delta);
+                delta = lambda0 + lambda1*temp3 + lambda2*temp3*temp3;
             }
             else {delta = 0.;}
             return delta;
