@@ -33,8 +33,10 @@ namespace iterateKT
     void plot2D::draw()
     {
         TGraph2D* graph = new TGraph2D(_data[0].size(), &(_data[0][0]), &(_data[1][0]), &(_data[2][0]));
+        graph->SetNpx(_nbins); graph->SetNpy(_nbins);
+        gStyle->SetNumberContours(_ncontours);
         graph->SetName(_filename.c_str());
-        
+
         std::string frame_labels = _title + ";" + _xlabel + ";" + _ylabel + ";";
         graph->SetTitle(frame_labels.c_str());
         graph->GetHistogram()->GetXaxis()->CenterTitle(true);

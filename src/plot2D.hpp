@@ -57,21 +57,23 @@ namespace iterateKT
         inline void set_data(std::array<std::vector<double>,3> data){ clear_data(); _data = data; };
         inline void set_data(data_set data){ clear_data(); set_data({data._x, data._y, data._z}); };
 
+        
         // Custom plotting region
         inline void set_region(std::array<std::vector<double>,2> region){ _custom_region = true; _region = region; };
-
+        
         // Set title and axis labels
         inline void set_title(std::string title){ _title = title; };
         inline void set_labels(std::string xl, std::string yl){ _xlabel = xl; _ylabel = yl; };
-
+        
         // Set a custom plotting range
         inline void set_ranges(std::array<double,2> xr, std::array<double,2> yr){ _custom_ranges = true; _xbounds = xr; _ybounds = yr; };
         inline void set_ranges(std::array<double,2> xr, std::array<double,2> yr, std::array<double,2> zr)
         {
-             _custom_ranges = true; _xbounds = xr; _ybounds = yr; 
-             _custom_z = true;      _zbounds = zr; 
+            _custom_ranges = true; _xbounds = xr; _ybounds = yr; 
+            _custom_z = true;      _zbounds = zr; 
         };
-
+        
+        inline void set_Nbins(int x, int y = 100){ _nbins = x; _ncontours = y; };
         inline void set_palette(int x, bool invert = false){ _palette = x; _inverted = invert; };
 
         private: 
@@ -107,6 +109,8 @@ namespace iterateKT
         int _palette   = kBird; 
         bool _inverted = false;
 
+        int _nbins = 300, _ncontours = 256;
+        
         // Apply all settings and draw onto the saved _canvas
         void draw();
     };
