@@ -107,6 +107,7 @@ namespace iterateKT
 
         // Convert a data_set object to a plot_entry
         void add_data(std::array<std::vector<double>,2> x, std::array<std::vector<double>,2> y, jpacColor color = jpacColor::DarkGrey);
+        void add_data(std::vector<double> x, std::array<std::vector<double>,2> y, jpacColor color = jpacColor::DarkGrey);
 
         // Add a small offset to change the running color index
         inline void color_offset(unsigned n)

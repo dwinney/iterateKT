@@ -164,6 +164,25 @@ namespace iterateKT
         _entries.push_front(plot_entry(graph, style, true));
     };
 
+    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, jpacColor color)
+    {
+        double *x, *y, *dy;
+        x  = &(vx[0]);        y  = &(vy[0][0]);
+                             dy  = &(vy[1][0]);
+        TGraph *graph = new TGraphErrors(vx.size(), x, y, nullptr, dy);
+
+        entry_style style;
+        style._style = 20 + _Ndata;
+        style._color = color;
+        style._draw_opt = "P";
+        style._add_to_legend = false;
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_front(plot_entry(graph, style, true));
+    };
+
     // -----------------------------------------------------------------------
     // Add different curves from amplitudes / functions
 
