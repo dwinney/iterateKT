@@ -62,7 +62,7 @@ namespace iterateKT { namespace COMPASS
                         case kAbs:
                         {
                             if (is_zero(data._dz[i])) continue;
-                            chi2  += norm(from_data - abs(from_model)) / data._dz[i]; 
+                            chi2  += norm((from_data - abs(from_model)) / data._dz[i]); 
                             break;
                         };
                         default: break;
@@ -98,13 +98,12 @@ namespace iterateKT { namespace COMPASS
         auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = (t_upper + t_lower)/2;
     
-        std::string id = "m3π = " + to_string(m3pi,2) + ", t = " + to_string(t,2);
+        std::string id = "m3π = " + to_string(m3pi,2) + ", t' = " + to_string(t,2);
 
-        auto bins  = data["bin_centers"];
-        auto reM   = data["real(M)"];
-        auto imM   = data["imag(M)"];
-        auto err   = data["std_abs_M"];
-        int N      = bins.size();
+        auto bins      = data["bin_centers"];
+        auto abs_M     = data["abs_M"];
+        auto std_abs_M = data["std_abs_M"];
+        int N          = bins.size();
 
         // ---------------------------------------------------------------------------
         // Need to filter out any data outside of the physical kinematic region
@@ -121,21 +120,19 @@ namespace iterateKT { namespace COMPASS
     
                 if (!kin->in_decay_region(s1, s2)) continue;
                 
-                double   x = reM[i][j], y = imM[i][j], dz = err[i][j];
-                complex  z = x + I*y;
-                
                 sig1.push_back(s1); sig2.push_back(s2);
-                absM.push_back( abs(z) ); 
-                errM.push_back( dz );
+                absM.push_back(     abs_M[i][j] ); 
+                errM.push_back( std_abs_M[i][j] );
             };
         };
         int N_actual = sig1.size();
 
         // ---------------------------------------------------------------------------
         //  Organize everything
-        out._N  = N_actual;         
-        out._id = id;               
+        out._N    = N_actual;         
+        out._id   = id;               
         out._type = fit::kAbs;     
+        out._extras["Nbins"] = N; 
         out._extras["m3pi"] = m3pi; 
         out._extras["t"]    = t;    
         out._x = sig1;  
@@ -170,7 +167,7 @@ namespace iterateKT { namespace COMPASS
         auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = (t_upper + t_lower)/2;
     
-        std::string id = "m3π = " + to_string(m3pi,2) + ", t = " + to_string(t,2);
+        std::string id = "m3π = " + to_string(m3pi,2) + ", -t = " + to_string(t,2);
 
         auto bin_centers = data["bin_centers"];
         auto real_parts  = data["real(M)"];
@@ -202,34 +199,37 @@ namespace iterateKT { namespace COMPASS
 
         // ---------------------------------------------------------------------------
         // Import everything into the data_sets
-        out_real._N  = N_actual;         out_imag._N = N_actual;
-        out_real._id = id;               out_imag._id = id; 
-        out_real._type = fit::kReal;     out_imag._type = fit::kImag;
-        out_real._extras["m3pi"] = m3pi; out_imag._extras["m3pi"] = m3pi; 
-        out_real._extras["t"]    = t;    out_imag._extras["t"]    = t; 
-        out_real._x = sig1;              out_imag._x = sig1;
-        out_real._y = sig2;              out_imag._y = sig2;
-        out_real._z = re;                out_imag._z = im;           
+        out_real._N  = N_actual;          out_imag._N = N_actual;
+        out_real._id = id;                out_imag._id = id; 
+        out_real._type = fit::kReal;      out_imag._type = fit::kImag;
+        out_real._extras["Nbins"] = N;    out_imag._extras["Nbins"] = N; 
+        out_real._extras["m3pi"]  = m3pi; out_imag._extras["m3pi"]  = m3pi; 
+        out_real._extras["t"]     = t;    out_imag._extras["t"]     = t; 
+        out_real._x = sig1;               out_imag._x = sig1;
+        out_real._y = sig2;               out_imag._y = sig2;
+        out_real._z = re;                 out_imag._z = im;           
 
         return {out_real, out_imag};
     };
 
     // Parse a JSON file and output it as a four column ascii file
     // Columns correspond to: s, t, Re(A), Im(A)
-    inline void convert_JSON_ReIm_to_ascii(std::string input)
+    inline void convert_JSON_ReIm_to_ascii(std::string input, std::string output = "")
     {
         auto data = parse_JSON_ReIm(input);
-        std::string output = "dalitz_m3π_" + to_string(data[0]._extras["m3pi"],2) + "_t_" + to_string(data[0]._extras["t"],2) + ".dat";
-        print_to_file<4>(output, {data[0]._x, data[0]._y, data[0]._z, data[1]._z});
+        std::string out = (output == "") ? "dalitz_m3pi_" + to_string(data[0]._extras["m3pi"],2) + "_t_" + to_string(data[0]._extras["t"],2) + ".dat"
+                                        : output;
+        print_to_file<4>(out, {data[0]._x, data[0]._y, data[0]._z, data[1]._z});
     };
 
     // Parse a JSON file and output it as a four column ascii file
     // Columns correspond to: s, t, Abs(M), Err(M)
-    inline void convert_JSON_to_ascii(std::string input)
+    inline void convert_JSON_to_ascii(std::string input, std::string output = "")
     {
         auto data = parse_JSON(input);
-        std::string output = "dalitz_m3π_" + to_string(data._extras["m3pi"],2) + "_t_" + to_string(data._extras["t"],2) + ".dat";
-        print_to_file<4>(output, {data._x, data._y, data._z, data._dz});
+        std::string out = (output == "") ? "dalitz_m3pi_" + to_string(data._extras["m3pi"],4) + "_t_" + to_string(data._extras["t"],2) + ".dat"
+                                         : output;
+        print_to_file<4>(out, {data._x, data._y, data._z, data._dz});
     };
 }; };
 

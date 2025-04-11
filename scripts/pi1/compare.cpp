@@ -35,9 +35,9 @@ void compare()
     int Niter = 5; // Number of KT iterations
 
     // Best fit parameters for each of the three parameterizations 
-    complex omnes_norm              =  1300.4729;
-    std::vector<complex> pars_1sub  = {1162.9588};
-    std::vector<complex> pars_2sub  = {43741.973*exp(I*-1.6436183),  75194.435*exp(I*1.5296475)};
+    complex omnes_norm              =  630.32738;
+    std::vector<complex> pars_1sub  = {563.1772};
+    std::vector<complex> pars_2sub  = {10954.435,  18585.493*exp(I*3.1524194)};
     
     double smin = 0, smax = 2.5;
 
@@ -85,9 +85,9 @@ void compare()
 
     plot p1 = plotter.new_plot();
     p1.set_curve_points(400);
-    p1.set_ranges({smin, smax}, {-5.5,10});
+    p1.set_ranges({smin, smax}, {-3.5,5});
     p1.set_legend(0.68, 0.75);
-    p1.set_labels("#sigma  [GeV^{2}]", "( #it{f}(#sigma) - #it{f}(0) ) #times 10^{-3}");
+    p1.set_labels("#sigma  [GeV^{2}]", "( #it{f}(#sigma) - #it{f}(0) ) / 10^{3}");
 
     p1.add_curve({smin, smax}, [&](double s){ return real(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, solid( jpacColor::Blue, "Omnes"));
     p1.add_curve({smin, smax}, [&](double s){ return imag(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, dashed(jpacColor::Blue));
@@ -99,15 +99,17 @@ void compare()
 
     plot p2 = plotter.new_plot();
     p2.set_curve_points(400);
-    p2.set_ranges({smin, smax}, {0, 10});
+    p2.set_ranges({smin, smax}, {0, 5});
     p2.set_legend(0.68, 0.75);
-    p2.set_labels("#sigma  [GeV^{2}]", "| #it{f}(#sigma) - #it{f}(0) | #times 10^{-3}");
+    p2.set_labels("#sigma  [GeV^{2}]", "| #it{f}(#sigma) - #it{f}(0) | / 10^{3}");
     
     p2.add_curve({smin, smax}, [&](double s){ return abs(omnes_norm*pwave1->omnes(s+IEPS) - omnes_norm*pwave1->omnes(0))/1E3; }, solid(jpacColor::Blue, "Omnes"));
     p2.add_curve({smin, smax}, [&](double s){ return abs(pwave1->evaluate(s+IEPS) - pwave1->evaluate(0))/1E3; },                 solid(jpacColor::Red,  "Unsubtracted"));
     p2.add_curve({smin, smax}, [&](double s){ return abs(pwave2->evaluate(s+IEPS) - pwave2->evaluate(0))/1E3; },                 solid(jpacColor::Green,"Once-subtracted"));
     p2.shade_region({kin->sth(), kin->pth()});
 
+    p1.save("reim_compare.pdf");
+    p2.save("abs_compare.pdf");
     plotter.combine({2,1}, {p1,p2}, "compare.pdf");
    
 };
