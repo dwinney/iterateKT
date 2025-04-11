@@ -68,7 +68,7 @@ void fit()
     fitter.set_parameter_labels(par_labels);
     fitter.fix_argument("α", 0.); // Fix overall phase 
 
-    fitter.do_fit({10954.435,  18585.493*exp(I*3.1524194)});
+    fitter.do_fit(initial_guess);
 
     // -----------------------------------------------------------------------
     // Plot results
