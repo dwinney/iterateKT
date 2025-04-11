@@ -194,7 +194,6 @@ namespace iterateKT
 
         plot2D p = _kinematics->new_dalitz_plot(pltr);
         p.set_data({s,t,abs});
-        p.set_title("Re#kern[0.2]{(}#it{A})");
         p.set_labels(xlabel, ylabel);
 
         return p;
