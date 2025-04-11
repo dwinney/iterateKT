@@ -31,6 +31,27 @@ namespace iterateKT
         return;
     };
 
+    // Iterate N times with nice little terminal messages
+    void solver::timed_iterate(unsigned int N)
+    {
+        // Iterate
+        divider();
+        print("Solving KT with " + to_string(_subtractions->N_basis()) + " subtractions and " + to_string(N) + " iterations:");
+        line();
+        timer timer; 
+        timer.start();
+        for (int i = 0; i < N; i++)
+        {
+            iterate();
+            timer.lap("iteration " + to_string(i+1));
+        };
+        timer.stop();
+        line();
+
+        timer.print_elapsed();
+        divider();
+    };
+
     // Print to file necessary info to reconstruct isobars later
     void solver::export_solution(std::string prefix)
     {

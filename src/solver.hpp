@@ -32,6 +32,9 @@ namespace iterateKT
         void iterate();
         inline void iterate(unsigned int N){ for (int i = 0; i < N; i++) iterate(); };
 
+        // Iterate N times with nice little terminal messages
+        void timed_iterate(unsigned int N);
+
         // -----------------------------------------------------------------------
         // Isobar management
         
