@@ -29,7 +29,7 @@ namespace iterateKT
         // Default initialized
         // This initializes a fixed parameter for normalizations
         parameter()
-        : _fixed(true), 
+        : _mod_fixed(true), _arg_fixed(true), 
           _mod(1.), _arg(0.),
           _label(default_label(0)), _i(-1)
         {};
@@ -40,7 +40,8 @@ namespace iterateKT
         uint         _i;
         std::string _label;
         std::string _mod_message = "[ ≥ 0 ]", _arg_message = "[-π, π]";
-        bool   _fixed         = false;
+        bool   _mod_fixed         = false;
+        bool   _arg_fixed         = false;
         std::string mod_label(){ return "|" + _label + "|";    };
         std::string arg_label(){ return "arg(" + _label + ")"; };
 
@@ -81,15 +82,13 @@ namespace iterateKT
         { reset_parameters(); }; 
 
         // -----------------------------------------------------------------------
-        // Methods to add data to be fit against
+        // Methods to add/remove data to be fit against
 
+        inline void clear_data(){ _data.clear(); _N = 0; };
         inline void add_data(data_set data){ _N += data._N; _data.push_back(data); };
         inline void add_data(std::vector<data_set> data){ for (auto datum : data) add_data(datum); };
-
         template <int N>
         inline void add_data(std::array<data_set,N> data){ for (auto datum : data) add_data(datum); };
-        
-        inline void clear_data(){ _data.clear(); _N = 0; };
 
         // -----------------------------------------------------------------------
         // Set limits, labels, and fix parameters
@@ -98,7 +97,7 @@ namespace iterateKT
         inline void reset_parameters()
         {
             std::vector<std::string> labels; // Default label names
-            _pars.clear(); _Nfree = _amplitude->N_pars();
+            _pars.clear(); _Nfree = 2*_amplitude->N_pars();
             for (int i = 0; i < _amplitude->N_pars(); i++)
             {
                 _pars.push_back(i);
@@ -118,33 +117,63 @@ namespace iterateKT
             for (int i = 0; i < _pars.size(); i++) _pars[i]._label = labels[i];
         };
 
-        inline void fix_parameter(parameter& par, complex val)
+        inline void fix_argument(parameter & par, double val)
         {
-            // If parameter is already fixed, just update the fixed val
-            // otherwise flip the fixed flag and update the number of free pars
-            if (!par._fixed) _Nfree--;
-            par._fixed   = true;
-            par._mod     = std::abs(val);
-            par._arg     = std::arg(val);
-            par._mod_message = "[FIXED]";
+            if (!par._arg_fixed) _Nfree--;
+            par._arg_fixed   = true;
+            par._arg         = val;
             par._arg_message = "[FIXED]";
+        };
+
+        inline void fix_argument(std::string label, double val)
+        {
+            int index = find_parameter(label);
+            if (index < 0) return;
+            return fix_argument(_pars[index], val);
+        };
+
+        inline void fix_modulus(parameter & par, double val)
+        {
+            if (!par._mod_fixed) _Nfree--;
+            par._mod_fixed   = true;
+            par._mod         = val;
+            par._mod_message = "[FIXED]";
+        };
+
+        inline void fix_modulus(std::string label, double val)
+        {
+            int index = find_parameter(label);
+            if (index < 0) return;
+            return fix_modulus(_pars[index], val);
+        };
+
+        inline void fix_parameter(parameter & par, complex val)
+        {
+            fix_modulus(par, abs(val)); fix_argument(par, arg(val));
         };
 
         inline void fix_parameter(std::string label, complex val)
         {
-            int index = find_parameter(label);
+            int index = find_parameter(label); 
             if (index < 0) return;
-            return fix_parameter(_pars[index], val);
+            fix_modulus(_pars[index], abs(val)); fix_argument(_pars[index], arg(val));
         };
 
         inline void free_parameter(parameter& par)
         {
             // if not fixed, this does nothing
-            if (!par._fixed) return;
-            par._fixed   = false;
-            par._arg_message = "[-π, π]";
-            par._mod_message = "[ ≥ 0 ]";
-            _Nfree++;
+            if (par._mod_fixed)
+            {
+                par._mod_fixed   = false;
+                par._mod_message = "[ ≥ 0 ]";
+                _Nfree++;
+            };
+            if (par._arg_fixed)
+            {
+                par._mod_fixed   = false;
+                par._mod_message = "[-π, π]";
+                _Nfree++;
+            };
         };
 
         inline void free_parameter(std::string label)
@@ -158,9 +187,11 @@ namespace iterateKT
         // Prints results to command line but also returns the best-fit chi2 value
         inline void do_fit(std::vector<complex> starting_guess, bool show_data = true)
         {
-            if (starting_guess.size() != _Nfree) 
+            int expected_size = 0;
+            for (auto par : _pars) if (!par._mod_fixed || !par._arg_fixed) expected_size++;
+            if (starting_guess.size() !=  expected_size) 
             {
-                warning("fitter::do_fit", "Starting guess not the correct size! Expected " + std::to_string(_Nfree) + " parameters!");
+                warning("fitter::do_fit", "Starting guess not the correct size! Expected " + std::to_string(expected_size) + " parameters!");
                 return;
             };
 
@@ -239,21 +270,23 @@ namespace iterateKT
             int i = 0;
             for (auto &par : _pars)
             {   
-                if (par._fixed) continue;
-                
-                // Set up the starting guess
-                par._mod = std::abs(starting_guess[i]);
-                par._arg = std::arg(starting_guess[i]);
-                _minuit->SetVariable(2*i,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
-                _minuit->SetVariableLowerLimit(2*i, 0.);    // mod is positive definite
-                
-                _minuit->SetVariable(2*i+1, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
-                _minuit->SetVariableLimits(2*i+1, -PI, PI); // angle from [-pi,pi]
-
+                if (!par._mod_fixed)
+                {
+                    // Set up the starting guess
+                    par._mod = std::abs(starting_guess[i]);
+                    _minuit->SetVariable(2*i,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
+                    _minuit->SetVariableLowerLimit(i, 0.);    // mod is positive definite
+                }
+                if (!par._arg_fixed)
+                {   
+                    par._arg = std::arg(starting_guess[i]);
+                    _minuit->SetVariable(2*i+1, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
+                    _minuit->SetVariableLimits(2*i+1, -PI, PI); // angle from [-pi,pi]
+                }
                 i+=1; // move index up
             };
         
-            _wfcn = ROOT::Math::Functor(this, &fitter::fit_fcn, 2*_Nfree);
+            _wfcn = ROOT::Math::Functor(this, &fitter::fit_fcn, _Nfree);
             _minuit->SetFunction(_wfcn);
         };
 
@@ -310,11 +343,13 @@ namespace iterateKT
             int i = 0;
             for (auto par : _pars)
             {
-                if   (par._fixed) result.push_back(par.value());
-                else { result.push_back(cpars[i]*exp(I*cpars[i+1])); i+=2; };
+                double mod = par._mod, arg = par._arg;
+                if (!par._mod_fixed){ mod = cpars[i]; i++; };
+                if (!par._arg_fixed){ arg = cpars[i]; i++; };
+                result.push_back(mod*exp(I*arg));
             };
 
-            if (i != 2*_Nfree) warning("fitter::complex_convert", "Something went wrong in converting parameter vector.");
+            if (i != _Nfree) warning("fitter::complex_convert", "Something went wrong in converting parameter vector.");
             return result;
         };
 
@@ -327,11 +362,7 @@ namespace iterateKT
         {
             using std::cout; using std::left; using std::endl; using std::setw;
             
-            if (_data.size() == 0)
-            {
-                warning("fitter::data_info", "No data found!"); 
-                return;
-            };
+            if (_data.size() == 0){  warning("fitter::data_info", "No data found!"); return; };
 
             cout << left;
             divider();
@@ -358,20 +389,21 @@ namespace iterateKT
 
             line(); divider();
             // Print message at the beginning of the fit
-            cout << "Fitting " + std::to_string(_Nfree) << " (of " << std::to_string(_pars.size()) << ") parameters" << endl;
+            cout << "Fitting " + std::to_string(_Nfree) << " (of " << std::to_string(2*_pars.size()) << ") parameters" << endl;
             line();
 
-            cout << left << setw(10) << "i"     << setw(17) << "PARAMETER"  << setw(20) << "START VALUE"  << endl;
-            cout << left << setw(10) << "-----" << setw(17) << "----------" << setw(20) << "------------" << endl;
+            cout << left << setw(8) << "i"     << setw(15) << "PARAMETER"  << setw(26) << "START VALUE"       << endl;
+            cout << left << setw(8) << "-----" << setw(15) << "----------" << setw(26) << "----------------------" << endl;
        
             for (auto par : _pars)
             {
-                cout << left << setw(10) << par._i << setw(17) << par._label  << setw(20) << endl;
-                cout << left << setw(10) << ""     << setw(17) << "  -> mod"   << setw(20) << par._mod << setw(20) << par._mod_message << endl;
-                cout << left << setw(10) << ""     << setw(17) << "  -> arg"   << setw(20) << par._arg << setw(20) << par._arg_message << endl;
+                cout << left << setw(8) << par._i << setw(15) << par._label   << setw(26) << par.value() << endl;
+                cout << left << setw(8) << ""     << setw(15) << "  -> mod"   << setw(26) << par._mod << setw(18) << par._mod_message << endl;
+                cout << left << setw(8) << ""     << setw(15) << "  -> arg"   << setw(26) << par._arg << setw(18) << par._arg_message << endl;
+                line();
             };
 
-            line(); divider(); line();
+            divider(); line();
         };
 
         // After a fit return a summary of fit results
@@ -389,33 +421,30 @@ namespace iterateKT
             double fcn_dof           = _minuit->MinValue() / double(dof());
             std::vector<double> pars = convert(_minuit->X());
             std::vector<double> errs = convert(_minuit->Errors());
-            
+
             divider();
             std::cout << std::left << std::setw(5)  << "fcn = "      << std::setw(15) << fcn     << std::setw(5) << "";
             std::cout << std::left << std::setw(10) << "fcn/dof = "  << std::setw(15) << fcn_dof << "\n";
 
             line();
 
-            cout << left << setw(10) << "i"     << setw(16) << "PARAMETER"  << setw(18) << "FIT VALUE"    << setw(18) << "ERROR"        << endl;
-            cout << left << setw(10) << "-----" << setw(16) << "----------" << setw(18) << "------------" << setw(18) << "------------" << endl;
+            cout << left << setw(8) << "i"     << setw(15) << "PARAMETER"  << setw(26) << "FIT VALUE"         << setw(18) << "ERROR"        << endl;
+            cout << left << setw(8) << "-----" << setw(15) << "----------" << setw(26) << "----------------------" << setw(18) << "------------" << endl;
 
             int i = 0;
             for (auto par : _pars)
             {
-                if (par._fixed)
-                {
-                    cout << left << setw(10) << par._i << setw(16) << par._label  << setw(18) << endl;
-                    cout << left << setw(10) << ""     << setw(16) << "  -> mod"   << setw(18) << par._mod << setw(18) << par._mod_message << endl;
-                    cout << left << setw(10) << ""     << setw(16) << "  -> arg"   << setw(18) << par._arg << setw(18) << par._arg_message << endl;
-                    continue;
-                }
+                double mod = par._mod, arg = par._arg;
+                std::string mod_err = par._mod_message, arg_err = par._arg_message;
+                if (!par._mod_fixed){mod = pars[i]; mod_err = to_string(errs[i]); i++;};
+                if (!par._arg_fixed){arg = pars[i]; arg_err = to_string(errs[i]); i++;};
 
-                cout << left << setw(10) << par._i << setw(16) << par._label  << setw(18) << endl;
-                cout << left << setw(10) << ""     << setw(16) << "  -> mod"   << setw(18) << to_string(pars[i])   << setw(18) << to_string(errs[i])   << endl;
-                cout << left << setw(10) << ""     << setw(16) << "  -> arg"   << setw(18) << to_string(pars[i+1]) << setw(18) << to_string(errs[i+1]) << endl;
-                i+=2;
+                cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod*exp(I*arg) << endl;
+                cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << to_string(mod)  << setw(18) << mod_err << endl; 
+                cout << left << setw(8) << ""     << setw(15) << "  -> arg"  << setw(26) << to_string(arg)  << setw(18) << arg_err << endl; 
+                line();
             };
-            line(); divider(); line();
+            divider(); line();
             
             // At the end update the amplitude parameters to include the fit results
             _amplitude->set_parameters(complex_convert(_minuit->X()));
