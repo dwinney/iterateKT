@@ -10,6 +10,7 @@
 // [1] - https://arxiv.org/abs/2212.11767
 // ------------------------------------------------------------------------------
 
+#include <algorithm>
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
@@ -33,7 +34,7 @@ void fit()
     int bin_number = 22;  // which m3pi bin to fit
     int Niter      = 5;   // Number of KT iterations
     int Nsub       = 2;   // Number of subtractions
-    
+
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
 
@@ -57,7 +58,7 @@ void fit()
     // Set up fitter
 
     // These vectors should be same size as Nsub above
-    std::vector<std::string> all_labels = {"α", "β"};
+    std::vector<std::string> all_labels = {"α", "β", "γ"};
     std::vector<std::string> par_labels(all_labels.begin(), all_labels.begin() + Nsub);
     std::vector<complex> initial_guess(Nsub, 1.0);
 
@@ -75,16 +76,14 @@ void fit()
 
     plotter plotter;
 
-    std::array<double,2> bounds = {0, 1.7};
+    std::array<double,2> bounds = {0, kin->pth()+0.1};
     std::string xlabel = "#sigma_{b}  [GeV^{2}]", ylabel =  "#sigma_{c}  [GeV^{2}]";
 
     // Plot the amplitude
     plot2D p1 = amp->plot_dalitz(plotter);
     p1.set_palette(kBird);
-    // p1.set_title("#pi_{1} #rightarrow 3#pi");
     p1.set_labels(xlabel, ylabel);
     p1.set_ranges(bounds, bounds);
-    p1.save("dalitz.pdf");
     
     // Finally calculatet the chi2 per bin
     std::vector<double> pull;
@@ -101,12 +100,13 @@ void fit()
     p2.set_palette(kTemperatureMap);
     p2.set_data({data._x, data._y, pull});
     p2.set_labels(xlabel, ylabel);
-    p2.set_ranges(bounds, bounds, {-6,6});
+    p2.set_ranges(bounds, bounds);
 
     // Combine them all in one file
     plotter.combine({2,1}, {p1,p2}, "fit_results.pdf");
     
     std::vector<double> bins, ends, model_in_bin; 
+    double max_z = *std::max_element(data._z.begin(), data._z.end());
     for (int i = 0; i < data._N; i++) 
     {
         bins.push_back(i);
@@ -123,7 +123,7 @@ void fit()
         plot p = plotter.new_plot();
         p.add_data(bins, {data._z, data._dz});
         p.add_curve(bins, model_in_bin);
-        p.set_ranges({n*i, n*(i+1)}, {0, 600});
+        p.set_ranges({n*i, n*(i+1)}, {0, max_z});
         bin_plots.push_back(p);
     };
 
