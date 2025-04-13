@@ -267,23 +267,29 @@ namespace iterateKT
 
             // Iterate over each _par but also keep track of the index in starting_guess 
             // because parameters might be fixed, these indexes dont necessarily line up
-            int i = 0;
+            int i = 0, j = 0;
             for (auto &par : _pars)
             {   
+                bool move_up = false;
                 if (!par._mod_fixed)
                 {
                     // Set up the starting guess
                     par._mod = std::abs(starting_guess[i]);
-                    _minuit->SetVariable(2*i,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
-                    _minuit->SetVariableLowerLimit(i, 0.);    // mod is positive definite
+                    _minuit->SetVariable(j,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
+                    _minuit->SetVariableLowerLimit(j, 0.);    // mod is positive definite
+                    j++; move_up = true;
                 }
                 if (!par._arg_fixed)
                 {   
                     par._arg = std::arg(starting_guess[i]);
-                    _minuit->SetVariable(2*i+1, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
-                    _minuit->SetVariableLimits(2*i+1, -PI, PI); // angle from [-pi,pi]
+                    _minuit->SetVariable(j, "arg(" + par._label + ")", std::arg(starting_guess[i]), par._step);
+
+                    // We DONT limit the angle becasue the fitter does not do well with the 2pi jumps. 
+                    // Instead we fit with continuous angle (within reason), and at the end map it back to [-pi,pi]
+                    _minuit->SetVariableLimits(j, -3*PI, 3*PI);
+                    j++; move_up = true;
                 }
-                i+=1; // move index up
+                if (move_up) i++;
             };
         
             _wfcn = ROOT::Math::Functor(this, &fitter::fit_fcn, _Nfree);
@@ -438,6 +444,9 @@ namespace iterateKT
                 std::string mod_err = par._mod_message, arg_err = par._arg_message;
                 if (!par._mod_fixed){mod = pars[i]; mod_err = to_string(errs[i]); i++;};
                 if (!par._arg_fixed){arg = pars[i]; arg_err = to_string(errs[i]); i++;};
+
+                // Check arg if its between [-pi, pi]
+                if (abs(arg) > PI) arg -= sign(arg)*2*PI;
 
                 cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod*exp(I*arg) << endl;
                 cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << to_string(mod)  << setw(18) << mod_err << endl; 
