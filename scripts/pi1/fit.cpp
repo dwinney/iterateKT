@@ -31,7 +31,7 @@ void fit()
     // -----------------------------------------------------------------------
     // Operating options
 
-    int bin_number = 22;  // which m3pi bin to fit
+    int bin_number = 15;  // which m3pi bin to fit
     int Niter      = 5;   // Number of KT iterations
     int Nsub       = 2;   // Number of subtractions
 
@@ -95,18 +95,19 @@ void fit()
         double fcn = (is_zero(data._dz[i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[i];
         pull.push_back(fcn);
     };
+    double max_pull = *std::max_element(pull.begin(), pull.end());
 
     plot2D p2 = kin->new_dalitz_plot(plotter);
     p2.set_palette(kTemperatureMap);
     p2.set_data({data._x, data._y, pull});
     p2.set_labels(xlabel, ylabel);
-    p2.set_ranges(bounds, bounds);
+    p2.set_ranges(bounds, bounds, {-max_pull, max_pull});
 
     // Combine them all in one file
     plotter.combine({2,1}, {p1,p2}, "fit_results.pdf");
     
     std::vector<double> bins, ends, model_in_bin; 
-    double max_z = *std::max_element(data._z.begin(), data._z.end());
+    double max_z    = *std::max_element(data._z.begin(), data._z.end());
     for (int i = 0; i < data._N; i++) 
     {
         bins.push_back(i);
