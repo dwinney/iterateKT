@@ -10,6 +10,7 @@
 #ifndef BASIS_HPP
 #define BASIS_HPP
 
+#include <functional>
 #include "utilities.hpp"
 
 namespace iterateKT
@@ -28,20 +29,21 @@ namespace iterateKT
 
         raw_subtractions(){};
         
-        inline unsigned int N_basis()                 { return _ids.size(); };
-        inline id           get_id(unsigned int i)    { return _ids[i]; };
-        inline unsigned int get_power(unsigned int i) { return _powers[i]; };
-        inline complex      get_par(unsigned int i)   { return _values[i]; };
+        inline unsigned int N_basis()                   { return _ids.size(); };
+        inline id       get_id(uint i)                  { return _ids[i]; };
+        inline complex  driving_term(uint i, complex x) { return _drivers[i](x); };
+        inline complex  get_par(uint i)                 { return _values[i]; };
 
         private: 
 
         friend class solver;
         friend class raw_amplitude;
-
-        std::vector<id>           _ids;     // The id of the isobar this subtraction coeff appears in
-        std::vector<unsigned int> _powers;  // The power of s i nthe polynomial this coeff multiplies
-        std::vector<std::string>  _names;   // Optional to give each parameter a name
-        std::vector<complex>      _values;  // Its actual value determined by fit or matching
+        
+        // TODO: Probably better way to organize this maybe tuples idk
+        std::vector<id>           _ids;                         // The id of the isobar this subtraction coeff appears in
+        std::vector<std::function<complex(complex)>> _drivers;  // Driving terms. in most cases these are the polynomials of fixed integer order
+        std::vector<std::string>  _names;                       // Optional to give each parameter a name
+        std::vector<complex>      _values;                      // Its actual value determined by fit or matching
     };
 
     struct basis_grid
