@@ -26,8 +26,11 @@ namespace iterateKT
         for (auto previous : _isobars) next.emplace_back( previous->calculate_next(_isobars) );
 
         // Save all the new iterations thereby pushing every isobar up by one iteration
-        for (int i = 0; i < next.size(); i++) _isobars[i]->save_iteration(next[i]);
-
+        for (int i = 0; i < _isobars.size(); i++) 
+        {
+           if  (_isobars[i]->calculate_inhomogeneity()) _isobars[i]->save_iteration(next[i]);
+           else _isobars[i]->skip_iteration();
+        };
         return;
     };
 

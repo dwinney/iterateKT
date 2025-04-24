@@ -76,6 +76,10 @@ namespace iterateKT
         // Kernel which appears in the angular average
         virtual complex ksf_kernel(id iso_id, complex s, complex t) = 0;
 
+        // This is an extra function to check if to calculate an inhomogeneity at all
+        // Will return false unless overriden
+        virtual bool calculate_inhomogeneity(){ return true; };
+
         // ----------------------------------------------------------------------- 
         // Things related to dispersion integrals and such
 
@@ -169,7 +173,8 @@ namespace iterateKT
 
         // Save interpolation of the discontinuity calculated elsewhere into the list of iterations
         inline void save_iteration(basis_grid & grid){ _iterations.push_back(new_iteration( _kinematics, grid, _settings)); };
-
+        inline void skip_iteration(){ _iterations.push_back(new_iteration()); };
+        
         // -----------------------------------------------------------------------
         private:
 
