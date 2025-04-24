@@ -45,6 +45,13 @@ namespace iterateKT
             return error("amplitude::get_isobar", "Index out of scope!", nullptr);
         };
 
+        // Grab an isobar and in the same step give it name.
+        // Chances are you already named it in the output variable so just pass that name to the isobar itself too
+        inline isobar get_isobar(id i, std::string name)
+        { 
+            isobar x = get_isobar(i); x->set_name(name); return x;            
+        };
+
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
         inline void add_isobar(uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())

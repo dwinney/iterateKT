@@ -55,10 +55,16 @@ namespace iterateKT
     // Print to file necessary info to reconstruct isobars later
     void solver::export_solution(std::string prefix)
     {
-        for (auto isobar : _isobars)
+        for (int n = 0; n < _isobars.size(); n++)
         {
             std::ofstream output;
-            output.open(prefix + "_" + isobar->name() + ".dat");
+            
+            auto isobar = _isobars[n];
+            std::string name = isobar->name();
+            // As a precaution to unnamed isobars overriding the same file,  
+            // append the index it appears with
+            if (name == "isobar") name += to_string(n);
+            output.open(prefix + "_" + name + ".dat");
 
             auto grid = isobar->calculate_next(_isobars);
             for (int i = 0; i < grid._s_list.size(); i++)
