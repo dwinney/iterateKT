@@ -1,4 +1,4 @@
-// Isobars relevant for the decay of meson with JP = 1-- into 3pi as in Ref. [1]
+// Isobars relevant for the decay of meson with JP = 1-- into 3pi as in Ref. [1-2]
 // 
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2024)
@@ -8,10 +8,11 @@
 // ------------------------------------------------------------------------------
 // REFERENCES: 
 // [1] -  https://arxiv.org/abs/2006.01058
+// [2] -  https://arxiv.org/abs/2304.09736
 // ------------------------------------------------------------------------------
 
-#ifndef OMEGA_ISOBARS_HPP
-#define OMEGA_ISOBARS_HPP
+#ifndef VECTOR_ISOBARS_HPP
+#define VECTOR_ISOBARS_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -21,8 +22,9 @@
 
 namespace iterateKT
 { 
-    // Ids for all our isobars, we only have one though
-    enum class id : unsigned int { P_wave };
+    // Ids for all our isobars. 
+    // If we ignore rho-omega mixing, we have only one, else we have two
+    enum class id : unsigned int { P_wave, charged_rho, neutral_rho, F_wave };
    
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
@@ -70,6 +72,45 @@ namespace iterateKT
             sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
             return sets;
         };
+    };
+
+    class F_wave : public raw_isobar
+    {
+        // -----------------------------------------------------------------------
+        public: 
+        
+        // Constructor 
+        F_wave(isobar_args args) : raw_isobar(args) {};
+        
+        
+        // Use phase of a simple BW for the rho3
+        inline double phase_shift(double s)
+        { 
+            if (s <= _kinematics->sth()) return 0.;
+            
+            // Bare mass and width of the rho_3(1690)
+            double m_rho3 = 1.688, gam_rho3 = 0.161;
+
+            // Energy dependent width
+            complex ps = _kinematics->momentum_final(s);
+            complex pm = _kinematics->momentum_final(m_rho3*m_rho3);
+
+            double r = 2; // GeV-1
+            double z = norm(r*ps), z0 = norm(r*pm);
+            double blatt_weisskopf = sqrt(z0*norm(z0-15) + 9*norm(2*z0-5))/sqrt(z*norm(z-15)+9*norm(2*z-5));
+
+            double gamma =  gam_rho3*m_rho3/sqrt(s)*pow(real(ps/pm),7)*norm(blatt_weisskopf);
+
+            complex BW = m_rho3*m_rho3/(m_rho3*m_rho3 - s - I*m_rho3*gamma);
+
+            return arg(BW);
+        };
+        
+        inline bool calculate_inhomogeneity(){ return false; };
+
+        // We will ignore the inhomogeneity so singularity_power doesnt matter but it would be 6
+        inline unsigned int singularity_power(){ return 6; };
+        inline complex ksf_kernel(id iso_id, complex s, complex t){ return 0; };
     };
 }; // namespace iterateKT 
 

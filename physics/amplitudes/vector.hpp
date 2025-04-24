@@ -10,8 +10,8 @@
 // [1] -  https://arxiv.org/abs/2006.01058
 // ------------------------------------------------------------------------------
 
-#ifndef OMEGA_AMPLITUDES_HPP
-#define OMEGA_AMPLITUDES_HPP
+#ifndef VECTOR_AMPLITUDES_HPP
+#define VECTOR_AMPLITUDES_HPP
 
 #include "isobar.hpp"
 #include "utilities.hpp"
@@ -19,18 +19,18 @@
 #include "settings.hpp"
 #include "GKPY.hpp"
 
-#include"isobars/omega.hpp"
+#include"isobars/vector.hpp"
 
 namespace iterateKT
 { 
     // This defines the full amplitude, i.e. how the isobars are combined
     // Here is where we usually put the isospin combinations etc
-    class omega : public raw_amplitude
+    class vector_decay : public raw_amplitude
     {
         public: 
         
         // Constructor
-        omega(kinematics kin, std::string id) : raw_amplitude(kin,id)
+        vector_decay(kinematics kin, std::string id) : raw_amplitude(kin,id)
         {};
 
         inline double helicity_factor(){ return 3; };

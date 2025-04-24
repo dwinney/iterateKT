@@ -61,6 +61,10 @@ namespace iterateKT
         inline double pth() { return (M()-m())*(M()-m()); };
         inline double rth() { return (M()+m())*(M()+m()); };
 
+        // The modulus of 3-momentum for initial or final state in CM frame
+        inline complex momentum_initial(complex s){ return csqrt(Kallen(s, M2(), m2()))/csqrt(4*s); };
+        inline complex momentum_final  (complex s){ return csqrt(Kallen(s, m2(), m2()))/csqrt(4*s); };
+
         // Sum of masses squared
         // s + t + u = Sigma (note no factor of 3!)
         inline double Sigma(){ return M2() + 3*m2(); };

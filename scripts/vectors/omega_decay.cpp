@@ -17,8 +17,8 @@
 #include "constants.hpp"
 #include "timer.hpp"
 
-#include "isobars/omega.hpp"
-#include "amplitudes/omega.hpp"
+#include "isobars/vector.hpp"
+#include "amplitudes/vector.hpp"
 
 #include "plotter.hpp"
 
@@ -37,7 +37,7 @@ void omega_decay()
     double rth = kinematics->rth(); // (momega + mpi)^2
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<omega>(kinematics);
+    amplitude amplitude = new_amplitude<vector_decay>(kinematics);
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
@@ -97,14 +97,8 @@ void omega_decay()
     print("Exp. width:", 8.49E-3*0.893);
     line();
 
-    auto ps = amplitude->make_plots(plotter);
-    ps[0].set_ranges({0.05, 0.45}, {0.05, 0.45});
-    ps[1].set_ranges({0.05, 0.45}, {0.05, 0.45});
-    ps[2].set_ranges({0.05, 0.45}, {0.05, 0.45});
-    ps[0].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
-    ps[1].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
-    ps[2].set_labels("#it{s}  [GeV^{2}]", "#it{t}  [GeV^{2}]");
-    plotter.combine({3,1}, ps, "omega_dalitz.pdf");
+    auto ps = amplitude->plot_dalitz(plotter, "  [GeV^{2}]");
+    ps.save("omega_dalitz.pdf");
     
     timer.stop();
     timer.print_elapsed();
