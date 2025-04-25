@@ -10,7 +10,10 @@ satisfying the unitarity condition
 ```
 For maximum flexibility, the code only requires specifying the elastic phase shift $\delta_i(s)$ and kernel functions $K_{ij}(s,t)$ of each isobar. Things such as isospin and/or helicity amplitudes can be built outside of the core iterative functionality by combining isobars into a full amplitude.
 
+The driving term, $P_{n-1}(s)$, parameterizes the left-hand cuts associated with the production of the 3-body system. This function should therefore not contain right-hand cuts and is bounded by $s^{n-1}$. Traditionally, this is simply a polynomial of order $n-1$ but the code allows arbitrary functions to incorporate production effects. 
+
 Note that convergence of the KT equations is not guaranteed! This may depend on the number of isobars, number of subtractions, and quantum numbers considered.
+
 ##  INSTALLATION
 
 Compilation of the base library requires only [CMake](https://cmake.org/) (version $\geq$ 3.30), [ROOT](https://root.cern.ch/) (tested with version 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library), and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68).
@@ -91,4 +94,3 @@ The above are sufficient if one is only interested in finding the basis function
 \mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~,
 ```
 for arbitrary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding  `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These provide any barrier factors, isospin coefficients, and angular structure which are irrelevant for individual isobars. 
-

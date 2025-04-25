@@ -46,7 +46,7 @@ namespace iterateKT
         };
 
         // -----------------------------------------------------------------------
-        // Getters for masses
+        // Related to masses
 
         inline double M(){ return _m_parent;   };
         inline double m(){ return _m_daughter; };
@@ -61,24 +61,24 @@ namespace iterateKT
         inline double pth() { return (M()-m())*(M()-m()); };
         inline double rth() { return (M()+m())*(M()+m()); };
 
-        // The modulus of 3-momentum for initial or final state in CM frame
-        inline complex momentum_initial(complex s){ return csqrt(Kallen(s, M2(), m2()))/csqrt(4*s); };
-        inline complex momentum_final  (complex s){ return csqrt(Kallen(s, m2(), m2()))/csqrt(4*s); };
-
         // Sum of masses squared
         // s + t + u = Sigma (note no factor of 3!)
         inline double Sigma(){ return M2() + 3*m2(); };
         inline double r(){ return Sigma()/3; };
-
-        // Kibble function
-        inline complex kibble(complex s, complex t, complex u){ return s*t*u - m2()*pow(M2()-m2(), 2); };
-        inline bool in_decay_region(double s, double t){ return real(kibble(s,t, Sigma()-s-t)) >= 0; };
+        inline double s0(){return r(); }; // Equivalent name 
 
         // Special points along the pinnochio path
         inline double A(){ return sth(); };
         inline double B(){ return (M2()-m2())/2; };
         inline double C(){ return pth(); };
         inline double D(){ return rth(); };
+
+        // -----------------------------------------------------------------------
+        // Related to momenta
+
+        // The modulus of 3-momentum for initial or final state in CM frame
+        inline complex momentum_initial(complex s){ return csqrt(Kallen(s, M2(), m2()))/csqrt(4*s); };
+        inline complex momentum_final  (complex s){ return csqrt(Kallen(s, m2(), m2()))/csqrt(4*s); };
 
         // Analytic continuation of barrier factor along real line
         complex kacser   (complex s);
@@ -87,6 +87,13 @@ namespace iterateKT
         // Kacser with removed singularities at regular thresholds removed
         // xi is the radius of validity to remove the singularities analytically
         complex nu (double s, std::array<double,3> xi = {EPS, EPS, EPS});
+
+        // -----------------------------------------------------------------------
+        // Related to boundary of physical regions
+
+        // Kibble function
+        inline complex kibble(complex s, complex t, complex u){ return s*t*u - m2()*pow(M2()-m2(), 2); };
+        inline bool in_decay_region(double s, double t){ return real(kibble(s,t, Sigma()-s-t)) >= 0; };
 
         // Bounds of integration in the complex plane
         complex t_plus (double s);
@@ -98,6 +105,9 @@ namespace iterateKT
         double phi_plus (double s);
         double phi_minus(double s);
         double radius(double phi);
+
+        // -----------------------------------------------------------------------
+        // Plotting utility for decay region
 
         // Set up a plot2D in the physical decay region
         plot2D new_dalitz_plot(plotter & pltr, int N = 300);
