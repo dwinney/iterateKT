@@ -199,4 +199,60 @@ namespace iterateKT
         return p;
     };
 
+    // -----------------------------------------------------------------------
+    // Calculate Daltiz plot parameters from amplitude
+    // We use the conventions and notation of the PDG 
+    // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
+    // Output in order {g, h, j, f, k}
+    
+    std::array<double,5> raw_amplitude::get_dalitz_parameters(double eps)
+    {
+        double s0 = _kinematics->s0(), m2 = _kinematics->m2();
+
+        // Rename our function for readibility
+        auto F = [this,s0](double s, double u)
+        {
+            double t = _kinematics->Sigma() - s - u;
+            return std::norm(evaluate(s, t)) / std::norm(evaluate(s0,s0));
+        };
+
+        // We just use a central finite difference since these are assumed
+        // to be well behaved and fairly smooth
+
+        double dFds, dFdu, d2Fd2s, d2Fd2u, d2Fdsdu;
+
+        // derivatives of our F in terms of s and u
+        dFds    = (F(s0+eps, s0) - F(s0-eps, s0))/2/eps;
+        dFdu    = (F(s0, s0+eps) - F(s0, s0-eps))/2/eps;
+
+        // 2nd Derivatives
+        d2Fd2s  = (F(s0+eps,s0) - 2*F(s0,s0) + F(s0-eps,s0))/eps/eps;
+        d2Fd2u  = (F(s0,s0+eps) - 2*F(s0,s0) + F(s0,s0-eps))/eps/eps;
+        d2Fdsdu = (F(s0+eps,s0+eps)-F(s0-eps,s0+eps)-F(s0+eps,s0-eps)+F(s0-eps,s0-eps))/4/eps/eps;
+
+        // derivatives of s and u with respect to X and Y
+        // X = (t - s) /m2
+        // Y = (u - s0)/m2
+        // dsdX = dsdY = -dudY/2 = c 
+        double c = -m2/2; 
+
+        // derivatives of F in terms of X and Y
+        double dFdX, dFdY, d2Fd2X, d2Fd2Y, d2FdXdY;
+        dFdX    = c* dFds;
+        dFdY    = c*(dFds-2*dFdu);
+        d2Fd2X  = c*c* d2Fd2s;
+        d2FdXdY = c*c*(d2Fd2s - 2*d2Fdsdu);
+        d2Fd2Y  = c*c*(d2Fd2s - 4*d2Fdsdu + 4*d2Fd2u); 
+        
+        // Assmble our outputs
+        double g, h, j, f, k;
+        g = dFdY;
+        h = d2Fd2Y/2;
+        j = dFdX;
+        k = d2Fd2X/2;
+        f = d2FdXdY;
+
+        return {g, h, j, k, f};
+    };
+
 }; // namespace iterateKT

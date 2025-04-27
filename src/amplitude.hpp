@@ -111,6 +111,13 @@ namespace iterateKT
         // Only plot |A|
         plot2D plot_dalitz(plotter & pltr, std::string units = "", int N = 100);
 
+        // -----------------------------------------------------------------------
+        // Calculate Daltiz plot parameters from amplitude
+        // We use the conventions and notation of the PDG for Kaon decays
+        // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
+
+        // Output in order {g, h, j, k, f}
+        std::array<double,5> get_dalitz_parameters(double eps = 1E-5);
 
         // -----------------------------------------------------------------------
         private:
