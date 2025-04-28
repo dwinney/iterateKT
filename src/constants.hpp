@@ -19,15 +19,15 @@
 #endif
 
 #ifndef N_GAUSS_PSEUDO
-    namespace iterateKT { constexpr int N_GAUSS_PSEUDO = 151; };
+    namespace iterateKT { constexpr int N_GAUSS_PSEUD0 = 61; };
 #endif
 
 #ifndef N_GAUSS_OMNES
-    namespace iterateKT { constexpr int N_GAUSS_OMNES = 151; };
+    namespace iterateKT { constexpr int N_GAUSS_OMNES = 61; };
 #endif
 
 #ifndef N_GAUSS_ANGULAR
-    namespace iterateKT { constexpr int N_GAUSS_ANGULAR = 151; };
+    namespace iterateKT { constexpr int N_GAUSS_ANGULAR = 31; };
 #endif
 
 namespace iterateKT
