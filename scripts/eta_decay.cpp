@@ -37,12 +37,13 @@ void eta_decay()
 
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
-    solver.add_isobar<dI1_S0>({0,1}, 2, id::dI1_S0); 
-    solver.add_isobar<dI1_P1>({0},   1, id::dI1_P1); 
-    solver.add_isobar<dI1_S2>({},    1, id::dI1_S2);
-    solver.add_isobar<dI0_P1>({0},   1, id::dI0_P1);
-    solver.add_isobar<dI2_P1>({0},   1, id::dI2_P1); 
-    solver.add_isobar<dI2_S2>({},    1, id::dI2_S2);
+    std::vector<uint> empty = {};
+    solver.add_isobar<dI1_S0>(2, id::dI1_S0); 
+    solver.add_isobar<dI1_P1>(1, id::dI1_P1); 
+    solver.add_isobar<dI1_S2>(empty, 1, id::dI1_S2);
+    solver.add_isobar<dI0_P1>(1, id::dI0_P1);
+    solver.add_isobar<dI2_P1>(1, id::dI2_P1); 
+    solver.add_isobar<dI2_S2>(empty,    1, id::dI2_S2);
 
     // -----------------------------------------------------------------------
     // Iterate N times
