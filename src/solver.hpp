@@ -84,6 +84,13 @@ namespace iterateKT
             };
         };
 
+        template<class T>
+        inline void add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
+        { 
+            add_isobar<T>(std::vector<std::function<complex(complex)>>{driving_term}, nsub, id, name, sets);
+            return;
+        };
+
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
         inline void add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
