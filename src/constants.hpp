@@ -19,7 +19,7 @@
 #endif
 
 #ifndef N_GAUSS_PSEUDO
-    namespace iterateKT { constexpr int N_GAUSS_PSEUD0 = 61; };
+    namespace iterateKT { constexpr int N_GAUSS_PSEUDO = 61; };
 #endif
 
 #ifndef N_GAUSS_OMNES
