@@ -14,15 +14,25 @@
 #include <complex>
 #include <limits>
 
+#ifndef N_GAUSS_CAUCHY 
+    namespace iterateKT { constexpr int N_GAUSS_CAUCHY = 151; };
+#endif
+
+#ifndef N_GAUSS_PSEUDO
+    namespace iterateKT { constexpr int N_GAUSS_PSEUDO = 151; };
+#endif
+
+#ifndef N_GAUSS_OMNES
+    namespace iterateKT { constexpr int N_GAUSS_OMNES = 151; };
+#endif
+
+#ifndef N_GAUSS_ANGULAR
+    namespace iterateKT { constexpr int N_GAUSS_ANGULAR = 151; };
+#endif
+
 namespace iterateKT
 {
     using complex = std::complex<double>;
-
-    // Number of gaussian quadrature points to use in the various integrations
-    constexpr int N_GAUSS_CAUCHY     = 151;
-    constexpr int N_GAUSS_PSEUDO     = 61;
-    constexpr int N_GAUSS_OMNES      = 61;
-    constexpr int N_GAUSS_ANGULAR    = 31;
 
     // ---------------------------------------------------------------------------
     // Mathematical constants 
