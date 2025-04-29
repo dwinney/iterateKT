@@ -30,15 +30,15 @@ void rho_omega_mixing()
 
     // Set up general kinematics so everything knows masses
     // Use masses in units of GeV
-    double M_JPSI = 3.096;
-    kinematics kinematics = new_kinematics(M_JPSI, M_PION);
+    double M_V = 3.096;
+    kinematics kinematics = new_kinematics(M_V, M_PION);
     
     // Significant points in integration path
     double sth = kinematics->sth(); 
     double pth = kinematics->pth(); 
 
     // Set up our amplitude 
-    amplitude amplitude = new_amplitude<rho_omega_mixing>(kinematics);
+    amplitude amplitude = new_amplitude<iterateKT::rho_omega_mixing>(kinematics);
 
     // Settings to adjust threshold from the defaults which are set for the omega
     settings jpsi_settings = P_wave::default_settings();
