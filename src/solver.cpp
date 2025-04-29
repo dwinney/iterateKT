@@ -56,27 +56,30 @@ namespace iterateKT
     };
 
     // Print to file necessary info to reconstruct isobars later
-    void solver::export_solution(std::string prefix)
+    void solver::export_solution(std::string prefix, uint precision)
     {
-        for (int n = 0; n < _isobars.size(); n++)
+        uint spacing   = precision + 7;
+
+        for (int i = 0; i < _isobars.size(); i++)
         {
             std::ofstream output;
-            
-            auto isobar = _isobars[n];
+            auto isobar = _isobars[i];
             std::string name = isobar->name();
             // As a precaution to unnamed isobars overriding the same file,  
             // append the index it appears with
-            if (name == "isobar") name += to_string(n);
+            if (name == "isobar") name += to_string(i);
             output.open(prefix + "_" + name + ".dat");
 
-            auto grid = isobar->calculate_next(_isobars);
-            for (int i = 0; i < grid._s_list.size(); i++)
+            auto last_iter = isobar->get_iteration();
+            uint N         = isobar->_subtractions->N_basis();
+            for (auto s : isobar->_s_list)
             {
-                output << std::left << std::setw(PRINT_SPACING) << grid._s_list[i];
-                for (int j = 0; j < grid.N_basis(); j++)
+                output << std::setprecision(precision) << std::left << std::setw(spacing) << s;
+                for (int j = 0; j < N; j++)
                 {
-                    output << std::left << std::setw(PRINT_SPACING) << grid._re_list[j][i] 
-                                        << std::setw(PRINT_SPACING) << grid._im_list[j][i];
+                    complex ksf_disc = last_iter->ksf_inhomogeneity(j, s);
+                    output << std::left << std::setw(spacing) << real(ksf_disc) 
+                                        << std::setw(spacing) << imag(ksf_disc);
                 }
                 output << std::endl;
             }

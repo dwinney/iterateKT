@@ -87,6 +87,13 @@ namespace iterateKT
         // This is the homogenous solution and the start of our iterative procedure
         complex omnes(complex x);
 
+        // Given a phase shift, this is the LHC piece (numerator)
+        inline double LHC(double s)
+        { 
+            if (!_lhc_interpolated) interpolate_lhc();
+            return (s > _kinematics->sth()) ? _lhc.Eval(s) : 0.; 
+        };
+                
         // Output a basis_function from a given iteration
         // Without an iter_id we just take the latest iteration
         complex basis_function(unsigned int iter_id, unsigned int basis_id, complex x);
@@ -116,12 +123,12 @@ namespace iterateKT
         void import_iteration(std::string filename)
         {
             auto imported = import_data<2*N+1>(filename, true);
-            _s_list = std::move(imported[0]);
+            _s_list       = std::move(imported[0]);
 
             basis_grid grid;
             grid._n_singularity = singularity_power()+1;
-            grid._s_list = _s_list;
-            grid._s_around_pth = _s_around_pth;
+            grid._s_list        = _s_list;
+            grid._s_around_pth  = _s_around_pth;
             
             for (int i = 0; i < N; i++)
             {
@@ -157,13 +164,6 @@ namespace iterateKT
 
         // Integrator and interpolator settings
         settings _settings;
-        
-        // Given a phase shift, this is the LHC piece (numerator)
-        inline double LHC(double s)
-        { 
-            if (!_lhc_interpolated) interpolate_lhc();
-            return (s > _kinematics->sth()) ? _lhc.Eval(s) : 0.; 
-        };
         
         // Calculate the angular integral along a straight line
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}

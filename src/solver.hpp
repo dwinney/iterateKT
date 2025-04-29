@@ -117,7 +117,7 @@ namespace iterateKT
         inline std::vector<isobar> get_isobars(){ return _isobars; };
 
         // Print to file necessary info to reconstruct isobars later
-        void export_solution(std::string prefix);
+        void export_solution(std::string prefix, uint precision = 12);
 
         // output the saved kinematics
         inline kinematics get_kinematics(){ return _kinematics; };

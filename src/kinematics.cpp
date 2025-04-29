@@ -40,7 +40,6 @@ namespace iterateKT
     {
         double Sth = sth();
         double Rth = rth();
-        if (s < Sth) return NaN<double>();
 
         int region; 
         region = (s >= Sth + xi[0])  // 1
