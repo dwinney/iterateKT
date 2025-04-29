@@ -24,7 +24,7 @@ namespace iterateKT
 { 
     // Ids for all our isobars. 
     // If we ignore rho-omega mixing, we have only one, else we have two
-    enum class id : unsigned int { P_wave, charged_rho, neutral_rho, F_wave };
+    enum class id : unsigned int { P_wave, charged, neutral, F_wave };
    
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
@@ -117,13 +117,13 @@ namespace iterateKT
     // ------------------------------------------------------------------------------
     // The following isobars are for the case that rho-omega mixing is handled explicitly
 
-    class charged_rho : public raw_isobar
+    class charged : public raw_isobar
     {
         // -----------------------------------------------------------------------
         public: 
         
         // Constructor 
-        charged_rho(isobar_args args) : raw_isobar(args) {};
+        charged(isobar_args args) : raw_isobar(args) {};
         
         inline static const settings default_settings(){ return P_wave::default_settings(); };
         inline unsigned int singularity_power(){ return 2; };
@@ -132,23 +132,17 @@ namespace iterateKT
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
             complex K11 = 3*(k*k - kz*kz);
-
-            switch (iso_id)
-            {
-                case id::charged_rho: return K11/2;
-                case id::neutral_rho: return K11/2;
-                default:            return 0.;
-            };
+            return (iso_id == id::charged || iso_id == id::neutral) ? K11/2 : 0.;
         };
     };
 
-    class neutral_rho : public raw_isobar
+    class neutral : public raw_isobar
     {
         // -----------------------------------------------------------------------
         public: 
         
         // Constructor 
-        neutral_rho(isobar_args args) : raw_isobar(args) {};
+        neutral(isobar_args args) : raw_isobar(args) {};
         
         inline static const settings default_settings(){ return P_wave::default_settings(); };
         inline unsigned int singularity_power(){ return 2; };
@@ -157,7 +151,7 @@ namespace iterateKT
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
             complex K11 = 3*(k*k - kz*kz);
-            return (iso_id == id::charged_rho) ? K11 : 0;
+            return (iso_id == id::charged) ? K11 : 0;
         };
     };
 }; // namespace iterateKT 

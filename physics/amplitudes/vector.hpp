@@ -41,6 +41,26 @@ namespace iterateKT
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, t, s, u); };
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, u, t, s); };
     };
+
+    // This amplitude allows neutral and charged channels to be implemented independently
+    class rho_omega_mixing : public raw_amplitude
+    {
+        public: 
+        
+        // Constructor
+        rho_omega_mixing(kinematics kin, std::string id) : raw_amplitude(kin,id)
+        {};
+
+        inline double helicity_factor(){ return 3; };
+        
+        // Kinematic factors are still symmetric
+        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        { 
+            return (iso_id == id::neutral || iso_id == id::charged) ? csqrt(_kinematics->kibble(s,t,u))/2 : 0; 
+        };
+        inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, t, s, u); };
+        inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return prefactor_s(iso_id, u, t, s); };
+    };
 }; // namespace iterateKT 
 
 #endif // OMEGA_AMPLITUDES_HPP
