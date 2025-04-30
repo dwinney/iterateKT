@@ -28,9 +28,9 @@
 // into three pions. The order matters in that the definitions of s, t, and u.
 
 // For a general K_Pi1Pi2Pi3, we have:
-// s = (K - Pi1)^2 = (Pi2 + Pi3)^2
-// t = (K - Pi2)^2 = (Pi1 + Pi3)^2
-// u = (K - Pi3)^2 = (Pi1 + Pi2)^2
+// s = (K - Pi1)^2 = (Pi2 + Pi3)^2 = s1
+// t = (K - Pi2)^2 = (Pi1 + Pi3)^2 = s2
+// u = (K - Pi3)^2 = (Pi1 + Pi2)^2 = s3
 
 namespace iterateKT
 {
@@ -41,6 +41,9 @@ namespace iterateKT
         public: 
         Kp_PipPipPim(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
         {};
+        
+        // 2 identical particles 
+        inline double combinatorial_factor(){ return 2.; };
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -82,6 +85,9 @@ namespace iterateKT
         public: 
         Kp_PizPizPip(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
         {};
+
+        // 2 identical particles
+        inline double combinatorial_factor(){ return 2.; };
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -198,6 +204,9 @@ namespace iterateKT
         public: 
         KL_PizPizPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
         {};
+
+        // 3 identical particles
+        inline double combinatorial_factor(){ return 6.; };
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {

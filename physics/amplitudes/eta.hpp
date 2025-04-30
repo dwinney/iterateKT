@@ -75,6 +75,10 @@ namespace iterateKT
         neutral_mode(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
         {};
         
+        // 3 identical particles in the final state
+        inline combinatorial_factor(){ return 6; };
+
+        // Only S-waves contribute by Bose symmetry.
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
             switch(iso_id)

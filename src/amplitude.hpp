@@ -60,7 +60,7 @@ namespace iterateKT
         inline  complex evaluate(double s, double t){ return evaluate(s, t, _kinematics->Sigma() - s - t); };
 
         // Factor to divide by in width calculation
-        virtual double  helicity_factor(){ return 1; };
+        virtual double  combinatorial_factor(){ return 1; };
 
         // Need to specify how to combine the isobars into the full amplitude
         virtual complex prefactor_s(id iso_id, complex s, complex t, complex u){ return 0.; };

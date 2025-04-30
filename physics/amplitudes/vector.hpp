@@ -33,7 +33,8 @@ namespace iterateKT
         vector_decay(kinematics kin, std::string id) : raw_amplitude(kin,id)
         {};
 
-        inline double helicity_factor(){ return 3; };
+        // Divide by 3 polarizations
+        inline double combinatorial_factor(){ return 3; };
         
         // We have no kinematic factors and only one isobar so simply return 1.
         // We're completely symmetric here so these are all the same

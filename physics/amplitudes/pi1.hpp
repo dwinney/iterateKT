@@ -31,7 +31,7 @@ namespace iterateKT
         {};
         
         // Spin 1 decay so (2j+1) = 3
-        inline double helicity_factor(){ return 3; };
+        inline double combinatorial_factor(){ return 3; };
         
         // Assuming a pi- pi- pi+ decay
         // s = (pi- + pi+)^2 
