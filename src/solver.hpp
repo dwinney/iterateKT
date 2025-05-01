@@ -52,7 +52,19 @@ namespace iterateKT
         // Chances are you already named it in the output variable so just pass that name to the isobar itself too
         inline isobar get_isobar(id i, std::string name)
         { 
-            isobar x = get_isobar(i); x->set_name(name); return x;            
+            isobar x = get_isobar(i); 
+            if(x != nullptr) x->set_name(name);
+            return x;            
+        };
+
+        // Search for isobar through its name
+        inline isobar get_isobar(std::string name)
+        { 
+            for (auto isobar : _isobars)
+            {
+                if (isobar->name() == name) return isobar;
+            };
+            return error("amplitude::get_isobar", "Cannot find isobar named + "+name+ "!", nullptr);
         };
 
         // Else you can pass a vector of uints with the orders which get 
