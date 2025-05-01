@@ -229,8 +229,10 @@ namespace iterateKT
         friend class plotter;
 
         // Change linewidth and propagate it to all the curves in the plot
+        double _scale = 1.;
         inline void scale_linewidth(double x)
         {
+            _scale = x;
             for (auto entry : _entries)
             {
                 if (entry._isdata) entry._graph->SetLineWidth(plot_entry::_default_markerwidth * x);
@@ -240,6 +242,7 @@ namespace iterateKT
 
         inline void reset_linewidth()
         {
+            _scale = 1;
             for (auto entry : _entries)
             {
                 if (entry._isdata) entry._graph->SetLineWidth(plot_entry::_default_markerwidth);

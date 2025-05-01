@@ -88,6 +88,7 @@ namespace iterateKT
 
         mg->GetXaxis()->CenterTitle(true);
         mg->GetYaxis()->CenterTitle(true);
+        mg->GetYaxis()->SetMaxDigits(2);
         _canvas->Modified();
 
         double ylow, yhigh, xlow, xhigh;
@@ -99,6 +100,11 @@ namespace iterateKT
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];
             xlow = _xbounds[0]; xhigh = _xbounds[1];
+        }
+        else
+        {
+            ylow  = mg->GetYaxis()->GetXmin();
+            yhigh = mg->GetYaxis()->GetXmax();
         };
 
         double xmin = mg->GetXaxis()->GetXmin();
@@ -107,7 +113,7 @@ namespace iterateKT
         for (auto vline : _vlines)
         {
             auto vert = new TLine(vline._value, ylow, vline._value, yhigh);
-            vert->SetLineWidth(0.7*plot_entry::_default_linewidth);
+            vert->SetLineWidth(0.7*_scale*plot_entry::_default_linewidth);
             vert->SetLineStyle(vline._linestyle);
             vert->SetLineColorAlpha(vline._color, 0.7);
             vert->Draw();
@@ -116,7 +122,7 @@ namespace iterateKT
         for (auto hline : _hlines)
         {
             auto hori = new TLine(xlow, hline._value, xhigh, hline._value);
-            hori->SetLineWidth(0.7*plot_entry::_default_linewidth);
+            hori->SetLineWidth(0.7*_scale*plot_entry::_default_linewidth);
             hori->SetLineStyle(hline._linestyle);
             hori->SetLineColorAlpha(hline._color, 0.7);
             hori->Draw();
