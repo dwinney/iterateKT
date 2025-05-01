@@ -18,7 +18,7 @@ namespace iterateKT
     struct settings
     {
         settings(){};
-
+        
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
         double _omnes_cutoff     = std::numeric_limits<double>::infinity();

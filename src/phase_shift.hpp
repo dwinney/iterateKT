@@ -13,9 +13,13 @@
 #include "constants.hpp"
 #include "data_set.hpp"
 #include <Math/Interpolator.h>
+#include <tuple>
 
 namespace iterateKT
 {
+    // Short-cut for passing arguments in a single structure
+    using phase_args = std::tuple<std::string,double,int>; 
+
     class phase_shift
     {
         public:
@@ -25,7 +29,13 @@ namespace iterateKT
         // constructor takes in the file name, matching energy, and integrer of pi 
         phase_shift(std::string file, double lam2, uint k) : _error(false), _match(lam2), _k(k)
         {
-            interpolate(file, lam2);
+            interpolate(file);
+        };
+
+        phase_shift(phase_args info): _error(false), _match(std::get<1>(info)), 
+                                                         _k(std::get<2>(info))
+        {
+            interpolate(std::get<0>(info));
         };
         
         inline double operator()(double s)
@@ -44,14 +54,14 @@ namespace iterateKT
         double _sth, _a = 0., _b = 0.;
         ROOT::Math::Interpolator _delta; 
 
-        inline void interpolate(std::string file, double lam2)
+        inline void interpolate(std::string file)
         {   
             // Assume data is in two columns
             auto data = import_data<2>("/physics/phase_shifts/"+file);
             check<2>(data, file);
 
             _sth = data[0][0]; 
-            if (data[0].back() < lam2 || lam2 < _sth) warning("phase_shift", "Cutoff outside interpolation range!");
+            if (data[0].back() < _match || _match < _sth) warning("phase_shift", "Cutoff outside interpolation range!");
 
             // Interpolate
             _delta.SetData(data[0], data[1]);

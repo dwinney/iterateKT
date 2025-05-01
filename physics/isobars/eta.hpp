@@ -35,6 +35,7 @@ namespace iterateKT
         dI2_P1, dI2_S2             //        yes           |      yes
     };
 
+    // All our default settings related to technicals of KT solution
     inline settings default_settings()
     {
         settings sets;
@@ -54,6 +55,10 @@ namespace iterateKT
         return sets;
     };
 
+    // Filenames and parameters associated with interpolations of phase_shifts
+    phase_args isospin_0 = {"bern/phase_pipi_0.dat", 114., 1};
+    phase_args isospin_1 = {"bern/phase_pipi_1.dat", 80,   1};
+    phase_args isospin_2 = {"bern/phase_pipi_2.dat", 800,  0};
 
     // ------------------------------------------------------------------------------
     // Isobars with total \delta I = 0
@@ -63,10 +68,8 @@ namespace iterateKT
     class dI0_P1 : public raw_isobar
     {
         public: 
-        dI0_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
-
-        inline unsigned int singularity_power()        { return 2; };
-        inline double       phase_shift(double s)      { return _delta1(s); };
+        dI0_P1(isobar_args args) : raw_isobar(args, isospin_1){};
+        inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -76,7 +79,6 @@ namespace iterateKT
                 default:         return 0;
             };
         };
-        class phase_shift _delta1;
     };
 
     // ------------------------------------------------------------------------------
@@ -87,9 +89,8 @@ namespace iterateKT
     class dI1_S0 : public raw_isobar
     {
         public: 
-        dI1_S0(isobar_args args) : raw_isobar(args), _delta0("bern/phase_pipi_0.dat", 114., 1){};
-        inline unsigned int singularity_power()        { return 0; };
-        inline double phase_shift(double s)            { return _delta0(s); };
+        dI1_S0(isobar_args args) : raw_isobar(args, isospin_0){};
+        inline unsigned int angular_momentum(){ return 0; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -108,10 +109,8 @@ namespace iterateKT
     class dI1_P1 : public raw_isobar
     {
         public: 
-        dI1_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
-
-        inline unsigned int singularity_power()        { return 2; };
-        inline double       phase_shift(double s)      { return _delta1(s); };
+        dI1_P1(isobar_args args) : raw_isobar(args, isospin_1){};
+        inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -123,17 +122,14 @@ namespace iterateKT
                 default:         return 0;
             };
         };
-        class phase_shift _delta1;
     };
 
     // dI = 1, I = 2, S-wave
     class dI1_S2 : public raw_isobar
     {
         public: 
-        dI1_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
-
-        inline unsigned int singularity_power()        { return 0; };
-        inline double phase_shift(double s)            { return _delta2(s); };
+        dI1_S2(isobar_args args) : raw_isobar(args, isospin_2){};
+        inline unsigned int angular_momentum(){ return 0; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -145,7 +141,6 @@ namespace iterateKT
                 default:         return 0;
             };
         };
-        class phase_shift _delta2;
     };
 
     // ------------------------------------------------------------------------------
@@ -156,10 +151,8 @@ namespace iterateKT
     class dI2_P1 : public raw_isobar
     {
         public: 
-        dI2_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
-
-        inline unsigned int singularity_power()        { return 2; };
-        inline double       phase_shift(double s)      { return _delta1(s); };
+        dI2_P1(isobar_args args) : raw_isobar(args, isospin_1){};
+        inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -177,10 +170,8 @@ namespace iterateKT
     class dI2_S2 : public raw_isobar
     {
         public: 
-        dI2_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
-
-        inline unsigned int singularity_power()        { return 0; };
-        inline double       phase_shift(double s)      { return _delta2(s); };
+        dI2_S2(isobar_args args) : raw_isobar(args, isospin_2){};
+        inline unsigned int angular_momentum(){ return 0; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -191,8 +182,6 @@ namespace iterateKT
                 default:         return 0;
             };
         };
-        class phase_shift _delta2;
     };
-
 }; /*  namespace iterateKT */
 #endif // ETA_ISOBARS_HPP

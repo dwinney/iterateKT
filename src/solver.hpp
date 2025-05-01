@@ -57,9 +57,8 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, id id, 
-                                                                                                      std::string name = "isobar", 
-                                                                                                      settings sets = default_settings())
+        inline void add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, 
+                               id id, std::string name = "isobar", settings sets = default_settings())
         { 
             isobar_args args;
             args._kin      = _kinematics;

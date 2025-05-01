@@ -57,8 +57,7 @@ namespace iterateKT
         
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
-        // The TOTAL singularity power is always +1 from this (one factor from the jacobian)
-        inline unsigned int singularity_power(){ return 2; };
+        inline unsigned int angular_momentum(){ return 1; };
 
         // Use GKPY phase shift, smoothly extrapolated to pi 
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
@@ -108,8 +107,7 @@ namespace iterateKT
         inline bool calculate_inhomogeneity(){ return false; };
 
         // We will ignore the inhomogeneity so singularity_power doesnt matter but it would be 6
-        inline unsigned int singularity_power(){ return 6; };
-        inline complex ksf_kernel(id iso_id, complex s, complex t){ return 0; };
+        inline unsigned int angular_momentum(){ return 3; };
     };
 
     
@@ -125,7 +123,7 @@ namespace iterateKT
         charged(isobar_args args) : raw_isobar(args) {};
         
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
-        inline unsigned int singularity_power(){ return 2; };
+        inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
@@ -143,7 +141,7 @@ namespace iterateKT
         neutral(isobar_args args) : raw_isobar(args) {};
         
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
-        inline unsigned int singularity_power(){ return 2; };
+        inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);

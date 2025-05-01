@@ -157,7 +157,7 @@ namespace iterateKT
     basis_grid raw_isobar::calculate_next(std::vector<isobar> & previous)
     {
         basis_grid output;
-        output._n_singularity = singularity_power()+1;
+        output._n_singularity = 2*angular_momentum()+1;
         output._s_list        = _s_list;
         output._s_around_pth  = _s_around_pth;
         

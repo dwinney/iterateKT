@@ -44,7 +44,7 @@ namespace iterateKT
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
     };
-    
+
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
     class P_wave : public raw_isobar
@@ -55,7 +55,7 @@ namespace iterateKT
         // Constructor 
         P_wave(isobar_args args) : raw_isobar(args){};
 
-        inline uint    singularity_power()  { return 2; };
+        inline uint    angular_momentum()   { return 1; };
         inline double  phase_shift(double s){ return GKPY::phase_shift(1,1, s); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 

@@ -57,8 +57,17 @@ namespace iterateKT
 
         // Default constructor
         raw_isobar(isobar_args args) 
-        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), _id(args._id), 
-                                                                                    _name(args._name)
+        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), 
+                                  _id(args._id), _name(args._name)
+        { 
+            // When we have "unsubtracted" we assume we do have one but no polynomial
+            _max_sub = (args._maxsub == 0) ? 1 : args._maxsub;
+            initialize();
+        };
+
+        raw_isobar(isobar_args args, phase_args phase_args) 
+        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), 
+                                  _id(args._id), _name(args._name), _delta(phase_args)
         { 
             // When we have "unsubtracted" we assume we do have one but no polynomial
             _max_sub = (args._maxsub == 0) ? 1 : args._maxsub;
@@ -68,16 +77,16 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
 
-        // The power (p q)^n that appears in angular momentum barrier factor
+        // The power (p q)^2*n+1 that appears in angular momentum barrier factor
         // This determines the type of matching required at pseudothreshold
-        virtual unsigned int singularity_power() = 0;
+        virtual unsigned int angular_momentum() = 0;
 
         // Elastic phase shift which provides the initial guess
         // By default we assume the _delta was imported with an interpolation
-        virtual double phase_shift(double s) = 0;
+        virtual double phase_shift(double s){ return _delta(s); };
 
         // Kernel which appears in the angular average
-        virtual complex ksf_kernel(id iso_id, complex s, complex t) = 0;
+        virtual complex ksf_kernel(id iso_id, complex s, complex t){ return 0.; };
 
         // This is an extra function to check if to calculate an inhomogeneity at all
         // Will return false unless overriden
@@ -129,7 +138,7 @@ namespace iterateKT
             _s_list       = std::move(imported[0]);
 
             basis_grid grid;
-            grid._n_singularity = singularity_power()+1;
+            grid._n_singularity = 2*angular_momentum()+1;
             grid._s_list        = _s_list;
             grid._s_around_pth  = _s_around_pth;
             
@@ -197,6 +206,9 @@ namespace iterateKT
         // Number of subtractions
         unsigned int _max_sub = 1, _n_basis = 1;
         subtractions _subtractions;
+
+        // Saved interpolation of phase_shifts
+        iterateKT::phase_shift _delta;
 
         // Initialize the 'zeroth' iteration by evaluating just the omnes function
         void initialize();
