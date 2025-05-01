@@ -44,11 +44,11 @@ namespace iterateKT
         sets._intermediate_energy     = 100;
         sets._cutoff                  = 1000;
         sets._interpolation_offset    = 0.1;
-        sets._interpolation_points    = {300, 22, 150};
+        sets._interpolation_points    = {400, 22, 150};
 
-        double xi_sth = 0.2,   eps_sth = 0.2;
-        double xi_pth = 0.5,   eps_pth = 0.5;
-        double xi_rth = 0.2,   eps_rth = 1.7;
+        double xi_sth = 0.4,   eps_sth = 0.4;
+        double xi_pth = 0.4,   eps_pth = 0.4;
+        double xi_rth = 0.3,   eps_rth = 1.9;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
@@ -89,7 +89,6 @@ namespace iterateKT
     {
         public: 
         dI1_S0(isobar_args args) : raw_isobar(args), _delta0("bern/phase_pipi_0.dat", 114., 1){};
-
         inline unsigned int singularity_power()        { return 0; };
         inline double phase_shift(double s)            { return _delta0(s); };
         inline static const settings default_settings(){ return iterateKT::default_settings(); };
@@ -98,9 +97,9 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI1_S0: return 2/3;
+                case id::dI1_S0: return 2./3;
                 case id::dI1_P1: return 2*(s-r+kz/3);
-                case id::dI1_S2: return 20/9;
+                case id::dI1_S2: return 20./9;
                 default:         return 0;
             };
         };
@@ -122,7 +121,7 @@ namespace iterateKT
             switch (iso_id)
             {
                 case id::dI1_S0: return 3*kz;
-                case id::dI1_P1: return 9/2*kz*(s-r+kz/3);
+                case id::dI1_P1: return 9./2*kz*(s-r+kz/3);
                 case id::dI1_S2: return -5*kz;
                 default:         return 0;
             };
@@ -145,8 +144,8 @@ namespace iterateKT
             switch (iso_id)
             {
                 case id::dI1_S0: return 1;
-                case id::dI1_P1: return -3/2*(s-r+kz/3);
-                case id::dI1_S2: return 2/3;
+                case id::dI1_P1: return -3./2*(s-r+kz/3);
+                case id::dI1_S2: return 1./3;
                 default:         return 0;
             };
         };
@@ -171,7 +170,7 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI2_P1: return 9*kz/2*(s-r+kz/3);
+                case id::dI2_P1: return 9./2*kz*(s-r+kz/3);
                 case id::dI2_S2: return 3*kz;
                 default:         return 0;
             };
@@ -193,7 +192,7 @@ namespace iterateKT
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
-                case id::dI2_P1: return 9/2*(s-r+kz/3);
+                case id::dI2_P1: return 9./2*(s-r+kz/3);
                 case id::dI2_S2: return -1;
                 default:         return 0;
             };
