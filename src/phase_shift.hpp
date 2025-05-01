@@ -20,14 +20,17 @@ namespace iterateKT
     {
         public:
 
+        phase_shift(): _error(true) {};
+
         // constructor takes in the file name, matching energy, and integrer of pi 
-        phase_shift(std::string file, double lam2, uint k) : _match(lam2), _k(k)
+        phase_shift(std::string file, double lam2, uint k) : _error(false), _match(lam2), _k(k)
         {
             interpolate(file, lam2);
         };
         
         inline double operator()(double s)
         {
+            if (_error)      return error("phase_shift", "No interpolation specified!", 0.);
             if (s <= _sth)   return 0.;
             if (s <= _match) return _delta.Eval(s);
             return asymptotic(s);
@@ -35,6 +38,7 @@ namespace iterateKT
 
         private:
 
+        bool    _error = true;
         uint    _k;    // Multiple of pi to extrapolate at infinity
         double _match; // Cutoff
         double _sth, _a = 0., _b = 0.;

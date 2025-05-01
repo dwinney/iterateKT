@@ -1,3 +1,4 @@
+
 // The decay amplitude is decomposed into terms of one-variable functions
 // These are given by the isobar class below
 //

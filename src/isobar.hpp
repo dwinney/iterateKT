@@ -17,6 +17,7 @@
 #include "kinematics.hpp"
 #include "iteration.hpp"
 #include "settings.hpp"
+#include "phase_shift.hpp"
 #include "basis.hpp"
 #include "data_set.hpp"
 #include "timer.hpp"
@@ -56,7 +57,8 @@ namespace iterateKT
 
         // Default constructor
         raw_isobar(isobar_args args) 
-        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), _id(args._id), _name(args._name)
+        : _kinematics(args._kin), _settings(args._sets), _subtractions(args._subs), _id(args._id), 
+                                                                                    _name(args._name)
         { 
             // When we have "unsubtracted" we assume we do have one but no polynomial
             _max_sub = (args._maxsub == 0) ? 1 : args._maxsub;
@@ -70,7 +72,8 @@ namespace iterateKT
         // This determines the type of matching required at pseudothreshold
         virtual unsigned int singularity_power() = 0;
 
-        // Elastic phase shift which provides the intial guess
+        // Elastic phase shift which provides the initial guess
+        // By default we assume the _delta was imported with an interpolation
         virtual double phase_shift(double s) = 0;
 
         // Kernel which appears in the angular average
@@ -164,7 +167,7 @@ namespace iterateKT
 
         // Integrator and interpolator settings
         settings _settings;
-        
+
         // Calculate the angular integral along a straight line
         // Bounds arguments should be {t_minus, t_plus, ieps perscription}
         complex linear_segment(unsigned int basis_id, std::array<double,3> bounds, double s, std::vector<isobar> & previous_list);

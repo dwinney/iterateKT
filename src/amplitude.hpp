@@ -41,7 +41,6 @@ namespace iterateKT
         return std::static_pointer_cast<raw_amplitude>(x);
     };
 
-
     class raw_amplitude : public solver
     {
         // -----------------------------------------------------------------------

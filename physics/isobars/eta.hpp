@@ -35,7 +35,7 @@ namespace iterateKT
         dI2_P1, dI2_S2             //        yes           |      yes
     };
 
-    inline static const settings default_settings()
+    inline settings default_settings()
     {
         settings sets;
         sets._exclusion_points        = 10;
@@ -67,7 +67,6 @@ namespace iterateKT
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -91,7 +90,6 @@ namespace iterateKT
         dI1_S0(isobar_args args) : raw_isobar(args), _delta0("bern/phase_pipi_0.dat", 114., 1){};
         inline unsigned int singularity_power()        { return 0; };
         inline double phase_shift(double s)            { return _delta0(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -114,7 +112,6 @@ namespace iterateKT
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -137,7 +134,6 @@ namespace iterateKT
 
         inline unsigned int singularity_power()        { return 0; };
         inline double phase_shift(double s)            { return _delta2(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -164,7 +160,6 @@ namespace iterateKT
 
         inline unsigned int singularity_power()        { return 2; };
         inline double       phase_shift(double s)      { return _delta1(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -186,7 +181,6 @@ namespace iterateKT
 
         inline unsigned int singularity_power()        { return 0; };
         inline double       phase_shift(double s)      { return _delta2(s); };
-        inline static const settings default_settings(){ return iterateKT::default_settings(); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);

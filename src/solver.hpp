@@ -19,6 +19,9 @@
 
 namespace iterateKT
 {
+    // Forward declare function to be specified at runtime
+    settings default_settings();
+
     class solver 
     {
         // -----------------------------------------------------------------------
@@ -54,7 +57,9 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
+        inline void add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, id id, 
+                                                                                                      std::string name = "isobar", 
+                                                                                                      settings sets = default_settings())
         { 
             isobar_args args;
             args._kin      = _kinematics;
@@ -85,7 +90,9 @@ namespace iterateKT
         };
 
         template<class T>
-        inline void add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
+        inline void add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, 
+                                                                                        std::string name = "isobar", 
+                                                                                        settings sets = default_settings())
         { 
             add_isobar<T>(std::vector<std::function<complex(complex)>>{driving_term}, nsub, id, name, sets);
             return;
@@ -93,7 +100,8 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
+        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", 
+                                                                         settings sets = default_settings())
         { 
             std::vector<std::function<complex(complex)>> driving_terms;
             for (auto power : poly)
@@ -106,7 +114,8 @@ namespace iterateKT
     
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
-        inline void add_isobar(uint nsub, id id, std::string name = "isobar", settings sets = T::default_settings())
+        inline void add_isobar(uint nsub, id id, std::string name = "isobar", 
+                                                 settings sets = default_settings())
         { 
             std::vector<uint> pows;
             for (int i = 0; i < nsub; i++) pows.push_back(i);

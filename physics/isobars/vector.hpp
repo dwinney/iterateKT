@@ -25,7 +25,26 @@ namespace iterateKT
     // Ids for all our isobars. 
     // If we ignore rho-omega mixing, we have only one, else we have two
     enum class id : unsigned int { P_wave, charged, neutral, F_wave };
-   
+
+    // Choose default parameters for isobars
+    inline settings default_settings()
+    {
+        settings sets;
+        sets._infinitesimal           = 1E-8;
+        sets._intermediate_energy     = 1.5;
+        sets._cutoff                  = 20;
+        sets._interpolation_offset    = 0.1;
+        sets._interpolation_points    = {400, 10, 200};
+        double xi_sth = 1E-3,  eps_sth = 1E-3;
+        double xi_pth = 1E-3,  eps_pth = 1E-3;
+        double xi_rth = 1E-3,  eps_rth = 1E-3;
+
+        sets._exclusion_offsets   = {1E-1, 1E-1};
+        sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
+        sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
+        return sets;
+    };
+
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
     class P_wave : public raw_isobar
@@ -53,25 +72,6 @@ namespace iterateKT
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
             return 3*(k*k - kz*kz); // We've multiplied by k^2 which is why singularity_power() = 2
         };
-
-        // Choose default parameters for this isobar
-        inline static const settings default_settings()
-        {
-            settings sets;
-            sets._infinitesimal           = 1E-8;
-            sets._intermediate_energy     = 1.5;
-            sets._cutoff                  = 20;
-            sets._interpolation_offset    = 0.1;
-            sets._interpolation_points    = {400, 10, 200};
-            double xi_sth = 1E-3,  eps_sth = 1E-3;
-            double xi_pth = 1E-3,  eps_pth = 1E-3;
-            double xi_rth = 1E-3,  eps_rth = 1E-3;
-
-            sets._exclusion_offsets   = {1E-1, 1E-1};
-            sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
-            sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
-            return sets;
-        };
     };
 
     class F_wave : public raw_isobar
@@ -81,7 +81,6 @@ namespace iterateKT
         
         // Constructor 
         F_wave(isobar_args args) : raw_isobar(args) {};
-        
         
         // Use phase of a simple BW for the rho3
         inline double phase_shift(double s)
@@ -125,9 +124,8 @@ namespace iterateKT
         // Constructor 
         charged(isobar_args args) : raw_isobar(args) {};
         
-        inline static const settings default_settings(){ return P_wave::default_settings(); };
-        inline unsigned int singularity_power(){ return 2; };
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
+        inline unsigned int singularity_power(){ return 2; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
@@ -144,9 +142,8 @@ namespace iterateKT
         // Constructor 
         neutral(isobar_args args) : raw_isobar(args) {};
         
-        inline static const settings default_settings(){ return P_wave::default_settings(); };
-        inline unsigned int singularity_power(){ return 2; };
         inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
+        inline unsigned int singularity_power(){ return 2; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             complex k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
