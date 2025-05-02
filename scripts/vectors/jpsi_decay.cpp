@@ -1,4 +1,4 @@
-// Twice subtracted KT amplitudes for J/psi decay with P- and F-waves in [1]
+// Twice subtracted KT amplitudes for J/ψ decay with P- and F-waves in [1]
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2025)
@@ -16,11 +16,11 @@
 #include "colors.hpp"
 #include "constants.hpp"
 #include "timer.hpp"
+#include "plotter.hpp"
 
 #include "isobars/vector.hpp"
 #include "amplitudes/vector.hpp"
 
-#include "plotter.hpp"
 
 void jpsi_decay()
 {
@@ -29,7 +29,7 @@ void jpsi_decay()
 
     // Set up general kinematics so everything knows masses
     // Use masses in units of GeV
-    kinematics kinematics = new_kinematics(3.096, M_PION);
+    kinematics kinematics = new_kinematics(M_JPSI, M_PION);
     
     // Thresholds
     double sth = kinematics->sth(), pth = kinematics->pth(), rth = kinematics->rth();
@@ -38,19 +38,17 @@ void jpsi_decay()
     amplitude amplitude = new_amplitude<vector_decay>(kinematics);
 
     // Settings to adjust threshold from the defaults which are set for the omega
-    settings jpsi_settings = P_wave::default_settings();
+    settings jpsi_settings = default_settings();
     jpsi_settings._intermediate_energy  = 15.;
     jpsi_settings._cutoff               = 40.;
     jpsi_settings._interpolation_points = {800, 10, 300};
 
-
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>(2, id::P_wave, "pwave", jpsi_settings);
-    amplitude->add_isobar<F_wave>(2, id::F_wave, "fwave", jpsi_settings);
+    isobar pwave = amplitude->add_isobar<P_wave>(2, id::P_wave, "pwave", jpsi_settings);
+    isobar fwave = amplitude->add_isobar<F_wave>(2, id::F_wave, "fwave", jpsi_settings);
 
-    isobar pwave = amplitude->get_isobar(id::P_wave), fwave = amplitude->get_isobar(id::F_wave);
-
+    // Iterate 9 times
     amplitude->timed_iterate(9);
     
     // // -----------------------------------------------------------------------
@@ -75,47 +73,35 @@ void jpsi_decay()
     p2.add_curve( bounds, [&](double w) { return imag(fwave->omnes(w*w+IEPS)); }, "Imag");
 
     plotter.combine({2,1}, {p1,p2}, "fwave.pdf");
+    
+    auto plot_iterations = [&](int j, std::string label)
+    {
+        bounds = {0., 2.};
+        // Output function to access real and imaginary parts of isobar
+        auto rP = [&](int i, int j){return [j,pwave,i](double w){return real(pwave->basis_function(i, j, w*w+IEPS));}; };
+        auto iP = [&](int i, int j){return [j,pwave,i](double w){return imag(pwave->basis_function(i, j, w*w+IEPS));}; };
 
-    bounds = {0., 2.};
-    plot p3 = plotter.new_plot();
-    p3.set_legend(0.8, 0.7);
-    p3.set_curve_points(1000);
-    p3.set_ranges(bounds, {-3, 4.5});
-    p3.set_labels("#sqrt{#it{s}} [GeV]", "Re #it{F}_{a}(#it{s})");
-    p3.add_curve( bounds, [&](double w) { return real(pwave->basis_function(1, 0, w*w+IEPS)); }, "1^{st}");
-    p3.add_curve( bounds, [&](double w) { return real(pwave->basis_function(3, 0, w*w+IEPS)); }, "3^{rd}");
-    p3.add_curve( bounds, [&](double w) { return real(pwave->basis_function(6, 0, w*w+IEPS)); }, "6^{th}");
-    p3.add_curve( bounds, [&](double w) { return real(pwave->basis_function(9, 0, w*w+IEPS)); }, "9^{th}");
+        plot p1 = plotter.new_plot();
+        p1.set_legend(0.8, 0.7);
+        p1.set_curve_points(1000);
+        p1.set_labels("#sqrt{#it{s}} [GeV]", "Re "+label+"(#it{s} + #it{i}#epsilon)");
+        p1.add_curve( bounds, rP(1,j), "1^{st}");
+        p1.add_curve( bounds, rP(3,j), "3^{rd}");
+        p1.add_curve( bounds, rP(6,j), "6^{th}");
+        p1.add_curve( bounds, rP(9,j), "9^{th}");
 
-    plot p4 = plotter.new_plot();
-    p4.set_legend(0.8, 0.7);
-    p4.set_curve_points(1000);
-    p4.set_ranges(bounds, {0, 6.5});
-    p4.set_labels("#sqrt{#it{s}} [GeV]", "Im #it{F}_{a}(#it{s})");
-    p4.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(1, 0, w*w+IEPS)); }, "1^{st}");
-    p4.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(3, 0, w*w+IEPS)); }, "3^{rd}");
-    p4.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(6, 0, w*w+IEPS)); }, "6^{th}");
-    p4.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(9, 0, w*w+IEPS)); }, "9^{th}");
+        plot p2 = plotter.new_plot();
+        p2.set_legend(0.8, 0.7);
+        p2.set_curve_points(1000);
+        p2.set_labels("#sqrt{#it{s}} [GeV]", "Im "+label+"(#it{s} + #it{i}#epsilon)");
+        p2.add_curve( bounds, iP(1,j), "1^{st}");
+        p2.add_curve( bounds, iP(3,j), "3^{rd}");
+        p2.add_curve( bounds, iP(6,j), "6^{th}");
+        p2.add_curve( bounds, iP(9,j), "9^{th}");
 
-    plot p5 = plotter.new_plot();
-    p5.set_legend(0.8, 0.7);
-    p5.set_curve_points(1000);
-    p5.set_ranges(bounds, {-2, 4});
-    p5.set_labels("#sqrt{#it{s}} [GeV]", "Re #it{F}_{b}(#it{s})");
-    p5.add_curve( bounds, [&](double w) { return real(pwave->basis_function(1, 1, w*w+IEPS)); }, "1^{st}");
-    p5.add_curve( bounds, [&](double w) { return real(pwave->basis_function(3, 1, w*w+IEPS)); }, "3^{rd}");
-    p5.add_curve( bounds, [&](double w) { return real(pwave->basis_function(6, 1, w*w+IEPS)); }, "6^{th}");
-    p5.add_curve( bounds, [&](double w) { return real(pwave->basis_function(9, 1, w*w+IEPS)); }, "9^{th}");
+        return std::array<plot,2>{p1,p2};
+    };
 
-    plot p6 = plotter.new_plot();
-    p6.set_legend(0.8, 0.7);
-    p6.set_curve_points(1000);
-    p6.set_ranges(bounds, {-1, 6});
-    p6.set_labels("#sqrt{#it{s}} [GeV]", "Im #it{F}_{b}(#it{s})");
-    p6.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(1, 1, w*w+IEPS)); }, "1^{st}");
-    p6.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(3, 1, w*w+IEPS)); }, "3^{rd}");
-    p6.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(6, 1, w*w+IEPS)); }, "6^{th}");
-    p6.add_curve( bounds, [&](double w) { return imag(pwave->basis_function(9, 1, w*w+IEPS)); }, "9^{th}");
-
-    plotter.combine({2,2}, {p3,p4,p5,p6}, "iterations.pdf");
+    auto p_a = plot_iterations(0, "F_{a}"), p_b = plot_iterations(1, "F_{b}");
+    plotter.combine({2,2}, {p_a[0], p_a[1], p_b[0], p_b[1]}, "iterations.pdf");
 };

@@ -1,15 +1,16 @@
-// Twice subtracted KT amplitudes for omega decay with only P-wave in [1]
+// Calculate KT solution for the V -> 3π decay treating the neutral and charged
+// channels as independent and implementing ρ-ω mixing with a BW
+//
+// This calculation takes a long time because of the narrowness of the ω. 
+// As a result, each run of this script calculates one iteration and saves it to file.
+// Uncomment line 67-70 one at a time as you calculate each iterations til convergence.
 //
 // ------------------------------------------------------------------------------
-// Author:       Daniel Winney (2024)
+// Author:       Daniel Winney (2025)
 // Affiliation:  Universitat Bonn
 //               Helmholtz Institute (HISKP)
 // Email:        daniel.winney@gmail.com
 // ------------------------------------------------------------------------------
-// REFERENCES: 
-// [1] - https://arxiv.org/abs/2006.01058
-// ------------------------------------------------------------------------------
-
 
 #include "kinematics.hpp"
 #include "amplitude.hpp"
@@ -30,8 +31,7 @@ void rho_omega_mixing()
 
     // Set up general kinematics so everything knows masses
     // Use masses in units of GeV
-    double M_V = 3.096;
-    kinematics kinematics = new_kinematics(M_V, M_PION);
+    kinematics kinematics = new_kinematics(M_JPSI, M_PION);
     
     // Significant points in integration path
     double sth = kinematics->sth(); 
@@ -41,7 +41,7 @@ void rho_omega_mixing()
     amplitude amplitude = new_amplitude<iterateKT::rho_omega_mixing>(kinematics);
 
     // Settings to adjust threshold from the defaults which are set for the omega
-    settings jpsi_settings = P_wave::default_settings();
+    settings jpsi_settings = default_settings();
     jpsi_settings._intermediate_energy  = 15.;
     jpsi_settings._cutoff               = 40.;
     jpsi_settings._interpolation_points = {400, 10, 300};
@@ -50,7 +50,7 @@ void rho_omega_mixing()
     auto constant = [](complex s){ return complex(1.); };
 
     // Charged channel is just a normal unsubtracted dispersion relation
-    amplitude->add_isobar<charged>(constant, 1, id::charged, "charged", jpsi_settings);
+    isobar rho_pm = amplitude->add_isobar<charged>(constant, 1, id::charged, "charged", jpsi_settings);
 
     // The neutral one however takes the omega BW in addition to the constant
     auto omega_bw = [](complex s)
@@ -59,10 +59,7 @@ void rho_omega_mixing()
         return s/(s-m*m+I*m*g);
     };
     jpsi_settings._angular_integrator_depth = 0;
-    amplitude->add_isobar<neutral>({constant, omega_bw}, 1, id::neutral, "neutral", jpsi_settings);
-
-    isobar charged = amplitude->get_isobar(id::charged);
-    isobar neutral = amplitude->get_isobar(id::neutral);
+    isobar rho_0 = amplitude->add_isobar<neutral>({constant, omega_bw}, 1, id::neutral, "neutral", jpsi_settings);
 
     // -----------------------------------------------------------------------
     bool do_next           = true;
@@ -78,8 +75,8 @@ void rho_omega_mixing()
     for (auto file : previous_iterations)
     {
         std::string path = "scripts/vectors/";
-        charged->import_iteration<3>(path+file[0]);
-        neutral->import_iteration<3>(path+file[1]);
+        rho_pm->import_iteration<3>(path+file[0]);
+        rho_0 ->import_iteration<3>(path+file[1]);
     };
     timer.lap("Imported");
     if (do_next)
@@ -128,19 +125,19 @@ void rho_omega_mixing()
     std::array<std::string,5> labels = {"0th", "1st", "2nd", "3rd", "4th"};
     for (int i = 0; i <= previous_iterations.size()+do_next; i++)
     {
-        p1.add_curve( bounds, [&](double s) { return std::real(charged->basis_function(i, 0, s+IEPS)); }, labels[i]);
-        p1.add_dashed(bounds, [&](double s) { return std::imag(charged->basis_function(i, 0, s+IEPS)); });
-        p2.add_curve( bounds, [&](double s) { return std::real(charged->basis_function(i, 1, s+IEPS)); }, labels[i]);
-        p2.add_dashed(bounds, [&](double s) { return std::imag(charged->basis_function(i, 1, s+IEPS)); });
-        p3.add_curve( bounds, [&](double s) { return std::real(charged->basis_function(i, 2, s+IEPS)); }, labels[i]);
-        p3.add_dashed(bounds, [&](double s) { return std::imag(charged->basis_function(i, 2, s+IEPS)); });
+        p1.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 0, s+IEPS)); }, labels[i]);
+        p1.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 0, s+IEPS)); });
+        p2.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 1, s+IEPS)); }, labels[i]);
+        p2.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 1, s+IEPS)); });
+        p3.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 2, s+IEPS)); }, labels[i]);
+        p3.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 2, s+IEPS)); });
         
-        p4.add_curve( bounds, [&](double s) { return std::real(neutral->basis_function(i, 0, s+IEPS)); }, labels[i]);
-        p4.add_dashed(bounds, [&](double s) { return std::imag(neutral->basis_function(i, 0, s+IEPS)); });
-        p5.add_curve( bounds, [&](double s) { return std::real(neutral->basis_function(i, 1, s+IEPS)); }, labels[i]);
-        p5.add_dashed(bounds, [&](double s) { return std::imag(neutral->basis_function(i, 1, s+IEPS)); });
-        p6.add_curve( bounds, [&](double s) { return std::real(neutral->basis_function(i, 2, s+IEPS)); }, labels[i]);
-        p6.add_dashed(bounds, [&](double s) { return std::imag(neutral->basis_function(i, 2, s+IEPS)); });
+        p4.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 0, s+IEPS)); }, labels[i]);
+        p4.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 0, s+IEPS)); });
+        p5.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 1, s+IEPS)); }, labels[i]);
+        p5.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 1, s+IEPS)); });
+        p6.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 2, s+IEPS)); }, labels[i]);
+        p6.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 2, s+IEPS)); });
     };
     
     plotter.combine({3,2}, {p1,p2,p3,p4,p5,p6}, "rho_omega_isobars.pdf");  

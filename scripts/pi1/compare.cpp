@@ -49,10 +49,10 @@ void compare()
     
     // Set up our amplitude 
     amplitude amp_1sub = new_amplitude<pi1>(kin);
-    amp_1sub->add_isobar<P_wave>(1, id::P_wave);
+    isobar pwave1 = amp_1sub->add_isobar<P_wave>(1, id::P_wave);
 
     amplitude amp_2sub = new_amplitude<pi1>(kin);
-    amp_2sub->add_isobar<P_wave>(2, id::P_wave);
+    isobar pwave2 = amp_2sub->add_isobar<P_wave>(2, id::P_wave);
 
     // Iterate
     divider();
@@ -72,9 +72,7 @@ void compare()
     timer.print_elapsed();
     divider(); 
 
-    isobar pwave1 = amp_1sub->get_isobar(id::P_wave);
-    isobar pwave2 = amp_2sub->get_isobar(id::P_wave);
-
+    // Set parameters
     amp_1sub->set_parameters(pars_1sub);
     amp_2sub->set_parameters(pars_2sub);
 

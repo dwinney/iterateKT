@@ -40,8 +40,7 @@ void iterations()
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>(2, id::P_wave);
-    isobar pwave = amplitude->get_isobar(id::P_wave);
+    isobar pwave = amplitude->add_isobar<P_wave>(2, id::P_wave);
     
     // -----------------------------------------------------------------------
     timer timer;

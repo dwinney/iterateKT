@@ -1,7 +1,7 @@
-// Twice subtracted KT amplitudes for omega decay with only P-wave in [1]
+// Twice subtracted KT amplitudes for ω decay with only P-wave in [1]
 //
 // ------------------------------------------------------------------------------
-// Author:       Daniel Winney (2024)
+// Author:       Daniel Winney (2025)
 // Affiliation:  Universitat Bonn
 //               Helmholtz Institute (HISKP)
 // Email:        daniel.winney@gmail.com
@@ -41,8 +41,7 @@ void omega_decay()
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
-    amplitude->add_isobar<P_wave>({0, 1}, 2, id::P_wave, "pwave");
-    isobar pwave = amplitude->get_isobar(id::P_wave);
+    isobar pwave = amplitude->add_isobar<P_wave>({0, 1}, 2, id::P_wave, "pwave");
 
     // Subtraction coefficients
     complex a = 3.00E2;
