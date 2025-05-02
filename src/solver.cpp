@@ -58,7 +58,7 @@ namespace iterateKT
     // Print to file necessary info to reconstruct isobars later
     void solver::export_solution(std::string prefix, uint precision)
     {
-        uint spacing   = precision + 7;
+        uint spacing   = precision + 10;
 
         for (int i = 0; i < _isobars.size(); i++)
         {

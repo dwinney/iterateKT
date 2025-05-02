@@ -69,7 +69,7 @@ namespace iterateKT
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, 
+        inline isobar add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, 
                                id id, std::string name = "isobar", settings sets = default_settings())
         { 
             isobar_args args;
@@ -87,7 +87,7 @@ namespace iterateKT
                 if (old_iso->get_id() == new_iso->get_id())
                 {
                     warning("add_isobar", "Attempted to add an isobar with non-unique identifier!");
-                    return;
+                    return nullptr;
                 };
             };
             _isobars.push_back(new_iso);
@@ -98,20 +98,21 @@ namespace iterateKT
                 _subtractions->_ids.push_back(new_iso->get_id());
                 _subtractions->_drivers.push_back(std::move(dts));
             };
+
+            return new_iso;
         };
 
         template<class T>
-        inline void add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, 
+        inline isobar add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, 
                                                                                         std::string name = "isobar", 
                                                                                         settings sets = default_settings())
         { 
-            add_isobar<T>(std::vector<std::function<complex(complex)>>{driving_term}, nsub, id, name, sets);
-            return;
+            return add_isobar<T>(std::vector<std::function<complex(complex)>>{driving_term}, nsub, id, name, sets);
         };
 
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
-        inline void add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", 
+        inline isobar add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", 
                                                                          settings sets = default_settings())
         { 
             std::vector<std::function<complex(complex)>> driving_terms;
@@ -120,17 +121,17 @@ namespace iterateKT
                 if (power == 0) driving_terms.push_back([power](complex x){ return 1.; });
                 else driving_terms.push_back([power](complex x){ return pow(x,power); });
             };
-            add_isobar<T>(driving_terms, nsub, id, name, sets);
+            return add_isobar<T>(driving_terms, nsub, id, name, sets);
         };
     
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
-        inline void add_isobar(uint nsub, id id, std::string name = "isobar", 
+        inline isobar add_isobar(uint nsub, id id, std::string name = "isobar", 
                                                  settings sets = default_settings())
         { 
             std::vector<uint> pows;
             for (int i = 0; i < nsub; i++) pows.push_back(i);
-            add_isobar<T>(pows, nsub, id, name, sets);
+            return add_isobar<T>(pows, nsub, id, name, sets);
         };
 
         // Access the full vector of isobar pointers
