@@ -77,8 +77,8 @@ namespace iterateKT
         // Related to momenta
 
         // The modulus of 3-momentum for initial or final state in CM frame
-        inline complex momentum_initial(complex s){ return csqrt(Kallen(s, M2(), m2()))/csqrt(4*s); };
-        inline complex momentum_final  (complex s){ return csqrt(Kallen(s, m2(), m2()))/csqrt(4*s); };
+        inline complex momentum_initial(complex s){ return csqrt(kallen(s, M2(), m2()))/csqrt(4*s); };
+        inline complex momentum_final  (complex s){ return csqrt(kallen(s, m2(), m2()))/csqrt(4*s); };
 
         // Analytic continuation of barrier factor along real line
         complex kacser   (complex s);
