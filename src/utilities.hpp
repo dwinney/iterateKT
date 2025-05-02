@@ -111,15 +111,15 @@ namespace iterateKT
 
     // Only way to get a double or int Kallen is if all inputs are double/int
     template<typename T>
-    inline T Kallen(T x, T y, T z)
+    inline T kallen(T x, T y, T z)
     {
         return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
     };
 
     // If any of them are complex, return complex
-    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, complex(1,0)*a, complex(1,0)*b); };
-    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(complex(1,0)*a, z, complex(1,0)*b); };
-    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(complex(1,0)*a, complex(1,0)*b, z); };
+    inline complex kallen(complex z, double a, double b) { return kallen<complex>(z, complex(1,0)*a, complex(1,0)*b); };
+    inline complex kallen(double a, complex z, double b) { return kallen<complex>(complex(1,0)*a, z, complex(1,0)*b); };
+    inline complex kallen(double a, double b, complex z) { return kallen<complex>(complex(1,0)*a, complex(1,0)*b, z); };
 
     inline int sign(double x){ return (x >= 0) ? +1 : -1; }
 
