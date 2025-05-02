@@ -71,6 +71,10 @@ namespace iterateKT
         double differential_width(double s);
         double width();
 
+        // (inverse of) prefactors for the differential width
+        inline double prefactors()
+        { return 32*pow(2*PI*_kinematics->M(),3)*combinatorial_factor(); }
+
         // -----------------------------------------------------------------------
         // Utilities
 
@@ -123,9 +127,6 @@ namespace iterateKT
 
         // Id string to identify the amplitude with
         std::string _name = "amplitude";
-
-        // (inverse of) prefactors for the differential width
-        inline double prefactors(){ return 32*pow(2*PI*_kinematics->M(),3); }
     };
 }; // namespace iterateOKT
 

@@ -63,7 +63,7 @@ namespace iterateKT
                          "Evaluating outside decay region!", NaN<double>());
         };
 
-        return norm(evaluate(s, t, u))/prefactors()/combinatorial_factor();
+        return norm(evaluate(s, t, u))/prefactors();
     };
 
     // Singly differential 
@@ -81,7 +81,7 @@ namespace iterateKT
         auto fdx = [&](double t)
         {
             double u = _kinematics->Sigma() - s - t;
-            return norm(evaluate(s, t, u))/prefactors()/combinatorial_factor();
+            return norm(evaluate(s, t, u))/prefactors();
         };
 
         // Limits are purely real in the decay region

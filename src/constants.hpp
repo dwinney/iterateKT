@@ -46,6 +46,7 @@ namespace iterateKT
     const double M_PHI       = 1.01956;
     const double M_F2        = 1.2754;
     const double M_B1        = 1.229;
+    const double M_JPSI      = 3.096;
 
     // ------------------------------------------------------------------------------
     // NaN's, 0, and 1 for throwing errors with custom data types
