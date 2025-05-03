@@ -24,6 +24,9 @@
 #include "phase_shift.hpp"
 #include "isobars/kaon.hpp"
 
+#include "Math/IntegratorMultiDim.h"
+#include "Math/IntegrationTypes.h"
+
 // The amplitudes are named with respect to isospin projections of the decay particle
 // into three pions. The order matters in that the definitions of s, t, and u.
 
@@ -34,13 +37,20 @@
 
 namespace iterateKT
 {
+    // Different masses for isospin projectionss
+    const double M_KAON_PM  = 0.493677;
+    const double M_KAON_0   = 0.497611;
+    const double M_KAON_AVG = (M_KAON_PM + M_KAON_0)/2;
+    const double M_PION_PM  = 0.13957039;
+    const double M_PION_0   = 0.1349768;
+    const double M_PION_AVG = (M_PION_PM + M_PION_0)/2;
+
     //--------------------------------------------------------------------------
     // K+ -> pi+ pi+ pi-         
     class Kp_PipPipPim : public raw_amplitude
     {
         public: 
-        Kp_PipPipPim(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        Kp_PipPipPim(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
         
         // 2 identical particles 
         inline double combinatorial_factor(){ return 2.; };
@@ -51,20 +61,18 @@ namespace iterateKT
             {
                 case (id::dI1_I1_S0): return -1;
                 case (id::dI1_I1_P1): return -(t-u);
-                case (id::dI1_I1_S2): return -1/3;
+                case (id::dI1_I1_S2): return -1./3;
                 case (id::dI3_I1_S0): return -1;
                 case (id::dI3_I1_P1): return -(t-u);
-                case (id::dI3_I1_S2): return -1/3;
-                case (id::dI3_I2_P1): return -3/2*(t-u);
-                case (id::dI3_I2_S2): return +1/2;
+                case (id::dI3_I1_S2): return -1./3;
+                case (id::dI3_I2_P1): return -3./2*(t-u);
+                case (id::dI3_I2_S2): return +1./2;
                 default: return 0;
             };
         };
 
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return prefactor_s(iso_id, t, s, u);
-        };
+        { return prefactor_s(iso_id, t, s, u); };
 
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
         {
@@ -83,8 +91,7 @@ namespace iterateKT
     class Kp_PizPizPip : public raw_amplitude
     {
         public: 
-        Kp_PizPizPip(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        Kp_PizPizPip(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
 
         // 2 identical particles
         inline double combinatorial_factor(){ return 2.; };
@@ -93,29 +100,27 @@ namespace iterateKT
         {
             switch (iso_id)
             {
-                case (id::dI1_I1_P1): return -    (t-u);
+                case (id::dI1_I1_P1): return -     (t-u);
                 case (id::dI1_I1_S2): return +1;
-                case (id::dI3_I1_P1): return -    (t-u);
+                case (id::dI3_I1_P1): return -     (t-u);
                 case (id::dI3_I1_S2): return +1;
-                case (id::dI3_I2_P1): return +3/2*(t-u);
-                case (id::dI3_I2_S2): return -1/2;
+                case (id::dI3_I2_P1): return +3./2*(t-u);
+                case (id::dI3_I2_S2): return -1./2;
                 default: return 0;
             };
         };
 
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return prefactor_s(iso_id, t, s, u);
-        };
+        { return prefactor_s(iso_id, t, s, u); };
 
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
         {
             switch (iso_id)
             {
                 case (id::dI1_I1_S0): return +1;
-                case (id::dI1_I1_S2): return -2/3;
+                case (id::dI1_I1_S2): return -2./3;
                 case (id::dI3_I1_S0): return +1;
-                case (id::dI3_I1_S2): return -2/3;
+                case (id::dI3_I1_S2): return -2./3;
                 case (id::dI3_I2_S2): return +1;
                 default: return 0;
             };
@@ -128,8 +133,7 @@ namespace iterateKT
     class KL_PipPimPiz : public raw_amplitude
     {
         public: 
-        KL_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        KL_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -144,18 +148,16 @@ namespace iterateKT
         };
 
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return prefactor_s(iso_id, t, s, u);
-        };
+        { return prefactor_s(iso_id, t, s, u); };
 
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
         {
             switch (iso_id)
             {
                 case (id::dI1_I1_S0): return -1;
-                case (id::dI1_I1_S2): return +2/3;
+                case (id::dI1_I1_S2): return +2./3;
                 case (id::dI3_I1_S0): return +2;
-                case (id::dI3_I1_S2): return -4/3;
+                case (id::dI3_I1_S2): return -4./3;
                 default: return 0;
             };
         };
@@ -166,8 +168,7 @@ namespace iterateKT
     class KS_PipPimPiz : public raw_amplitude
     {
         public: 
-        KS_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        KS_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -181,9 +182,7 @@ namespace iterateKT
         };
 
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return -prefactor_s(iso_id, t, s, u);
-        };
+        { return -prefactor_s(iso_id, t, s, u); };
 
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
         {
@@ -202,8 +201,7 @@ namespace iterateKT
     class KL_PizPizPiz : public raw_amplitude
     {
         public: 
-        KL_PizPizPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        KL_PizPizPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
 
         // 3 identical particles
         inline double combinatorial_factor(){ return 6.; };
@@ -213,31 +211,24 @@ namespace iterateKT
             switch (iso_id)
             {
                 case (id::dI1_I1_S0): return +1;
-                case (id::dI1_I1_S2): return +4/3;
+                case (id::dI1_I1_S2): return +4./3;
                 case (id::dI3_I1_S0): return -2;
-                case (id::dI3_I1_S2): return -8/3;
+                case (id::dI3_I1_S2): return -8./3;
                 default: return 0;
             };
         };
 
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return prefactor_s(iso_id, t, s, u);
-        };
+        { return prefactor_s(iso_id, t, s, u); };
 
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
-        {
-            return prefactor_s(iso_id, u, t, s);
-        };
+        { return prefactor_s(iso_id, u, t, s); };
     };
 
     //--------------------------------------------------------------------------
     // Generic K -> 3 pi this will contain all the above which can be accessed via the set_option() function
     
-    enum class option : unsigned int
-    {
-        Kp_PipPipPim, Kp_PizPizPip, KL_PipPimPiz, KS_PipPimPiz, KL_PizPizPiz
-    };
+    enum class option : unsigned int { p_ppm, p_zzp, L_pmz, S_pmz, L_zzz };
 
     class K_3Pi : public raw_amplitude
     {
@@ -253,35 +244,52 @@ namespace iterateKT
         };
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
-        {
-            return current->prefactor_s(iso_id, s, t, u);
-        };
+        { return current->prefactor_s(iso_id, s, t, u); };
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        {
-            return current->prefactor_t(iso_id, s, t, u);
-        };
+        { return current->prefactor_t(iso_id, s, t, u); };
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
-        {
-            return current->prefactor_u(iso_id, s, t, u);
-        };
+        { return current->prefactor_u(iso_id, s, t, u); };
 
         inline void set_option(option opt)
         {
             switch (opt)
             {
-                case (option::Kp_PipPipPim): current = p_ppm; return;
-                case (option::Kp_PizPizPip): current = p_zzp; return;
-                case (option::KL_PipPimPiz): current = L_pmz; return;
-                case (option::KS_PipPimPiz): current = S_pmz; return;
-                case (option::KL_PizPizPiz): current = L_zzz; return;
+                case (option::p_ppm): current = p_ppm; return;
+                case (option::p_zzp): current = p_zzp; return;
+                case (option::L_pmz): current = L_pmz; return;
+                case (option::S_pmz): current = S_pmz; return;
+                case (option::L_zzz): current = L_zzz; return;
                 default: return;
             };
         };
 
         private:
-
         amplitude current; 
         amplitude p_ppm, p_zzp, L_pmz, S_pmz, L_zzz;
+    };
+
+    // Because the kaon mass is so small, the mass splittings between isospin projections
+    // make a noticable difference in the phase-space.
+    // So, even though we calculate KT isobars in isospin limit, we can integrate with the realistic 
+    double width_with_physical_masses(amplitude amp, double mK, std::array<double,3> m)
+    {
+        double m1 = m[0], m2 = m[1], m3 = m[2];
+        double sth = norm(m2+m3), pth = norm(mK-m1);
+        double prefactors = 32*pow(2*PI*mK,3)*amp->combinatorial_factor();
+
+        // Doubly differential width with given masses not those in ampitude::_kinematics
+        auto d2Gamma = [&] (const double * sz)
+        {
+            double s = sz[0], z = sz[1];
+            double sigma = mK*mK + m1*m1 + m2*m2 + m3*m3;
+            double kappa = sqrt(kallen(s, mK*mK, m1*m1))*sqrt(kallen(s,m2*m2,m3*m3))/s;
+            double t     = (sigma - s - kappa*z)/2;
+            return kappa/2 * norm(amp->evaluate(s,t)) / prefactors;
+        };
+
+        ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::Type::kADAPTIVE, 1E-5, 1E-5);
+        double min[2] = {sth, -1.}, max[2] = {pth, 1.};
+        return ig.Integral(d2Gamma, 2, min, max);
     };
 };
 

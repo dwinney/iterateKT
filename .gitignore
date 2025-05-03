@@ -50,3 +50,4 @@ scripts/tests/comparisons/
 
 # hide nonpublic data
 /data/COMPASS/raw_files
+/kaon/basis_functions
