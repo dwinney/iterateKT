@@ -510,6 +510,18 @@ namespace iterateKT
     };
     inline std::vector<double> square_elementwise(std::vector<double> in){ return multiply_elementwise(in, in); };
 
+    inline std::vector<double> real(std::vector<complex> vx)
+    {
+        std::vector<double> out;
+        for (auto x : vx) out.push_back(real(x));
+        return out;
+    };
+    inline std::vector<double> imag(std::vector<complex> vx)
+    {
+        std::vector<double> out;
+        for (auto x : vx) out.push_back(real(x));
+        return out;
+    };
 };
 // ---------------------------------------------------------------------------
 
