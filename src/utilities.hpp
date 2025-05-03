@@ -317,17 +317,17 @@ namespace iterateKT
     // We assume theyre all the same size, if not this breaks and its not our fault
 
     template<int N>
-    inline void print_to_file(std::string outname, std::array<std::vector<double>,N> data)
+    inline void print_to_file(std::string outname, std::array<std::vector<double>,N> data, int precision = 12)
     {
         std::ofstream out;
         out.open(outname);
-
+        int spacing = precision + 10;
         for (uint j = 0; j < data[0].size(); j++)
         {
-            out << std::left;
+            out << std::left << std::setprecision(precision);
             for (uint i = 0; i < N; i++)
             {
-                out << std::setw(PRINT_SPACING) << data[i][j];
+                out << std::setw(spacing) << data[i][j];
             }
             out << std::endl;
         };
@@ -337,15 +337,15 @@ namespace iterateKT
     };
 
     template<int N>
-    inline void print_to_file(std::string outname, std::array<std::string,N> headers, std::array<std::vector<double>,N> data)
+    inline void print_to_file(std::string outname, std::array<std::string,N> headers, std::array<std::vector<double>,N> data, int precision = 12)
     {
         std::ofstream out;
         out.open(outname);
-
-        out << std::left << std::setw(PRINT_SPACING) << "#" + headers[0];
+        int spacing = precision + 10;
+        out << std::left << std::setprecision(precision) << std::setw(spacing) << "#" + headers[0];
         for (int i = 1; i < N; i++)
         {
-            out << std::setw(PRINT_SPACING) << headers[i]; 
+            out << std::setw(spacing) << headers[i]; 
         };
         out << std::endl;
 
@@ -354,7 +354,7 @@ namespace iterateKT
             out << std::left;
             for (uint i = 0; i < N; i++)
             {
-                out << std::setw(PRINT_SPACING) << data[i][j];
+                out << std::setw(spacing) << data[i][j];
             }
             out << std::endl;
         };
