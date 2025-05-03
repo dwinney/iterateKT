@@ -151,6 +151,18 @@ namespace iterateKT
         return basis_function(_iterations.size()-1, basis_id, x); 
     };
 
+    complex raw_isobar::basis_function_derivative(uint basis_id, double eps)
+    {
+        complex fp = basis_function(basis_id, +eps), fm = basis_function(basis_id, -eps);
+        return (fp - fm)/2/eps;
+    };
+
+    complex raw_isobar::basis_function_second_derivative(uint basis_id, double eps)
+    {
+        complex f = basis_function(basis_id, 0), fp = basis_function(basis_id, +eps), fm = basis_function(basis_id, -eps);
+        return (fp - 2*f + fm)/eps/eps;
+    };
+
     // ----------------------------------------------------------------------- 
     // Take the saved interpolation settings and output the necessary arrays
     

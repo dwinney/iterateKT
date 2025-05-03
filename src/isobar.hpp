@@ -111,6 +111,11 @@ namespace iterateKT
         complex basis_function(unsigned int iter_id, unsigned int basis_id, complex x);
         complex basis_function(unsigned int basis_id, complex x);
 
+        // Calculate the first and second derivatives of basis function at the subraction point (s=0)
+        complex basis_function_derivative       (unsigned int basis_id, double eps = 1E-5);
+        complex basis_function_second_derivative(unsigned int basis_id, double eps = 1E-5);
+
+
         // Take in an array of isobars and use their current state to calculate the next disc
         basis_grid calculate_next(std::vector<isobar> & previous_list);
         
@@ -122,8 +127,7 @@ namespace iterateKT
         inline complex evaluate(complex s)
         {
             complex sum = 0;
-            for (int i = 0; i < _subtractions->N_basis(); i++) 
-            sum += _subtractions->get_par(i)*basis_function(i, s);
+            for (int i = 0; i < _subtractions->N_basis(); i++) sum += _subtractions->get_par(i)*basis_function(i, s);
             return sum;
         };
 
