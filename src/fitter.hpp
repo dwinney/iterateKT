@@ -305,8 +305,14 @@ namespace iterateKT
         { 
             // First convert the C string to a C++ vector
             std::vector<complex> pars = complex_convert(cpars);
+        
+            // Sometimes we want the amplitude to do something to the fitter output
+            // Before we actually save them, run through amplitudes processing function
+            // By default this does nothing
+            std::vector<complex> processed = _amplitude->process_fitter_parameters(pars);
+    
             // Pass parameters to the amplitude
-            _amplitude->set_parameters(pars);
+            _amplitude->set_parameters(processed);
 
             // Pass both this and data to fit function
             return F::fcn(_data, _amplitude); 
@@ -398,8 +404,8 @@ namespace iterateKT
             cout << "Fitting " + std::to_string(_Nfree) << " (of " << std::to_string(2*_pars.size()) << ") parameters" << endl;
             line();
 
-            cout << left << setw(8) << "i"     << setw(14) << "PARAMETER"  << setw(26) << "START VALUE"       << endl;
-            cout << left << setw(8) << "-----" << setw(14) << "----------" << setw(26) << "----------------------" << endl;
+            cout << left << setw(8) << "i"     << setw(15) << "PARAMETER"  << setw(26) << "START VALUE"       << endl;
+            cout << left << setw(8) << "-----" << setw(15) << "----------" << setw(26) << "----------------------" << endl;
        
             for (auto par : _pars)
             {
@@ -434,8 +440,8 @@ namespace iterateKT
 
             line();
 
-            cout << left << setw(8) << "i"     << setw(14) << "PARAMETER"  << setw(26) << "FIT VALUE"         << setw(18) << "ERROR"        << endl;
-            cout << left << setw(8) << "-----" << setw(14) << "----------" << setw(26) << "----------------------" << setw(18) << "------------" << endl;
+            cout << left << setw(8) << "i"     << setw(15) << "PARAMETER"  << setw(26) << "FIT VALUE"         << setw(18) << "ERROR"        << endl;
+            cout << left << setw(8) << "-----" << setw(15) << "----------" << setw(26) << "----------------------" << setw(18) << "------------" << endl;
 
             int i = 0;
             for (auto par : _pars)

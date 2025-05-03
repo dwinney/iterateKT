@@ -58,7 +58,7 @@ void fit()
     // Set up fitter
 
     // These vectors should be same size as Nsub above
-    std::vector<std::string> all_labels = {"α", "β", "γ"};
+    std::vector<std::string> all_labels = {"alpha", "beta", "gamma"};
     std::vector<std::string> par_labels(all_labels.begin(), all_labels.begin() + Nsub);
     std::vector<complex> initial_guess(Nsub, 1.0);
 
@@ -67,7 +67,7 @@ void fit()
     fitter.add_data(data);
     
     fitter.set_parameter_labels(par_labels);
-    fitter.fix_argument("α", 0.); // Fix overall phase 
+    fitter.fix_argument("alpha", 0.); // Fix overall phase 
 
     fitter.do_fit(initial_guess);
 

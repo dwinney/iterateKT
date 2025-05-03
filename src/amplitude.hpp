@@ -96,6 +96,11 @@ namespace iterateKT
             _subtractions->_values = pars;
         };
 
+        // Sometimes we want to do an intermediate step with the pars being passed around by a fitter
+        // If this is the case overload this function otherwise it does nothing by default
+        virtual inline std::vector<complex> process_fitter_parameters(std::vector<complex> pars)
+        { return pars; };
+
         // Number of free parameters (used by fitters)
         inline uint N_pars(){ return _subtractions->N_basis(); };
 
