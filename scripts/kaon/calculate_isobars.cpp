@@ -98,11 +98,15 @@ void calculate_isobars()
     F_plots.emplace_back(plot_basis(F2, 3, "F_{2}^{#zeta}"));
     plotter.combine({3,4}, F_plots, out_dir+"/Fs.pdf");
 
-    std::vector<plot> GH_plots;
-    GH_plots.emplace_back(plot_basis(G1, 4, "G_{1}^{#eta}"));
-    GH_plots.emplace_back(plot_basis(H1, 5, "H_{1}^{#xi}"));
-    GH_plots.emplace_back(plot_basis(H2, 5, "H_{2}^{#xi}"));
-    plotter.combine({3,1}, GH_plots, out_dir+"/G_and_Hs.pdf");
+    plot pG = plot_basis(G1, 4, "G_{1}^{#eta}");
+    pG.save(out_dir+"/G.pdf");
+
+    std::vector<plot> H_plots;
+    H_plots.emplace_back(plot_basis(H1, 5, "H_{1}^{#mu}"));
+    H_plots.emplace_back(plot_basis(H2, 5, "H_{2}^{#mu}"));
+    H_plots.emplace_back(plot_basis(H1, 6, "H_{1}^{#nu}"));
+    H_plots.emplace_back(plot_basis(H2, 6, "H_{2}^{#nu}"));
+    plotter.combine({2,2}, H_plots, out_dir+"/Hs.pdf");
 
     // Export the solution so it can be more easily recalled later
     solver.export_solution(out_dir+"/basis");

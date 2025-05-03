@@ -50,12 +50,12 @@ namespace iterateKT
         sets._exclusion_points        = 10;
         sets._exclusion_offsets       = {2E-2, 3E-2};
         sets._infinitesimal           = 1E-8;
-        sets._intermediate_energy     = 1.0;
+        sets._intermediate_energy     = 2.0;
         sets._cutoff                  = 40.0;
         sets._interpolation_offset    = 1E-4;
-        sets._interpolation_points    = {400, 14, 200};
+        sets._interpolation_points    = {900, 14, 200};
 
-        double xi_sth = 0,      eps_sth = 1E-3;
+        double xi_sth = 1E-3,      eps_sth = 1E-3;
         double xi_pth = 1E-3,   eps_pth = 1E-3;
         double xi_rth = 1E-3,   eps_rth = 1E-2;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };

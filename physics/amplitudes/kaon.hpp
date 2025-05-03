@@ -46,35 +46,32 @@ namespace iterateKT
     const double M_PION_AVG = (M_PION_PM + M_PION_0)/2;
 
     //--------------------------------------------------------------------------
-    // K+ -> pi+ pi+ pi-         
+    // K⁺ → π⁺ π⁺ π⁻         
     class Kp_PipPipPim : public raw_amplitude
     {
         public: 
         Kp_PipPipPim(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
-        
-        // 2 identical particles 
-        inline double combinatorial_factor(){ return 2.; };
-
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        inline double combinatorial_factor(){ return 2.; }; // 2 identical particles 
+        inline complex prefactor_s(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
                 case (id::dI1_I1_S0): return -1;
-                case (id::dI1_I1_P1): return -(t-u);
+                case (id::dI1_I1_P1): return +(s3-s2);
                 case (id::dI1_I1_S2): return -1./3;
                 case (id::dI3_I1_S0): return -1;
-                case (id::dI3_I1_P1): return -(t-u);
+                case (id::dI3_I1_P1): return +(s3-s2);
                 case (id::dI3_I1_S2): return -1./3;
-                case (id::dI3_I2_P1): return -3./2*(t-u);
+                case (id::dI3_I2_P1): return +3*(s3-s2)/2;
                 case (id::dI3_I2_S2): return +1./2;
                 default: return 0;
             };
         };
-
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        { return prefactor_s(iso_id, t, s, u); };
-
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
+        // factors with s2 (same as s1 factors with s1 <-> s2)
+        inline complex prefactor_t(id iso_id, complex s1, complex s2, complex s3)
+        { return prefactor_s(iso_id, s2, s1, s3); };
+        // factors with s3
+        inline complex prefactor_u(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
@@ -92,28 +89,24 @@ namespace iterateKT
     {
         public: 
         Kp_PizPizPip(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
-
-        // 2 identical particles
-        inline double combinatorial_factor(){ return 2.; };
-
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        inline double combinatorial_factor(){ return 2.; }; // 2 identical particles
+        inline complex prefactor_s(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
-                case (id::dI1_I1_P1): return -     (t-u);
+                case (id::dI1_I1_P1): return +(s3-s2);
                 case (id::dI1_I1_S2): return +1;
-                case (id::dI3_I1_P1): return -     (t-u);
+                case (id::dI3_I1_P1): return +(s3-s2);
                 case (id::dI3_I1_S2): return +1;
-                case (id::dI3_I2_P1): return +3./2*(t-u);
+                case (id::dI3_I2_P1): return -3*(s3-s2)/2;
                 case (id::dI3_I2_S2): return -1./2;
                 default: return 0;
             };
         };
+        inline complex prefactor_t(id iso_id, complex s1, complex s2, complex s3)
+        { return prefactor_s(iso_id, s2, s1, s3); };
 
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        { return prefactor_s(iso_id, t, s, u); };
-
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
+        inline complex prefactor_u(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
@@ -134,23 +127,21 @@ namespace iterateKT
     {
         public: 
         KL_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
-
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        inline complex prefactor_s(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
-                case (id::dI1_I1_P1): return +  (t-u);
+                case (id::dI1_I1_P1): return -(s3-s2);
                 case (id::dI1_I1_S2): return -1;
-                case (id::dI3_I1_P1): return -2*(t-u);
+                case (id::dI3_I1_P1): return +2*(s3-s2);
                 case (id::dI3_I1_S2): return +2;
+
                 default: return 0;
             };
         };
-
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        { return prefactor_s(iso_id, t, s, u); };
-
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
+        inline complex prefactor_t(id iso_id, complex s1, complex s2, complex s3)
+        { return prefactor_s(iso_id, s2, s1, s3); };
+        inline complex prefactor_u(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
@@ -169,27 +160,24 @@ namespace iterateKT
     {
         public: 
         KS_PipPimPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
-
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        inline complex prefactor_s(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
-                case (id::dI1_I0_P1): return +(t-u);
-                case (id::dI3_I2_P1): return +(t-u);
+                case (id::dI1_I0_P1): return -(s3-s2);
+                case (id::dI3_I2_P1): return -(s3-s2);
                 case (id::dI3_I2_S2): return +1;
                 default: return 0;
             };
         };
-
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        { return -prefactor_s(iso_id, t, s, u); };
-
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
+        inline complex prefactor_t(id iso_id, complex s1, complex s2, complex s3)
+        { return - prefactor_s(iso_id, s2, s1, s3); }; // Get a minus sign
+        inline complex prefactor_u(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
-                case (id::dI1_I0_P1): return +  (s-t);
-                case (id::dI3_I2_P1): return -2*(s-t);
+                case (id::dI1_I0_P1): return +(s1-s2);
+                case (id::dI3_I2_P1): return -2*(s1-s2);
                 default: return 0;
             };
         };
@@ -201,12 +189,9 @@ namespace iterateKT
     class KL_PizPizPiz : public raw_amplitude
     {
         public: 
-        KL_PizPizPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};
-
-        // 3 identical particles
-        inline double combinatorial_factor(){ return 6.; };
-
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
+        KL_PizPizPiz(kinematics xkin, std::string id) : raw_amplitude(xkin, id){};     
+        inline double combinatorial_factor(){ return 6.; }; // 3 identical particles
+        inline complex prefactor_s(id iso_id, complex s1, complex s2, complex s3)
         {
             switch (iso_id)
             {
@@ -217,12 +202,10 @@ namespace iterateKT
                 default: return 0;
             };
         };
-
-        inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
-        { return prefactor_s(iso_id, t, s, u); };
-
-        inline complex prefactor_u(id iso_id, complex s, complex t, complex u)
-        { return prefactor_s(iso_id, u, t, s); };
+        inline complex prefactor_t(id iso_id, complex s1, complex s2, complex s3)
+        { return prefactor_s(iso_id, s2, s1, s3); };
+        inline complex prefactor_u(id iso_id, complex s1, complex s2, complex s3)
+        { return prefactor_s(iso_id, s3, s2, s1); };
     };
 
     //--------------------------------------------------------------------------
@@ -242,7 +225,7 @@ namespace iterateKT
             L_zzz = new_amplitude<KL_PizPizPiz>(xkin);
             current = p_ppm;
         };
-
+    
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         { return current->prefactor_s(iso_id, s, t, u); };
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
