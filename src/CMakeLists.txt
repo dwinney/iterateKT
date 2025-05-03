@@ -6,7 +6,7 @@ ROOT_GENERATE_DICTIONARY(G__ITERATEKT
     LINKDEF ITERATEKTLinkDef.h
 )
 add_library(ITERATEKT SHARED ${SRC} G__ITERATEKT.cxx )
-target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist)
+target_link_libraries( ITERATEKT ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint ROOT::Gpad ROOT::Hist)
 target_link_libraries( ITERATEKT Boost::boost)
 
 install( TARGETS ITERATEKT
@@ -17,5 +17,5 @@ install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libITERATEKT_rdict.pcm
 
 # BUILD EXECUTABLE
 add_executable( iterateKT "cling/iterateKT.cpp" )
-target_link_libraries( iterateKT ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
+target_link_libraries( iterateKT ROOT::Core ROOT::MathMore ROOT::Matrix ROOT::RIO ROOT::Rint )
 target_link_libraries( iterateKT ITERATEKT )
