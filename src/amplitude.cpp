@@ -205,15 +205,16 @@ namespace iterateKT
     // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
     // Output in order {g, h, j, f, k}
     
-    std::array<double,5> raw_amplitude::get_dalitz_parameters(double eps)
+    std::array<double,5> raw_amplitude::get_dalitz_parameters(double eps, double m2)
     {
-        double s0 = _kinematics->s0(), m2 = _kinematics->m2();
+        double s0 = _kinematics->s0();
+        double N  = std::norm(evaluate(s0,s0));
 
         // Rename our function for readibility
-        auto F = [this,s0](double s, double u)
+        auto F = [this,s0,N](double s, double u)
         {
             double t = _kinematics->Sigma() - s - u;
-            return std::norm(evaluate(s, t)) / std::norm(evaluate(s0,s0));
+            return std::norm(evaluate(s, t)) / N;
         };
 
         // We just use a central finite difference since these are assumed

@@ -125,7 +125,7 @@ namespace iterateKT
         // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
 
         // Output in order {g, h, j, k, f}
-        std::array<double,5> get_dalitz_parameters(double eps = 1E-5);
+        std::array<double,5> get_dalitz_parameters(double eps = 1E-5, double m2 = M_PION*M_PION);
 
         // -----------------------------------------------------------------------
         private:
