@@ -248,8 +248,8 @@ namespace iterateKT
                 for (uint n = 0; n <= 3; n++)
                 {
                     A[i][n] = F[i]->basis_function(n, 0);
-                    B[i][n] = F[i]->basis_function_derivative(n, eps);
-                    C[i][n] = F[i]->basis_function_second_derivative(n, eps)/2.;
+                    B[i][n] = F[i]->basis_function_derivative(n, 0, eps);
+                    C[i][n] = F[i]->basis_function_second_derivative(n, 0, eps)/2.;
                 };
             };
 
@@ -295,8 +295,8 @@ namespace iterateKT
                 for (uint n = 0; n <= 1; n++)
                 {
                     A[i][n] = H[i]->basis_function(n+9, 0);
-                    B[i][n] = H[i]->basis_function_derivative(n+9, eps);
-                    C[i][n] = H[i]->basis_function_second_derivative(n+9, eps)/2.;
+                    B[i][n] = H[i]->basis_function_derivative(n+9, 0, eps);
+                    C[i][n] = H[i]->basis_function_second_derivative(n+9, 0, eps)/2.;
                 };
             };
 
@@ -329,7 +329,6 @@ namespace iterateKT
             out_pars.push_back(in_pars[4]); // Skip this one
             for (int i = 0; i <= 3; i++) out_pars.push_back(reNu[i] +I*imNu[i]);
             for (int i = 0; i <= 1; i++) out_pars.push_back(reNup[i]+I*imNup[i]);
-            if (out_pars.size() != in_pars.size())
             return out_pars;
         };
     

@@ -151,16 +151,21 @@ namespace iterateKT
         return basis_function(_iterations.size()-1, basis_id, x); 
     };
 
-    complex raw_isobar::basis_function_derivative(uint basis_id, double eps)
+    complex raw_isobar::basis_function_derivative(uint basis_id, complex x, double eps)
     {
-        complex fp = basis_function(basis_id, +eps), fm = basis_function(basis_id, -eps);
-        return (fp - fm)/2/eps;
+        // Use four-point central difference
+        complex fp = basis_function(basis_id, x+eps), f2p = basis_function(basis_id, x+2*eps);
+        complex fm = basis_function(basis_id, x-eps), f2m = basis_function(basis_id, x-2*eps);
+        return (f2m - 8*fm + 8*fp - f2p)/12/eps;
     };
 
-    complex raw_isobar::basis_function_second_derivative(uint basis_id, double eps)
+    complex raw_isobar::basis_function_second_derivative(uint basis_id, complex x, double eps)
     {
-        complex f = basis_function(basis_id, 0), fp = basis_function(basis_id, +eps), fm = basis_function(basis_id, -eps);
-        return (fp - 2*f + fm)/eps/eps;
+        // Use four-point central difference
+        complex f  = basis_function(basis_id, x);
+        complex fp = basis_function(basis_id, x+eps), f2p = basis_function(basis_id, x+2*eps);
+        complex fm = basis_function(basis_id, x-eps), f2m = basis_function(basis_id, x-2*eps);
+        return (-f2p + 16*fp -30*f +16*fm - f2m)/12/eps/eps;
     };
 
     // ----------------------------------------------------------------------- 

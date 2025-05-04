@@ -78,7 +78,7 @@ void calculate_observables()
     // --------------------------------------------------------------------------
     // When calculating widths integrate over the physical phase space, not isopin limit
     
-    double eps = 2E-3;
+    double eps = 1E-3;
     std::array<double,5> dpars; // Dalitz plot parameters
     std::array<double,3> ccc = {M_PION_PM, M_PION_PM, M_PION_PM};
     std::array<double,3> zzz = {M_PION_0,  M_PION_0,  M_PION_0};

@@ -205,35 +205,40 @@ namespace iterateKT
     // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
     // Output in order {g, h, j, f, k}
     
-    std::array<double,5> raw_amplitude::get_dalitz_parameters(double eps, double m2)
+    std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double m2)
     {
-        double s0 = _kinematics->s0();
-        double N  = std::norm(evaluate(s0,s0));
+        double x = _kinematics->s0(); 
+        double N  = std::norm(evaluate(x,x));
 
         // Rename our function for readibility
-        auto F = [this,s0,N](double s, double u)
+        auto F = [this,N](double s, double u)
         {
             double t = _kinematics->Sigma() - s - u;
             return std::norm(evaluate(s, t)) / N;
         };
 
-        // We just use a central finite difference since these are assumed
-        // to be well behaved and fairly smooth
+        // We just use a (4-point) central finite difference 
+        // since these are assumed to be well behaved and fairly smooth
 
         double dFds, dFdu, d2Fd2s, d2Fd2u, d2Fdsdu;
 
         // derivatives of our F in terms of s and u
-        dFds    = (F(s0+eps, s0) - F(s0-eps, s0))/2/eps;
-        dFdu    = (F(s0, s0+eps) - F(s0, s0-eps))/2/eps;
+        dFds    = (-F(x+2*e,x)+8*F(x+e,x)-8*F(x-e,x)+F(x-2*e,x))/12/e;
+        dFdu    = (-F(x,x+2*e)+8*F(x,x+e)-8*F(x,x-e)+F(x,x-2*e))/12/e;
 
         // 2nd Derivatives
-        d2Fd2s  = (F(s0+eps,s0) - 2*F(s0,s0) + F(s0-eps,s0))/eps/eps;
-        d2Fd2u  = (F(s0,s0+eps) - 2*F(s0,s0) + F(s0,s0-eps))/eps/eps;
-        d2Fdsdu = (F(s0+eps,s0+eps)-F(s0-eps,s0+eps)-F(s0+eps,s0-eps)+F(s0-eps,s0-eps))/4/eps/eps;
+        d2Fd2s  = (-F(x+2*e,x)+16*F(x+e,x)-30*F(x,x)+16*F(x-e,x)-F(x-2*e,x))/12/e/e;
+        d2Fd2u  = (-F(x,x+2*e)+16*F(x,x+e)-30*F(x,x)+16*F(x,x-e)-F(x,x-2*e))/12/e/e;
+        d2Fdsdu = (F(-2*e+x,-2*e+x)-8*F(-2*e+x,-e+x)+8*F(-2*e+x,e+x)
+                -  F(-2*e+x,2*e+x)-8*F(-e+x,-2*e+x)+64*F(-e+x,-e+x) 
+                -  64*F(-e+x,e+x)+8*F(-e+x,2*e+x)+8*F(e+x,-2*e+x)
+                -  64*F(e+x,-e+x)+64*F(e+x,e+x)-8*F(e+x,2*e+x) 
+                -  F(2*e+x,-2*e+x)+8*F(2*e+x,-e+x) 
+                -  8*F(2*e+x,e+x)+F(2*e+x,2*e+x))/144/e/e;
 
         // derivatives of s and u with respect to X and Y
         // X = (t - s) /m2
-        // Y = (u - s0)/m2
+        // Y = (u - x)/m2
         // dsdX = dsdY = -dudY/2 = c 
         double c = -m2/2; 
 
