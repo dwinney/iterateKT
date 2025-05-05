@@ -33,6 +33,8 @@ export ITERATEKT=/path/to/iterateKT # for bash
 setenv ITERATEKT /path/to/iterateKT # for csh
 ```
 
+The usual CMake installation may not work if you are running macOS. To circumvent this, a shell script has `macos_build.sh` is included to add extra necessary steps to get things working on a Mac. 
+
 ##  USAGE
 The compiled executable pipes an analysis script, relevent header files, and the compiled library into ROOT's cling interpeter to run. 
 This set up mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude files. To run a script located in the bin directory simply run 
