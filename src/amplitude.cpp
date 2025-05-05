@@ -207,34 +207,27 @@ namespace iterateKT
     
     std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double m2)
     {
-        double x = _kinematics->s0(); 
-        double N  = std::norm(evaluate(x,x));
+        double s0 = _kinematics->s0(); 
+        double N  = std::norm(evaluate(s0,s0));
 
         // Rename our function for readibility
-        auto F = [this,N](double s, double u)
-        {
-            double t = _kinematics->Sigma() - s - u;
-            return std::norm(evaluate(s, t)) / N;
-        };
+        auto F  = [this,N,s0](double s, double u){ return std::norm(evaluate(s,3*s0-s-u))/N; };
+        auto Fs = [this,F,s0](double s){ return F(s,s0); };
+        auto Fu = [this,F,s0](double u){ return F(s0,u); };
 
+        
+        double dFds, dFdu, d2Fd2s, d2Fd2u, d2Fdsdu;
+        
         // We just use a (4-point) central finite difference 
         // since these are assumed to be well behaved and fairly smooth
-
-        double dFds, dFdu, d2Fd2s, d2Fd2u, d2Fdsdu;
-
         // derivatives of our F in terms of s and u
-        dFds    = (-F(x+2*e,x)+8*F(x+e,x)-8*F(x-e,x)+F(x-2*e,x))/12/e;
-        dFdu    = (-F(x,x+2*e)+8*F(x,x+e)-8*F(x,x-e)+F(x,x-2*e))/12/e;
+        dFds    = derivative<double>(Fs, s0, e);
+        dFdu    = derivative<double>(Fu, s0, e);
 
         // 2nd Derivatives
-        d2Fd2s  = (-F(x+2*e,x)+16*F(x+e,x)-30*F(x,x)+16*F(x-e,x)-F(x-2*e,x))/12/e/e;
-        d2Fd2u  = (-F(x,x+2*e)+16*F(x,x+e)-30*F(x,x)+16*F(x,x-e)-F(x,x-2*e))/12/e/e;
-        d2Fdsdu = (F(-2*e+x,-2*e+x)-8*F(-2*e+x,-e+x)+8*F(-2*e+x,e+x)
-                -  F(-2*e+x,2*e+x)-8*F(-e+x,-2*e+x)+64*F(-e+x,-e+x) 
-                -  64*F(-e+x,e+x)+8*F(-e+x,2*e+x)+8*F(e+x,-2*e+x)
-                -  64*F(e+x,-e+x)+64*F(e+x,e+x)-8*F(e+x,2*e+x) 
-                -  F(2*e+x,-2*e+x)+8*F(2*e+x,-e+x) 
-                -  8*F(2*e+x,e+x)+F(2*e+x,2*e+x))/144/e/e;
+        d2Fd2s  = second_derivative<double>(Fs, s0, e);
+        d2Fd2u  = second_derivative<double>(Fu, s0, e);
+        d2Fdsdu = second_derivative<double>(F, {s0, s0}, e);
 
         // derivatives of s and u with respect to X and Y
         // X = (t - s) /m2

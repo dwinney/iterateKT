@@ -112,8 +112,8 @@ namespace iterateKT
         complex basis_function(unsigned int basis_id, complex x);
 
         // Calculate the first and second derivatives of basis function at the subraction point (s=0)
-        complex basis_function_derivative       (unsigned int basis_id, complex x, double eps = 1E-5);
-        complex basis_function_second_derivative(unsigned int basis_id, complex x, double eps = 1E-5);
+        complex basis_derivative       (unsigned int basis_id, double x, double eps = 1E-5);
+        complex basis_second_derivative(unsigned int basis_id, double x, double eps = 1E-5);
 
 
         // Take in an array of isobars and use their current state to calculate the next disc

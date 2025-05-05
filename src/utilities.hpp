@@ -18,6 +18,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <functional>
 
 #include "constants.hpp"
 
@@ -521,6 +522,36 @@ namespace iterateKT
         std::vector<double> out;
         for (auto x : vx) out.push_back(real(x));
         return out;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Simple functions to calculate numerical derivatives using a 4-point
+    // Central difference rule
+
+    template<typename T> 
+    T derivative(std::function<T(double)> F, double x, double e)
+    {
+        T fp = F(x+e), f2p = F(x+2*e), fm = F(x-e), f2m = F(x-2*e);
+        return (f2m - 8*fm + 8*fp - f2p)/12/e;
+    };
+    template<typename T> 
+    T second_derivative(std::function<T(double)> F, double x, double e)
+    {
+        T f = F(x), fp = F(x+e), f2p = F(x+2*e), fm = F(x-e), f2m = F(x-2*e);
+        return (-f2p + 16*fp -30*f +16*fm - f2m)/12/e/e;
+    };
+
+    // Mixed derivative of a function of 2 variables d2F(x,y)/dxdy
+    template<typename T>
+    T second_derivative(std::function<T(double,double)> F, std::array<double,2> xs, double e)
+    {
+        double x = xs[0], y = xs[1];
+        T f2p2p = F(x+2*e,y+2*e), f2p2m = F(x+2*e,y-2*e), f2m2p = F(x-2*e,y+2*e), f2m2m = F(x-2*e,y-2*e);
+        T f2pp  = F(x+2*e,y+e),   f2pm  = F(x+2*e,y-e),   f2mp  = F(x-2*e,y+e),   f2mm  = F(x-2*e,y-e);
+        T fp2p  = F(x+e,y+2*e),   fm2p  = F(x-e,y+2*e),   fp2m  = F(x+e,y-2*e),   fm2m  = F(x-e,y-2*e);
+        T fpp   = F(x+e,y+e),     fpm   = F(x+e,y-e),     fmp   = F(x-e,y+e),     fmm   = F(x-e,y-e);
+        return (8*(fp2m+f2pm+f2mp+fm2p)     -  8*(fm2m+f2mm+fp2p+f2pp)
+                 -(f2p2m+f2m2p-f2m2m-f2p2p) + 64*(fmm+fpp-fpm-fmp))/144/e/e;
     };
 };
 // ---------------------------------------------------------------------------

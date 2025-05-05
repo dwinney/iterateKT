@@ -231,7 +231,7 @@ namespace iterateKT
         // given by requiring Taylor invariants have vanishing imaginary parts
         inline std::vector<complex> process_fitter_parameters(std::vector<complex> in_pars)
         {
-            double eps = 1E-3, s0 = _kinematics->s0();
+            double eps = 1E-5, s0 = _kinematics->s0();
 
             //------------------------------------------------------------------------
             // First we fix the imaginary parts of the M's and N's (total 3π I=1)
@@ -248,8 +248,8 @@ namespace iterateKT
                 for (uint n = 0; n <= 3; n++)
                 {
                     A[i][n] = F[i]->basis_function(n, 0);
-                    B[i][n] = F[i]->basis_function_derivative(n, 0, eps);
-                    C[i][n] = F[i]->basis_function_second_derivative(n, 0, eps)/2.;
+                    B[i][n] = F[i]->basis_derivative(n, 0, eps);
+                    C[i][n] = F[i]->basis_second_derivative(n, 0, eps)/2.;
                 };
             };
 
@@ -295,8 +295,8 @@ namespace iterateKT
                 for (uint n = 0; n <= 1; n++)
                 {
                     A[i][n] = H[i]->basis_function(n+9, 0);
-                    B[i][n] = H[i]->basis_function_derivative(n+9, 0, eps);
-                    C[i][n] = H[i]->basis_function_second_derivative(n+9, 0, eps)/2.;
+                    B[i][n] = H[i]->basis_derivative(n+9, 0, eps);
+                    C[i][n] = H[i]->basis_second_derivative(n+9, 0, eps)/2.;
                 };
             };
 
