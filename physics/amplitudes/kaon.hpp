@@ -212,7 +212,7 @@ namespace iterateKT
     //--------------------------------------------------------------------------
     // Generic K -> 3 pi this will contain all the above which can be accessed via the set_option() function
     
-    enum class option : unsigned int { p_ppm, p_zzp, L_pmz, S_pmz, L_zzz };
+    enum class option : unsigned int { P_ppm, P_zzp, L_pmz, S_pmz, L_zzz };
 
     class K_3Pi : public raw_amplitude
     {
@@ -343,8 +343,8 @@ namespace iterateKT
         {
             switch (opt)
             {
-                case (option::p_ppm): current = p_ppm; return;
-                case (option::p_zzp): current = p_zzp; return;
+                case (option::P_ppm): current = p_ppm; return;
+                case (option::P_zzp): current = p_zzp; return;
                 case (option::L_pmz): current = L_pmz; return;
                 case (option::S_pmz): current = S_pmz; return;
                 case (option::L_zzz): current = L_zzz; return;

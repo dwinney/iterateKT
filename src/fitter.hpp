@@ -380,11 +380,11 @@ namespace iterateKT
             divider();
             cout << "Fitting amplitude (\"" << _amplitude->name() << "\") to " << _N << " data points:" << endl;
             line();
-            cout << setw(29) << "DATA SET"              << setw(25) << "TYPE     "       << setw(10) << "POINTS" << endl;
-            cout << setw(29) << "---------------------" << setw(25) << "-------------"   << setw(10) << "-------" << endl;
+            cout << setw(27) << "DATA SET"              << setw(25) << "TYPE     "               << setw(10) << "POINTS" << endl;
+            cout << setw(27) << "---------------------" << setw(25) << "---------------------"   << setw(10) << "-------" << endl;
             for (auto data : _data)
             {
-                cout << setw(30) << data._id  << setw(25)  << F::data_type(data._type)  << setw(10) << data._N << endl;  
+                cout << setw(27) << data._id  << setw(25)  << F::data_type(data._type)  << setw(10) << data._N << endl;  
             };
         };
 

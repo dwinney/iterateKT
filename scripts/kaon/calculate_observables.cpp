@@ -88,8 +88,8 @@ void calculate_observables()
     line(); divider();
     print("Observable", "From [1]", "Ours");
     line();
-    print("K⁺ → π⁺π⁺π⁻"); divider(3);
-    amp->set_option(option::p_ppm);
+    print("","K⁺ → π⁺π⁺π⁻"); divider(3);
+    amp->set_option(option::P_ppm);
     dpars = amp->get_dalitz_parameters(eps, M_PION_PM*M_PION_PM);
     print<15>("Width",  2.9865,  width_with_physical_masses(amp, M_KAON_PM, ccc));
     print<15>("g", -0.21134, dpars[0]);
@@ -97,8 +97,8 @@ void calculate_observables()
     print<15>("k", -0.00464, dpars[3]);
     line();
 
-    print("K⁺ → π⁰π⁰π⁺"); divider(3);
-    amp->set_option(option::p_zzp);
+    print("","K⁺ → π⁰π⁰π⁺"); divider(3);
+    amp->set_option(option::P_zzp);
     dpars = amp->get_dalitz_parameters(eps, M_PION_PM*M_PION_PM);
     print<15>("Width", 0.8984,  width_with_physical_masses(amp, M_KAON_PM, zzc));
     print<15>("g", 0.625, dpars[0]);
@@ -106,7 +106,7 @@ void calculate_observables()
     print<15>("k", 0.011, dpars[3]);
     line();
     
-    print("KL → π⁺π⁻π⁰"); divider(3);
+    print("","KL → π⁺π⁻π⁰"); divider(3);
     amp->set_option(option::L_pmz);
     dpars = amp->get_dalitz_parameters(eps, M_PION_PM*M_PION_PM);
     print<15>("Width", 1.6185, width_with_physical_masses(amp, M_KAON_0, ccz));
@@ -115,7 +115,7 @@ void calculate_observables()
     print<15>("k", 0.011, dpars[3]);
     line();
 
-    print("KL → π⁰π⁰π⁰"); divider(3);
+    print("","KL → π⁰π⁰π⁰"); divider(3);
     amp->set_option(option::L_zzz);
     dpars = amp->get_dalitz_parameters(eps, M_PION_PM*M_PION_PM);
     print<15>("Width", 2.5532,  width_with_physical_masses(amp, M_KAON_0, zzz));
