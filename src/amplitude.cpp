@@ -87,7 +87,7 @@ namespace iterateKT
         // Limits are purely real in the decay region
         double min = std::real(_kinematics->t_minus(s));
         double max = std::real(_kinematics->t_plus(s));
-        return gauss_kronrod<double,N_GAUSS_ANGULAR>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        return gauss_kronrod<double,15>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // Fully integrated width
@@ -102,7 +102,7 @@ namespace iterateKT
 
         double min = _kinematics->sth();
         double max = _kinematics->pth();
-        return gauss_kronrod<double,N_GAUSS_ANGULAR>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        return gauss_kronrod<double,15>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // -----------------------------------------------------------------------

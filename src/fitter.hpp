@@ -42,6 +42,7 @@ namespace iterateKT
         std::string _mod_message = "[ ≥ 0 ]", _arg_message = "[-π, π]";
         bool   _mod_fixed         = false;
         bool   _arg_fixed         = false;
+        bool   _real              = false;
         std::string mod_label(){ return "|" + _label + "|";    };
         std::string arg_label(){ return "arg(" + _label + ")"; };
 
@@ -159,8 +160,22 @@ namespace iterateKT
             fix_modulus(_pars[index], abs(val)); fix_argument(_pars[index], arg(val));
         };
 
+        inline void make_real(parameter & par)
+        {
+            par._real = true; 
+            par._mod_message = "[REAL]";
+            fix_argument(par, 0.);
+        };
+        inline void make_real(std::string label)
+        {
+            int index = find_parameter(label); 
+            if (index < 0) return;
+            make_real(_pars[index]);
+        };
+
         inline void free_parameter(parameter& par)
         {
+            par._real = false;
             // if not fixed, this does nothing
             if (par._mod_fixed)
             {
@@ -170,8 +185,8 @@ namespace iterateKT
             };
             if (par._arg_fixed)
             {
-                par._mod_fixed   = false;
-                par._mod_message = "[-π, π]";
+                par._arg_fixed   = false;
+                par._arg_message = "[-π, π]";
                 _Nfree++;
             };
         };
@@ -271,11 +286,18 @@ namespace iterateKT
             for (auto &par : _pars)
             {   
                 bool move_up = false;
-                if (!par._mod_fixed)
+                if (par._real && !par._mod_fixed)
                 {
                     // Set up the starting guess
-                    par._mod = std::abs(starting_guess[i]);
-                    _minuit->SetVariable(j,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
+                    par._mod = real(starting_guess[i]);
+                    _minuit->SetVariable(j,   par._label,    real(starting_guess[i]), par._step);
+                    j++; move_up = true;
+                };
+                if (!par._real && !par._mod_fixed)
+                {
+                    // Set up the starting guess
+                    par._mod = abs(starting_guess[i]);
+                    _minuit->SetVariable(j,   "|" + par._label + "|",    abs(starting_guess[i]), par._step);
                     _minuit->SetVariableLowerLimit(j, 0.);    // mod is positive definite
                     j++; move_up = true;
                 }
@@ -409,10 +431,13 @@ namespace iterateKT
        
             for (auto par : _pars)
             {
-                cout << left << setw(8) << par._i << setw(15) << par._label   << setw(26) << par.value() << endl;
-                cout << left << setw(8) << ""     << setw(15) << "  -> mod"   << setw(26) << par._mod << setw(18) << par._mod_message << endl;
-                cout << left << setw(8) << ""     << setw(15) << "  -> arg"   << setw(26) << par._arg << setw(18) << par._arg_message << endl;
-                line();
+                if (par._real) cout << left << setw(8) << par._i << setw(15) << par._label   << setw(26) << par._mod << setw(18) << par._mod_message << endl;
+                else
+                {
+                    cout << left << setw(8) << par._i << setw(15) << par._label   << setw(26) << par.value() << endl;
+                    cout << left << setw(8) << ""     << setw(15) << "  -> mod"   << setw(26) << par._mod << setw(18) << par._mod_message << endl;
+                    cout << left << setw(8) << ""     << setw(15) << "  -> arg"   << setw(26) << par._arg << setw(18) << par._arg_message << endl;
+                };
             };
 
             divider(); line();
@@ -454,10 +479,13 @@ namespace iterateKT
                 // Check arg if its between [-pi, pi]
                 if (abs(arg) > PI) arg -= sign(arg)*2*PI;
 
-                cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod*exp(I*arg) << endl;
-                cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << to_string(mod)  << setw(18) << mod_err << endl; 
-                cout << left << setw(8) << ""     << setw(15) << "  -> arg"  << setw(26) << to_string(arg)  << setw(18) << arg_err << endl; 
-                line();
+                if (par._real) cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod << setw(18) << mod_err << endl;
+                else
+                {
+                    cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod*exp(I*arg) << endl;
+                    cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << to_string(mod)  << setw(18) << mod_err << endl; 
+                    cout << left << setw(8) << ""     << setw(15) << "  -> arg"  << setw(26) << to_string(arg)  << setw(18) << arg_err << endl; 
+                };
             };
             divider(); line();
             
