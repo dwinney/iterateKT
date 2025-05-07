@@ -400,9 +400,10 @@ namespace iterateKT
     // Element-wise operations on data vectors
 
     // Given two vector<double>s of the same size, calculate the average element wise
-    inline std::vector<double> operator*( std::vector<double> lhs, double c)
+    template<typename T>
+    inline std::vector<T> operator*( std::vector<T> lhs, double c)
     {
-        std::vector<double> result;
+        std::vector<T> result;
         for (int i = 0; i < lhs.size(); i++)
         {
             result.push_back( lhs[i]*c );
@@ -410,9 +411,10 @@ namespace iterateKT
         return result;
     };
 
-    inline std::vector<double> operator*(double c, std::vector<double> rhs)
+    template<typename T>
+    inline std::vector<T> operator*(double c, std::vector<T> rhs)
     {
-        std::vector<double> result;
+        std::vector<T> result;
         for (int i = 0; i < rhs.size(); i++)
         {
             result.push_back( c*rhs[i] );
@@ -420,9 +422,10 @@ namespace iterateKT
         return result;
     };
 
-    inline std::vector<double> operator/( std::vector<double> lhs, double c)
+    template<typename T>
+    inline std::vector<T> operator/( std::vector<T> lhs, double c)
     {
-        std::vector<double> result;
+        std::vector<T> result;
         for (int i = 0; i < lhs.size(); i++)
         {
             result.push_back( lhs[i]/c );
@@ -430,70 +433,69 @@ namespace iterateKT
         return result;
     };
 
-    inline std::vector<double> operator-(const std::vector<double> & x)
+    template<typename T>
+    inline std::vector<T> operator-(const std::vector<T> & x)
     {
-        return -1 * x;
+        return -1. * x;
     };
 
-    inline std::vector<double> operator/=(const std::vector<double> & x, double c)
+    template<typename T>
+    inline std::vector<T> operator/=(const std::vector<T> & x, double c)
     {
         return x/c;
     };
 
-    inline std::vector<double> operator*=(const std::vector<double> & x, double c)
+    template<typename T>
+    inline std::vector<T> operator*=(const std::vector<T> & x, double c)
     {
         return x*c;
     };
     
-    inline std::vector<double> operator+(std::vector<double> lhs, std::vector<double> rhs)
+    template<typename T>
+    inline std::vector<T> operator+(std::vector<T> lhs, std::vector<T> rhs)
     {
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
-        std::vector<double> result;
-        for (uint i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i] + rhs[i] );
-        };
+        std::vector<T> result;
+        for (uint i = 0; i < lhs.size(); i++) result.push_back( lhs[i] + rhs[i] );
         return result;
     };
 
-    inline std::vector<double> operator-(std::vector<double> lhs, std::vector<double> rhs)
+    template<typename T>
+    inline std::vector<T> operator-(std::vector<T> lhs, std::vector<T> rhs)
     {
         if (lhs.size() != rhs.size()) return error("Attempted to add two vectors of different sizes!", std::vector<double>());
 
         std::vector<double> result;
-        for (uint i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( lhs[i] - rhs[i] );
-        };
+        for (uint i = 0; i < lhs.size(); i++) result.push_back( lhs[i] - rhs[i] );
         return result;
     };
 
     // Add a constant to all elements of a vector
-    inline std::vector<double> operator+(double lhs, std::vector<double> rhs)
+    template<typename T>
+    inline std::vector<T> operator+(double lhs, std::vector<T> rhs)
     {
-        std::vector<double> result;
-        for (uint i = 0; i < rhs.size(); i++)
-        {
-            result.push_back( lhs + rhs[i] );
-        };
+        std::vector<T> result;
+        for (uint i = 0; i < rhs.size(); i++) result.push_back( lhs + rhs[i] );
         return result;
     };   
-    inline std::vector<double> operator-(double lhs, std::vector<double> rhs) 
+    
+    template<typename T>
+    inline std::vector<T> operator-(double lhs, std::vector<T> rhs) 
     {
         return lhs + (-rhs);
     };
 
-    inline std::vector<double> operator+(std::vector<double> lhs, double rhs)
+    template<typename T>
+    inline std::vector<T> operator+(std::vector<T> lhs, double rhs)
     {
-        std::vector<double> result;
-        for (uint i = 0; i < lhs.size(); i++)
-        {
-            result.push_back( rhs + lhs[i] );
-        };
+        std::vector<T> result;
+        for (uint i = 0; i < lhs.size(); i++) result.push_back( rhs + lhs[i] );
         return result;
     };
-    inline std::vector<double> operator-(std::vector<double> lhs, double rhs) 
+
+    template<typename T>
+    inline std::vector<T> operator-(std::vector<T> lhs, double rhs) 
     {
         return lhs + (-rhs);
     };
