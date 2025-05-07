@@ -41,7 +41,7 @@ namespace iterateKT { namespace kaon
             for (auto data : data_vector)
             {
                 to_fit->set_option(data._option);
-                double width = to_fit->width();
+                double width = width_with_physical_masses(to_fit, data._option);
                 auto   dpars = to_fit->get_dalitz_parameters(1.E-3, M_PION_PM*M_PION_PM);
                 double g = dpars[0], h = dpars[1], k = dpars[3];
 

@@ -57,7 +57,9 @@ void fit()
     // Set up fitter
 
     fitter<kaon::fit> fitter(amp, "Combined", 1E-2);
-    fitter.set_print_level(3);
+
+    // Fit tends to be slow so its nice to have print level != 0 to see some progress
+    fitter.set_print_level(2);
     
     // Parameter labels and starting guess
     std::vector<std::string> labels = {"alpha_1", "beta_1", "gamma_1", "zeta_1", "lambda",
@@ -75,8 +77,20 @@ void fit()
     // Also fix lambda which isnt fit
     fitter.fix_modulus("lambda", 0.);
 
-    Initial guess is just 1's
-    std::vector<complex> initial_guess(10, 1.0);
-
-    fitter.do_fit(pars);
+    // Use Bachir's results as our initial guess
+    complex alpha_1, beta_1, gamma_1, zeta_1, eta;     
+    complex alpha_3, beta_3, gamma_3, zeta_3, mu, nu;  
+    alpha_1 = +3.8;
+    beta_1  = -676.1;
+    gamma_1 = +559.7;
+    zeta_1  = -1072.6;
+    alpha_3 = -4.7;
+    beta_3  = +26.70; 
+    gamma_3 = -46.04;
+    zeta_3  = +123.9;
+    mu      = -2.04;
+    nu      = +433.2;
+    std::vector<complex> initial = {alpha_1, beta_1, gamma_1, zeta_1, 
+                                    alpha_3, beta_3, gamma_3, zeta_3, mu, nu};
+    fitter.do_fit(10*initial);
 };

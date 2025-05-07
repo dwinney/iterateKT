@@ -23,9 +23,7 @@
 #include "settings.hpp"
 #include "phase_shift.hpp"
 #include "isobars/kaon.hpp"
-
-#include "Math/IntegratorMultiDim.h"
-#include "Math/IntegrationTypes.h"
+#include <boost/math/quadrature/gauss_kronrod.hpp>
 #include "TMatrixD.h"
 
 // The amplitudes are named with respect to isospin projections of the decay particle
@@ -331,7 +329,8 @@ namespace iterateKT
             for (int i = 0; i <= 1; i++) out_pars.push_back(reNup[i]+I*imNup[i]);
             return out_pars;
         };
-    
+
+        inline double combinatorial_factor(){ return current->combinatorial_factor(); };
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         { return current->prefactor_s(iso_id, s, t, u); };
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u)
@@ -360,25 +359,60 @@ namespace iterateKT
     // Because the kaon mass is so smal, the mass splittings between isospin projections
     // make a noticable difference in the phase-space.
     // So, even though we calculate KT isobars in isospin limit, we can integrate with the realistic 
-    double width_with_physical_masses(amplitude amp, double mK, std::array<double,3> m)
+    double width_with_physical_masses(amplitude amp, option opt)
     {
-        double m1 = m[0], m2 = m[1], m3 = m[2];
-        double sth = norm(m2+m3), pth = norm(mK-m1);
-        double prefactors = 32*pow(2*PI*mK,3)*amp->combinatorial_factor();
+        using namespace boost::math::quadrature;
 
-        // Doubly differential width with given masses not those in ampitude::_kinematics
-        auto d2Gamma = [&] (const double * sz)
+        double mK, m1, m2, m3;
+        switch (opt)
         {
-            double s = sz[0], z = sz[1];
-            double sigma = mK*mK + m1*m1 + m2*m2 + m3*m3;
-            double kappa = sqrt(kallen(s, mK*mK, m1*m1))*sqrt(kallen(s,m2*m2,m3*m3))/s;
-            double t     = (sigma - s - kappa*z)/2;
-            return kappa/2 * norm(amp->evaluate(s,t)) / prefactors;
+            case (option::P_ppm): 
+            {
+                mK = M_KAON_PM; 
+                m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_PM; 
+                break;
+            };
+            case (option::P_zzp):
+            {
+                mK = M_KAON_PM; 
+                m1 = M_PION_0;  m2 = M_PION_0;  m3 = M_PION_PM; 
+                break;
+            };
+            case (option::L_pmz):
+            {
+                mK = M_KAON_0; 
+                m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_0; 
+                break;
+            };
+            case (option::S_pmz):
+            {
+                mK = M_KAON_0; 
+                m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_0; 
+                break;
+            };
+            case (option::L_zzz):
+            {
+                mK = M_KAON_0; 
+                m1 = M_PION_0;  m2 = M_PION_0;  m3 = M_PION_0; 
+                break;
+            }; 
+            default: return NaN<double>();
         };
 
-        ROOT::Math::IntegratorMultiDim ig(ROOT::Math::IntegrationMultiDim::Type::kADAPTIVE, 1E-5, 1E-5);
-        double min[2] = {sth, -1.}, max[2] = {pth, 1.};
-        return ig.Integral(d2Gamma, 2, min, max);
+        double sth = norm(m2+m3), pth = norm(mK-m1);
+        double prefactors = 32*pow(2*PI*mK,3)*amp->combinatorial_factor();
+        double sigma = mK*mK + m1*m1 + m2*m2 + m3*m3;
+        auto dGamma = [sigma,mK,m1,m2,m3,amp](double s)
+        {
+            double kappa = sqrt(kallen(s, mK*mK, m1*m1))*sqrt(kallen(s,m2*m2,m3*m3))/s;
+            auto d2Gamma = [s,kappa,sigma,amp](double z)
+            {
+                double t     = (sigma - s - kappa*z)/2;
+                return kappa/2 * norm(amp->evaluate(s,t));
+            };
+            return gauss_kronrod<double,15>::integrate(d2Gamma, -1., 1, 0, 1.E-9, NULL);
+        };
+        return gauss_kronrod<double,15>::integrate(dGamma, sth, pth, 0, 1.E-9, NULL) / prefactors;
     };
 };
 
