@@ -267,12 +267,12 @@ namespace iterateKT
         std::cout << std::setw(N) << x << std::endl;
     };
 
-    template <uint N=PRINT_SPACING, typename First, typename... Rest>
+    template <uint NFIRST=PRINT_SPACING, uint NREST=NFIRST, typename First, typename... Rest>
     inline void print(First first, Rest... rest)
     {
         std::cout << std::boolalpha << std::left << std::setprecision(9);  
-        std::cout << std::setw(N) << first;
-        print(rest...);
+        std::cout << std::setw(NFIRST) << first;
+        print<NREST>(rest...);
     } 
 
     template<uint N=PRINT_SPACING, typename T>
