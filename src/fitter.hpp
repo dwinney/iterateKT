@@ -237,7 +237,7 @@ namespace iterateKT
         // Methods related to fit options
 
         // Set the maximum number of calls minuit will do
-        inline void set_max_calls(int n){ print(n); _max_calls = n; };
+        inline void set_max_calls(int n){ _max_calls = n; };
         
         // Message level for minuit (0-4)
         inline void set_print_level(int n){ _print_level = n; };

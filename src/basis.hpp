@@ -32,7 +32,20 @@ namespace iterateKT
         inline unsigned int N_basis()                   { return _ids.size(); };
         inline id       get_id(uint i)                  { return _ids[i]; };
         inline complex  driving_term(uint i, complex x) { return _drivers[i](x); };
-        inline complex  get_par(uint i)                 { return _values[i]; };
+        inline complex  get_par(uint i)                 
+        {
+            if (_values.size() != N_basis())
+            {
+                if (!_error_thrown)
+                {
+                    _error_thrown = true;
+                    return error("Subtraction coefficients not set!", NaN<complex>());
+                };
+                return NaN<complex>();                 
+            };
+            _error_thrown = false;
+            return _values[i]; 
+        };
 
         private: 
 
@@ -40,6 +53,7 @@ namespace iterateKT
         friend class raw_amplitude;
         
         // TODO: Probably better way to organize this maybe tuples idk
+        bool _error_thrown = false;
         std::vector<id>           _ids;                         // The id of the isobar this subtraction coeff appears in
         std::vector<std::function<complex(complex)>> _drivers;  // Driving terms. in most cases these are the polynomials of fixed integer order
         std::vector<std::string>  _names;                       // Optional to give each parameter a name

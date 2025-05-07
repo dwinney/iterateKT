@@ -203,7 +203,7 @@ namespace iterateKT
     // Calculate Daltiz plot parameters from amplitude
     // We use the conventions and notation of the PDG 
     // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
-    // Output in order {g, h, j, f, k}
+    // Output in order {g, h, j, k, f}
     
     std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double m2)
     {
