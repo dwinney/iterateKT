@@ -99,7 +99,7 @@ namespace iterateKT
             k = elastic_mom(s, 4.*M_PION*M_PION);
             k2 = elastic_mom(s, 4.*M_KAON*M_KAON);
 
-            double B0, B1, z2, wl;
+            double b0, b1, z2, wl;
             double sl, sm;
 
             sl = pow(1.05, 2.);
@@ -108,15 +108,15 @@ namespace iterateKT
             wl = conformal(s, sl);
 
             z2 = .1435;
-            B0 = -79.4;
-            B1 = -63.0;
+            b0 = -79.4;
+            b1 = -63.0;
 
             temp1 = sqrt(s) / (2.*k);
             temp2 = M_PION*M_PION / (s - 2.*z2*z2);
 
             if ((s > 4.*M_PION*M_PION) && (s <= sm)) //Low energy parameterization
             {
-                temp3 = B0 + B1 * wl;
+                temp3 = b0 + b1 * wl;
                 cot_delta = temp1 * temp2 * temp3;
                 delta = TMath::ATan(1/cot_delta);
             }
@@ -130,9 +130,9 @@ namespace iterateKT
                 wlsm = conformal(sm, sl);
 
                 Bh2 = 32.;
-                Bh0 = B0 + B1 * wlsm;
+                Bh0 = b0 + b1 * wlsm;
                 temp4 = pow((sqrt(sm) + sqrt(sh - sm)) / (sqrt(sm) + sqrt(sl - sm)), 2.);
-                Bh1 = B1 * (sl / sh) * (sqrt(sh - sm) / sqrt(sl - sm)) * temp4;
+                Bh1 = b1 * (sl / sh) * (sqrt(sh - sm) / sqrt(sl - sm)) * temp4;
 
                 temp3 = Bh0 + Bh1*(wh - whsm) + Bh2*pow(wh - whsm, 2.);
 
@@ -156,10 +156,10 @@ namespace iterateKT
             k2 = elastic_mom(s, 4.*M_KAON*M_KAON);
 
              double sm = pow(0.85, 2.);
-            double B0, B1, B2, B3, w;
-            B0 = 7.14;
-            B1 = -25.3;
-            B2 = -33.2;
+            double b0, b1, b2, B3, w;
+            b0 = 7.14;
+            b1 = -25.3;
+            b2 = -33.2;
             B3 = -26.2;
             w = conformal(s, 4.*M_KAON*M_KAON);
 
@@ -169,7 +169,7 @@ namespace iterateKT
                 temp2 = M_PION * M_PION / (s - 0.5 * M_PION * M_PION);
                 temp3 = M_PION / sqrt(s);
 
-                cot_delta = temp1 * temp2 * (temp3 + B0 + B1 * w + B2 * w * w + B3 *w*w*w);
+                cot_delta = temp1 * temp2 * (temp3 + b0 + b1 * w + b2 * w * w + B3 *w*w*w);
                 delta = TMath::ATan(1./cot_delta);
                 if (delta < 0) delta += PI;
             }
@@ -202,7 +202,7 @@ namespace iterateKT
                     temp1 = sqrt(sm) / (2. * km);
                     temp2 = M_PION * M_PION / (sm - 0.5 * M_PION * M_PION);
                     temp3 = M_PION / sqrt(sm);
-                    cot_delm = temp1 * temp2 * (temp3 + B0 + B1 * wm + B2 * wm * wm + B3 *wm*wm*wm);
+                    cot_delm = temp1 * temp2 * (temp3 + b0 + b1 * wm + b2 * wm * wm + B3 *wm*wm*wm);
                     delm = TMath::ATan(1/cot_delm) + PI;
 
                     //Derivative calculated in Mathematica (because im lazy)
@@ -246,14 +246,14 @@ namespace iterateKT
 
             if ((s > 4.*M_PION*M_PION) && (s < 4.*M_KAON*M_KAON))
             {
-                double B0, B1;
-                B0 = 1.043;
-                B1 = .19;
+                double b0, b1;
+                b0 = 1.043;
+                b1 = .19;
 
                 temp1 = sqrt(s)*(M_RHO*M_RHO - s)/(2. * pow(k, 3.));
                 temp2 = 2.*pow(M_PION, 3.)/(M_RHO*M_RHO*sqrt(s));
 
-                cot_delta = temp1*(temp2 + B0 + B1* w);
+                cot_delta = temp1*(temp2 + b0 + b1* w);
                 delta = atan2(1., cot_delta);
             }
             else if ((s >= 4.*M_KAON*M_KAON) && (s < sh))
@@ -264,14 +264,14 @@ namespace iterateKT
                 lambda2 = -1.70;
 
                 //lambda0 = low energy (see above) at KK threshold
-                double B0, B1;
-                B0 = 1.043;
-                B1 = .19;
+                double b0, b1;
+                b0 = 1.043;
+                b1 = .19;
                 KK = elastic_mom(4.*M_KAON*M_KAON, 4.*M_PION*M_PION);
                 wK = conformal(4.*M_KAON*M_KAON, s0);
                 temp1 = sqrt(4.*M_KAON*M_KAON)*(M_RHO*M_RHO - 4.*M_KAON*M_KAON)/(2. * pow(KK, 3.));
                 temp2 = 2.*pow(M_PION, 3.)/(M_RHO*M_RHO*sqrt(4.*M_KAON*M_KAON));
-                cot_lambda0 = temp1*(temp2 + B0 + B1* wK);
+                cot_lambda0 = temp1*(temp2 + b0 + b1* wK);
                 lambda0 = atan2(1., cot_lambda0);
 
                 temp3 = (sqrt(s) / (2.*M_KAON)) - 1.;
@@ -296,19 +296,19 @@ namespace iterateKT
             if ((s > 4.*M_PION*M_PION) && (s < sh))
             {
                 double w, s0, Del;
-                double B0, B1, B2;
+                double b0, b1, b2;
 
                 s0 = pow(1.45,2.);
-                B0 = 4.1e3;
-                B1 = 8.6e3;
-                B2 = 25.5e3;
+                b0 = 4.1e3;
+                b1 = 8.6e3;
+                b2 = 25.5e3;
                 Del = .233;
 
                 w = conformal(s, s0);
 
                 temp1 = sqrt(2) / (2.* pow(k, 5.));
                 temp2 = (pow(M_PION, 4.) * s) / (4.*M_PION*M_PION + 4.*Del*Del -s);
-                temp3 = B0 + B1 * w + B2 * w * w;
+                temp3 = b0 + b1 * w + b2 * w * w;
 
                 cot_delta = temp1 * temp2 * temp3;
                 delta = atan2(1., cot_delta);
@@ -328,11 +328,11 @@ namespace iterateKT
             k = elastic_mom(s, 4.*M_PION*M_PION);
             k2 = elastic_mom(s, 4.*M_KAON*M_KAON);
 
-            double B0, B1;
+            double b0, b1;
             double s0 = pow(1.05, 2.);
 
-            B0 = 12.40;
-            B1 = 10.06;
+            b0 = 12.40;
+            b1 = 10.06;
 
             temp1 = sqrt(s) / (2.*pow(k, 5.));
             temp2 = (M_F2*M_F2 - s)*M_PION*M_PION;
@@ -340,20 +340,20 @@ namespace iterateKT
             if ((s > 4.*M_PION*M_PION) && (s <= 4.*M_KAON*M_KAON))
             {
                 double w = conformal(s, s0);
-                temp3 = B0 + B1* w;
+                temp3 = b0 + b1* w;
                 cot_delta = temp1 * temp2 * temp3;
                 delta = atan2(1., cot_delta);
             }
             else if ((s > 4.*M_KAON*M_KAON) && (s < sh))
             {
-                double wh, s02, B0h, B1h;
+                double wh, s02, b0h, b1h;
 
-                B1h = 43.2;
+                b1h = 43.2;
                 s02 = pow(1.45, 2.);
                 wh = conformal(s, s02);
-                B0h = 18.69;
+                b0h = 18.69;
 
-                temp3 = B0h + B1h * wh;
+                temp3 = b0h + b1h * wh;
                 cot_delta = temp1 * temp2 * temp3;
                 delta = atan2(1., cot_delta);
             }
@@ -373,19 +373,19 @@ namespace iterateKT
 
             if ((s > 4.*M_PION*M_PION) && (s < sh))
             {
-                double B0, B1, lambda;
+                double b0, b1, lambda;
                 double s0, w;
 
                 s0 = pow(1.45, 2.);
                 w = conformal(s, s0);
-                B0 = 1.09e5;
-                B1 = 1.41e5;
+                b0 = 1.09e5;
+                b1 = 1.41e5;
                 lambda = 0.051e5;
 
                 temp1 = sqrt(s)*pow(M_PION, 6.) / (2.*pow(k, 7.));
                 temp2 = 2.*lambda * M_PION / sqrt(s);
 
-                cot_delta = temp1 * (temp2 + B0 + B1 * w);
+                cot_delta = temp1 * (temp2 + b0 + b1 * w);
                 return atan2(1., cot_delta);
             }
             return NaN<double>();
