@@ -56,41 +56,46 @@ void fit()
     // --------------------------------------------------------------------------
     // Set up fitter
 
-    fitter<kaon::fit> fitter(amp, "Combined", 1E-2);
+    fitter<kaon::fit> fitter(amp);
 
     // Fit tends to be slow so its nice to have print level != 0 to see some progress
-    fitter.set_print_level(2);
+    fitter.set_print_level(4);
+    fitter.set_tolerance(1);
     
     // Parameter labels and starting guess
-    std::vector<std::string> labels = {"alpha_1", "beta_1", "gamma_1", "zeta_1", "lambda",
+    std::vector<std::string> labels = {"alpha_1", "beta_1", "gamma_1", "zeta_1", "eta",
                                        "alpha_3", "beta_3", "gamma_3", "zeta_3", "mu", "nu"};
     fitter.set_parameter_labels(labels);
 
     // Add data
-    fitter.add_data(kaon::get_data(option::P_ppm));
-    fitter.add_data(kaon::get_data(option::P_zzp));
-    fitter.add_data(kaon::get_data(option::L_pmz));
-    fitter.add_data(kaon::get_data(option::L_zzz));
+    auto P_ppm = kaon::get_data(option::P_ppm);
+    auto P_zzp = kaon::get_data(option::P_zzp);
+    auto L_pmz = kaon::get_data(option::L_pmz);
+    auto L_zzz = kaon::get_data(option::L_zzz);
 
-    // We only fit real parts so fix all arguments to be zero
-    for (auto par : labels) fitter.fix_argument(par, 0.);
-    // Also fix lambda which isnt fit
-    fitter.fix_modulus("lambda", 0.);
+    fitter.add_data(P_ppm);
+    fitter.add_data(P_zzp);
+    fitter.add_data(L_pmz);
+    fitter.add_data(L_zzz);
 
-    // Use Bachir's results as our initial guess
-    complex alpha_1, beta_1, gamma_1, zeta_1, eta;     
-    complex alpha_3, beta_3, gamma_3, zeta_3, mu, nu;  
-    alpha_1 = +3.8;
-    beta_1  = -676.1;
-    gamma_1 = +559.7;
-    zeta_1  = -1072.6;
-    alpha_3 = -4.7;
-    beta_3  = +26.70; 
-    gamma_3 = -46.04;
-    zeta_3  = +123.9;
-    mu      = -2.04;
-    nu      = +433.2;
-    std::vector<complex> initial = {alpha_1, beta_1, gamma_1, zeta_1, 
-                                    alpha_3, beta_3, gamma_3, zeta_3, mu, nu};
-    fitter.do_fit(10*initial);
+    // We only fit real parts so force only fitting real parts
+    for (auto par : labels) fitter.make_real(par);
+    // Also fix eta which isnt fit
+    fitter.fix_parameter("eta", 0.);
+    
+    // Initial guess from a previous fit
+    std::vector<complex> initial = {
+        58.338563,   // alpha_1
+        -7070.9062,  // beta_1
+        7011.0392,   // gamma_1
+        -10312.59,   // zeta_1
+        // 0.,       // eta (not fit)
+        -47.263109,  // alpha_3
+        323.41078,   // beta_3
+        -730.62241,  // gamma_3
+        1184.8828,   // zeta_3
+        -74.541407,  // mu
+        4674.9023    // nu
+    };
+    fitter.do_fit(initial);
 };

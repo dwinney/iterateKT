@@ -19,6 +19,7 @@
 
 #include "isobars/kaon.hpp"
 #include "amplitudes/kaon.hpp"
+#include "data/kaon.hpp"
 
 void calculate_observables()
 {
@@ -53,69 +54,77 @@ void calculate_observables()
     std::string prefix = "K_3pi_";
     // Import everything 
     for (auto iso : amp->get_isobars()) iso->import_iteration<11>(path+prefix+iso->name()+".dat");
-
-    // Free parameters from Ref. [1] (ΔI = 1/2)
-    complex alpha_1, beta_1, gamma_1, zeta_1, eta;     
-    alpha_1 = +3.8    - I*0.570;
-    beta_1  = -676.1  + I*7.27;
-    gamma_1 = +559.7  - I*16.80;
-    zeta_1  = -1072.6 + I*7.57;
-    eta     = +0.; // Undetermined assume its zero
-    // ΔI = 3/2
-    complex alpha_3, beta_3, gamma_3, zeta_3, mu, nu;  
-    alpha_3 = -4.7    - I*2.37E-2;
-    beta_3  = +26.7   + I*0.30; 
-    gamma_3 = -46.0   - I*0.74;
-    zeta_3  = +123.9  - I*0.28;
-    mu      = -2.04   + I*4.8E-4;
-    nu      = +433.2  - I*6.0E-4;
-
-    // Load parameters in the correct order (see order they were loaded above)
-    std::vector<complex> pars = {alpha_1, beta_1, gamma_1, zeta_1, eta,   
-                                 alpha_3, beta_3, gamma_3, zeta_3, mu,  nu};
-    amp->set_parameters(10*pars);
+                                 
+    std::vector<complex> pars = {
+        27.611261,   // alpha_1
+        -6678.5455,  // beta_1
+        6188.2744,   // gamma_1
+        -11167.016,  // zeta_1
+        0.,            // eta
+        -47.936992,  // alpha_3
+        331.57282,   // beta_3
+        -747.00108,   // gamma_3
+        1160.6997,   // zeta_3
+        -82.744473,  // mu
+        4746.9644     // nu
+    };
+    amp->set_parameters(amp->process_fitter_parameters(pars));
     
     // --------------------------------------------------------------------------
     // When calculating widths integrate over the physical phase space, not isopin limit
     
+    // Grab data
+    auto P_ppm = kaon::get_data(option::P_ppm);
+    auto P_zzp = kaon::get_data(option::P_zzp);
+    auto L_pmz = kaon::get_data(option::L_pmz);
+    auto L_zzz = kaon::get_data(option::L_zzz);
+    std::vector<data_set> all_decays = {P_ppm, P_zzp, L_pmz, L_zzz};
+    
     double eps = 1E-3;
     std::array<double,5> dpars; // Dalitz plot parameters
+    std::array<double,3> chi2_dpar;
 
     line(); divider();
-    print("Observable", "From [1]", "Ours");
+    print<10,17>("", "Exp. value", "Our fit", "χ²");
     line();
-    print("","K⁺ → π⁺π⁺π⁻"); divider(3);
+    print<25>("", "K⁺ → π⁺π⁺π⁻"); divider(4);
     amp->set_option(option::P_ppm);
     dpars = amp->get_dalitz_parameters(eps);
-    
-    print<15>("Width",  2.9865,  width_with_physical_masses(amp, option::P_ppm));
-    print<15>("g", -0.21134, dpars[0]);
-    print<15>("h",  0.0185,  dpars[1]);
-    print<15>("k", -0.00464, dpars[3]);
+    chi2_dpar = kaon::fit::chi2_dpars(P_ppm, amp);
+    print<11,17>("Γ", "2.9590(218)",  width_with_physical_masses(amp, option::P_ppm), kaon::fit::chi2_width(P_ppm, amp));
+    print<10,17>("g", "-0.21134(17)", dpars[0], chi2_dpar[0]);
+    print<10,17>("h", "0.0185(4)",    dpars[1], chi2_dpar[1]);
+    print<10,17>("k", "-0.00463(14)", dpars[3], chi2_dpar[2]);
     line();
 
-    print("","K⁺ → π⁰π⁰π⁺"); divider(3);
+    print<25>("","K⁺ → π⁰π⁰π⁺"); divider(4);
     amp->set_option(option::P_zzp);
     dpars = amp->get_dalitz_parameters(eps);
-    print<15>("Width", 0.8984,  width_with_physical_masses(amp, option::P_zzp));
-    print<15>("g", 0.625, dpars[0]);
-    print<15>("h", 0.058, dpars[1]);
-    print<15>("k", 0.011, dpars[3]);
+    chi2_dpar = kaon::fit::chi2_dpars(P_zzp, amp);
+    print<11,17>("Γ", "0.9438(150)", width_with_physical_masses(amp, option::P_zzp), kaon::fit::chi2_width(P_zzp, amp));
+    print<10,17>("g", "0.626(7)",    dpars[0], chi2_dpar[0]);
+    print<10,17>("h", "0.052(8)",    dpars[1], chi2_dpar[1]);
+    print<10,17>("k", "0.0054(35)",  dpars[3], chi2_dpar[2]);
     line();
     
-    print("","KL → π⁺π⁻π⁰"); divider(3);
+    print<25>("","KL → π⁺π⁻π⁰"); divider(4);
     amp->set_option(option::L_pmz);
     dpars = amp->get_dalitz_parameters(eps);
-    print<15>("Width", 1.6185, width_with_physical_masses(amp, option::L_pmz));
-    print<15>("g", 0.675, dpars[0]);
-    print<15>("h", 0.082, dpars[1]);
-    print<15>("k", 0.011, dpars[3]);
+    chi2_dpar = kaon::fit::chi2_dpars(L_pmz, amp);
+    print<11,17>("Γ", "1.6200(102)", width_with_physical_masses(amp, option::L_pmz), kaon::fit::chi2_width(L_pmz, amp));
+    print<10,17>("g", "0.678(8)",    dpars[0], chi2_dpar[0]);
+    print<10,17>("h", "0.076(6)",    dpars[1], chi2_dpar[1]);
+    print<10,17>("k", "0.0099(15)",  dpars[3], chi2_dpar[2]);
     line();
 
-    print("","KL → π⁰π⁰π⁰"); divider(3);
+    print<25>("","KL → π⁰π⁰π⁰"); divider(4);
     amp->set_option(option::L_zzz);
     dpars = amp->get_dalitz_parameters(eps);
-    print<15>("Width", 2.5532,  width_with_physical_masses(amp, option::L_zzz));
-    print<15>("h", -0.00644, dpars[1]);
-    line(); divider();
+    chi2_dpar = kaon::fit::chi2_dpars(L_zzz, amp);
+    print<11,17>("Γ", "2.5417(352)", width_with_physical_masses(amp, option::L_zzz), kaon::fit::chi2_width(L_zzz, amp));
+    print<10,17>("h", "-0.0061(10)", dpars[1], chi2_dpar[1]);
+    line();
+    print<8,19>("", "", "Total χ²:", kaon::fit::fcn(all_decays, amp));
+
+    divider();
 };

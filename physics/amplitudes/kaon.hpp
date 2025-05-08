@@ -372,45 +372,39 @@ namespace iterateKT
                 m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_PM; 
                 break;
             };
-            case (option::P_zzp):
-            {
-                mK = M_KAON_PM; 
-                m1 = M_PION_0;  m2 = M_PION_0;  m3 = M_PION_PM; 
-                break;
-            };
-            case (option::L_pmz):
-            {
-                mK = M_KAON_0; 
-                m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_0; 
-                break;
-            };
-            case (option::S_pmz):
-            {
-                mK = M_KAON_0; 
-                m1 = M_PION_PM; m2 = M_PION_PM; m3 = M_PION_0; 
-                break;
-            };
             case (option::L_zzz):
             {
                 mK = M_KAON_0; 
                 m1 = M_PION_0;  m2 = M_PION_0;  m3 = M_PION_0; 
                 break;
             }; 
+            case (option::P_zzp):
+            {
+                mK = M_KAON_PM; 
+                m1 = M_PION_AVG; m2 = M_PION_AVG; m3 = M_PION_AVG; 
+                break;
+            };
+            case (option::L_pmz):
+            case (option::S_pmz):
+            {
+                mK = M_KAON_0; 
+                m1 = M_PION_AVG; m2 = M_PION_AVG; m3 = M_PION_AVG; 
+                break;
+            };
             default: return NaN<double>();
         };
 
         double sth = norm(m2+m3), pth = norm(mK-m1);
         double prefactors = 32*pow(2*PI*mK,3)*amp->combinatorial_factor();
         double sigma = mK*mK + m1*m1 + m2*m2 + m3*m3;
-        auto dGamma = [sigma,mK,m1,m2,m3,amp](double s)
+        auto dGamma = [amp,sigma,mK,m1,m2,m3](double s)
         {
             double kappa = sqrt(kallen(s, mK*mK, m1*m1))*sqrt(kallen(s,m2*m2,m3*m3))/s;
-            auto d2Gamma = [s,kappa,sigma,amp](double z)
+            auto d2Gamma = [amp,s,kappa,sigma](double z)
             {
-                double t     = (sigma - s - kappa*z)/2;
-                return kappa/2 * norm(amp->evaluate(s,t));
+                return kappa/2*norm(amp->evaluate(s,(sigma - s - kappa*z)/2));
             };
-            return gauss_kronrod<double,15>::integrate(d2Gamma, -1., 1, 0, 1.E-9, NULL);
+            return gauss_kronrod<double,15>::integrate(d2Gamma, -1., 1., 0, 1.E-9, NULL);
         };
         return gauss_kronrod<double,15>::integrate(dGamma, sth, pth, 0, 1.E-9, NULL) / prefactors;
     };
