@@ -212,10 +212,10 @@ namespace iterateKT
     
     enum class option : unsigned int { P_ppm, P_zzp, L_pmz, S_pmz, L_zzz };
 
-    class K_3Pi : public raw_amplitude
+    class K_3pi : public raw_amplitude
     {
         public:
-        K_3Pi(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
+        K_3pi(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
         {
             p_ppm = new_amplitude<Kp_PipPipPim>(xkin);
             p_zzp = new_amplitude<Kp_PizPizPip>(xkin);

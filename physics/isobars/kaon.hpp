@@ -47,16 +47,16 @@ namespace iterateKT
     inline settings default_settings()
     {
         settings sets;
-        sets._exclusion_points        = 10;
+        sets._exclusion_points        = 30;
         sets._exclusion_offsets       = {2E-2, 3E-2};
         sets._infinitesimal           = 1E-8;
-        sets._intermediate_energy     = 2.0;
+        sets._intermediate_energy     = 1.0;
         sets._cutoff                  = 40.0;
         sets._interpolation_offset    = 1E-4;
-        sets._interpolation_points    = {900, 14, 200};
+        sets._interpolation_points    = {1200, 16, 200};
 
-        double xi_sth = 1E-3,      eps_sth = 1E-3;
-        double xi_pth = 1E-3,   eps_pth = 1E-3;
+        double xi_sth = 1E-4,   eps_sth = 1E-4;
+        double xi_pth = 1E-2,   eps_pth = 1E-2;
         double xi_rth = 1E-3,   eps_rth = 1E-2;
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
@@ -69,7 +69,7 @@ namespace iterateKT
     phase_args isospin_2 = {"orsay/phase02.dat", 9.9, 0};
         
     // ------------------------------------------------------------------------------
-    // Isobars. We have two sets, the Orsay and ours. 
+    // Isobars
 
     // \tilde{M}_1
     class I0_P1 : public raw_isobar

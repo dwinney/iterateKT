@@ -17,7 +17,7 @@
 
 #include "isobars/kaon.hpp"
 #include "amplitudes/kaon.hpp"
-#include "data/kaon.hpp"
+#include "K_3pi/data.hpp"
 
 void fit()
 {
@@ -29,7 +29,7 @@ void fit()
 
     // Amplitude itself is given by the isospin limit
     kinematics kin = new_kinematics(M_KAON_AVG, M_PION_PM);
-    amplitude  amp = new_amplitude<K_3Pi>(kin, "K -> 3π");
+    amplitude  amp = new_amplitude<K_3pi>(kin, "K -> 3π");
 
     // Empty array of subtraction indices for isobars with no polynomial
     std::vector<uint> empty = {};
@@ -83,19 +83,22 @@ void fit()
     // Also fix eta which isnt fit
     fitter.fix_parameter("eta", 0.);
     
-    // Initial guess from a previous fit
-    std::vector<complex> initial = {
-        58.338563,   // alpha_1
-        -7070.9062,  // beta_1
-        7011.0392,   // gamma_1
-        -10312.59,   // zeta_1
-        // 0.,       // eta (not fit)
-        -47.263109,  // alpha_3
-        323.41078,   // beta_3
-        -730.62241,  // gamma_3
-        1184.8828,   // zeta_3
-        -74.541407,  // mu
-        4674.9023    // nu
-    };
-    fitter.do_fit(initial);
+    // Free parameters from Ref. [1] (ΔI = 1/2)
+    complex alpha_1, beta_1, gamma_1, zeta_1, eta;     
+    alpha_1 = +3.8;
+    beta_1  = -676.1;
+    gamma_1 = +559.7;
+    zeta_1  = -1072.6;
+    // ΔI = 3/2
+    complex alpha_3, beta_3, gamma_3, zeta_3, mu, nu;  
+    alpha_3 = -4.7;
+    beta_3  = +26.7; 
+    gamma_3 = -46.0;
+    zeta_3  = +123.9;
+    mu      = -2.04;
+    nu      = +433.2;
+    // Load parameters in the correct order (see order they were loaded above)
+    std::vector<complex> initial = {alpha_1, beta_1, gamma_1, zeta_1,   
+                                  alpha_3, beta_3, gamma_3, zeta_3, mu,  nu};
+    fitter.do_fit(10*initial);
 };
