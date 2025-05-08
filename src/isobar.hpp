@@ -141,6 +141,10 @@ namespace iterateKT
             auto imported = import_data<2*N+1>(filename, true);
             _s_list       = std::move(imported[0]);
 
+            if (_s_list.back() < _settings._cutoff) 
+            fatal("import_isobar", 
+                  "Cutoff set to higher than imported data! Will cause interpolation errors.");
+
             basis_grid grid;
             grid._n_singularity = 2*angular_momentum()+1;
             grid._s_list        = _s_list;
