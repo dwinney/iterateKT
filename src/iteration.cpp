@@ -138,6 +138,38 @@ namespace iterateKT
             return {NaN<complex>(), NaN<complex>(), NaN<complex>()};
            };
         };
+        // switch (sign(e)*n)
+        // {
+        //     case +1:  // S-waves (above)
+        //     {
+        //         as = {-15, +12, -4, 8};
+        //         bs = { -5,  +8, -4, 4};
+        //         cs = { -3,  +4, -4, 8};
+        //         break;
+        //     };
+        //     case -1:  // S-waves (below)
+        //     {
+        //         as = {+15, +12, +4, 8};
+        //         bs = { -5,  -8, -4, 4};
+        //         cs = { +3,  +4, +4, 8};
+        //         break;
+        //     };
+        //     case +3:  // P-waves (above)
+        //     {
+        //         as = {+35, -20, +4, 8};
+        //         bs = {+21, -16, +4, 4};
+        //         cs = {+15, -12, +4, 8};
+        //         break;
+        //     };
+        //     case -3:  // P-waves (below)
+        //     {
+        //         as = {+35, +20, +4, 8};
+        //         bs = {-21, -16, -4, 4};
+        //         cs = {+15, +12, +4, 8};
+        //         break;
+        //     };
+        //     default : fatal("raw_iteration::pthreshold_expansion", "Invalid singularity order (n="+std::to_string(n)+")!");
+        // };
 
         double s_exp = s+e;
         complex f    = _re_inhom[i]->Eval(s_exp)   + I*_im_inhom[i]->Eval(s_exp);
@@ -170,88 +202,75 @@ namespace iterateKT
 
         // Expansion coefficients
         std::array<complex,4> ecs = pthreshold_expansion(i, eps);
+        complex a = ecs[0], b = ecs[1], c = ecs[2], d = ecs[3];
 
         // if we're not near any threshold just divide like normal
         if (!close_to_pth)
         {
-            complex subtracted = half_regularized_integrand(i, s) - ecs[0];
+            complex subtracted = half_regularized_integrand(i, s) - a;
             // for p-wave also subtract the first derivative
-            if (n > 1) subtracted -= (_pth-s)*ecs[1];
+            if (n > 1) subtracted -= (_pth-s)*b;
             return subtracted/pow(k(s), n);
         };
 
-        return (n == 1) ? ecs[1] + ecs[2]*k(s) + ecs[3]*std::norm(k(s))
-                        :          ecs[2]      + ecs[3]*k(s);
+        // Finally, if we're close to pth return the expansion in k(s)
+        return (n == 1) ? b + c*k(s) + d*k(s)*k(s)
+                        :     c      + d*k(s);
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
     std::array<complex,4> raw_iteration::pthreshold_expansion(unsigned int i, double epsilon)
     {
         // These coefficients only depend on the order of the singularity
-        int n = _n_singularity;
+        // and whether we're above or below pth
+        int n = _n_singularity, ell = (_n_singularity-1)/2;
         std::array<int,3> bs, cs, ds;
-        switch (n)
+        switch (sign(epsilon)*n)
         {
-            case 1:  // S-waves
+            case +1:  // S-waves (above pth)
             {
-                bs = {+3, -3, +2};
+                bs = {-3, +3, -2};
                 cs = {+3, -4, +4};
-                ds = {-1, +1, -2};
+                ds = {+1, -1, +2};
                 break;
             };
-            case 3:  // P-waves
+            case -1:  // S-waves (below pth)
+            {
+                bs = {+3, +3, +2};
+                cs = {-3, -4, -4};
+                ds = {+1, +1, +2};
+                break;
+            };
+            case +3:  // P-waves (above pth)
             {
                 bs = {-6, +5, -2};
-                cs = {+8, -8, +4};
+                cs = {-8, +8, -4};
                 ds = {+3, -3, +2};
                 break;
             };
-            default : 
-           {
-            warning("raw_iteration::pthreshold_expansion", "Invalid singularity order (n="+std::to_string(n)+")!");
-            return {NaN<complex>(), NaN<complex>()};
-           };
-        };
-
-        if (epsilon < 0)
-        {
-            if (n == 1)
+            case -3:  // P-waves (below pth)
             {
-                bs[1] *= -1;
-                cs[0] *= -1; cs[2] *= -1;
-                ds[0] *= -1; ds[2] *= -1;
-            }
-            else
-            {
-                bs[0] *= -1; bs[2] *= -1;
-                cs[0] *= -1; cs[2] *= -1;
-                ds[1] *= -1;
-            }
+                bs = {+6, +5, +2};
+                cs = {-8, -8, -4};
+                ds = {+3, +3, +2};
+                break;
+            };
+            default : fatal("raw_iteration::pthreshold_expansion", "Invalid singularity order (n="+std::to_string(n)+")!");
         };
-
+        
         // Need up to second derivative
         double s_exp = _pth+epsilon;
 
-        double e     = abs(epsilon);
-        complex a    = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
+        double  e    = abs(epsilon);
+        complex f0   = _re_halfreg[i]->Eval(_pth)    + I*_im_halfreg[i]->Eval(_pth);
         complex f    = _re_halfreg[i]->Eval(s_exp)   + I*_im_halfreg[i]->Eval(s_exp);
         complex fp   = _re_halfreg[i]->Deriv(s_exp)  + I*_im_halfreg[i]->Deriv(s_exp);
         complex fpp  = _re_halfreg[i]->Deriv2(s_exp) + I*_im_halfreg[i]->Deriv2(s_exp);
 
-        int m = (n == 1) ? n+1 : n;
-        complex b = (bs[0]*(f-a)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (m-1.)/2.);
-        complex c = (cs[0]*(f-a)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e,  m    /2.);
-        complex d = (ds[0]*(f-a)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (m+1.)/2.);
-        
-        if (epsilon > 0)
-        {
-            switch (n)
-            {
-                case 1: { b *= -I; d *=  I;  break;};
-                case 3: { c *= -I;        ;  break; };
-                default: break;
-            };
-        };
+        complex a = f0;
+        complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (ell+1)/2.);
+        complex c = (cs[0]*(f-f0)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e, (ell+2)/2.);
+        complex d = (ds[0]*(f-f0)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (ell+3)/2.);
 
         return {a, b, c, d};
     };
