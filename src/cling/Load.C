@@ -20,6 +20,7 @@ void Load()
     // Headers
     TString core    = main_dir + "/src"; 
     TString physics = main_dir + "/physics";
+    TString data    = main_dir + "/data";
 
     if (!gSystem->AccessPathName(lib.Data()))
     {
@@ -27,6 +28,7 @@ void Load()
         if (lib_loaded < 0) Fatal("Load()", "Library not loaded sucessfully!");
 
         gInterpreter->AddIncludePath( core.Data());
+        gInterpreter->AddIncludePath( data.Data());
         gInterpreter->AddIncludePath( physics.Data());
         gInterpreter->AddIncludePath( main_dir.Data());
     }

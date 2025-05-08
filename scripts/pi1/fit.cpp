@@ -21,7 +21,7 @@
 
 #include "amplitudes/pi1.hpp"
 #include "isobars/pi1.hpp"
-#include "data/COMPASS/data.hpp"
+#include "COMPASS/data.hpp"
 
 void fit()
 {
