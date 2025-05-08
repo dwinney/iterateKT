@@ -172,8 +172,9 @@ namespace iterateKT
         inline void set_logscale(bool x, bool y){ _xlog = x; _ylog = y; };
 
         // Set custom bounds for both axes
+        inline void set_xrange( std::array<double,2> x){ _xbounds = x; _customxrange = true; }
         inline void set_ranges( std::array<double,2> x,  std::array<double,2> y)
-        { _xbounds = x; _ybounds = y; _customranges = true; };
+        { _xbounds = x; _ybounds = y; _customxrange = true; _customyrange = true; };
 
         inline void set_legend(double x, double y){ _addlegend = true; _legendxcord = x; _legendycord = y; };
         inline void set_legend(bool x){_addlegend = x;};
@@ -301,7 +302,7 @@ namespace iterateKT
         std::string _xlabel = "", _ylabel = "";
         
         // Custom bounds for the different axes. 
-        bool _customranges = false;
+        bool _customxrange = false, _customyrange = false;
         std::array<double,2> _xbounds, _ybounds;
 
         // -----------------------------------------------------------------------

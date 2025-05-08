@@ -40,7 +40,7 @@ namespace iterateKT
 
     void plot::draw()
     {
-        bool add_padding = _customranges && std::abs(_ybounds[0]) < 0.09 && std::abs(_ybounds[1]) < 0.09;
+        bool add_padding = _customyrange && std::abs(_ybounds[0]) < 0.09 && std::abs(_ybounds[1]) < 0.09;
         if (add_padding) 
         {
             auto style = gROOT->GetStyle("jpacStyle");
@@ -92,14 +92,18 @@ namespace iterateKT
         _canvas->Modified();
 
         double ylow, yhigh, xlow, xhigh;
-        if (_customranges)
+        if (_customxrange)
         {
             mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
-            mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
+            xlow = _xbounds[0]; xhigh = _xbounds[1];
+        };
+
+        if (_customyrange)
+        {
+                        mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
             mg->SetMinimum(_ybounds[0]);
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];
-            xlow = _xbounds[0]; xhigh = _xbounds[1];
         }
         else
         {
