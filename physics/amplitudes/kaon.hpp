@@ -374,7 +374,7 @@ namespace iterateKT
             };
             case (option::L_zzz):
             {
-                mK = M_KAON_0; 
+                mK = M_KAON_AVG; 
                 m1 = M_PION_0;  m2 = M_PION_0;  m3 = M_PION_0; 
                 break;
             }; 

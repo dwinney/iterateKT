@@ -37,15 +37,19 @@ void calculate_isobars()
     // Set up our amplitude 
     solver solver(kin);
 
+    // Adjust expansion near pth
+    settings sets = default_settings();
+    sets._expansion_offsets   = {1E-3, 1E-2, 1E-2};
+
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
     std::vector<uint> empty = {};
-    isobar F0 = solver.add_isobar<I1_S0>({0, 1, 2}, 2, id::dI1_I1_S0, "F0");
-    isobar F1 = solver.add_isobar<I1_P1>({1},       1, id::dI1_I1_P1, "F1");
-    isobar F2 = solver.add_isobar<I1_S2>(empty,     2, id::dI1_I1_S2, "F2"); 
-    isobar G1 = solver.add_isobar<I0_P1>({1},       1, id::dI1_I0_P1, "G1");
-    isobar H1 = solver.add_isobar<I2_P1>({0, 1},    1, id::dI3_I2_P1, "H1");
-    isobar H2 = solver.add_isobar<I2_S2>(empty,     2, id::dI3_I2_S2, "H2");
+    isobar F0 = solver.add_isobar<I1_S0>({0, 1, 2}, 2, id::dI1_I1_S0, "F0", sets);
+    isobar F1 = solver.add_isobar<I1_P1>({1},       1, id::dI1_I1_P1, "F1", sets);
+    isobar F2 = solver.add_isobar<I1_S2>(empty,     2, id::dI1_I1_S2, "F2", sets); 
+    isobar G1 = solver.add_isobar<I0_P1>({1},       1, id::dI1_I0_P1, "G1", sets);
+    isobar H1 = solver.add_isobar<I2_P1>({0, 1},    1, id::dI3_I2_P1, "H1", sets);
+    isobar H2 = solver.add_isobar<I2_S2>(empty,     2, id::dI3_I2_S2, "H2", sets);
 
     // Iterate N times
     solver.timed_iterate(5);

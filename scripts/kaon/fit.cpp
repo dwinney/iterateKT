@@ -83,22 +83,19 @@ void fit()
     // Also fix eta which isnt fit
     fitter.fix_parameter("eta", 0.);
     
-    // Free parameters from Ref. [1] (ΔI = 1/2)
-    complex alpha_1, beta_1, gamma_1, zeta_1, eta;     
-    alpha_1 = +3.8;
-    beta_1  = -676.1;
-    gamma_1 = +559.7;
-    zeta_1  = -1072.6;
-    // ΔI = 3/2
-    complex alpha_3, beta_3, gamma_3, zeta_3, mu, nu;  
-    alpha_3 = -4.7;
-    beta_3  = +26.7; 
-    gamma_3 = -46.0;
-    zeta_3  = +123.9;
-    mu      = -2.04;
-    nu      = +433.2;
-    // Load parameters in the correct order (see order they were loaded above)
-    std::vector<complex> initial = {alpha_1, beta_1, gamma_1, zeta_1,   
-                                  alpha_3, beta_3, gamma_3, zeta_3, mu,  nu};
-    fitter.do_fit(10*initial);
+    // Initial parameters from a previous fit
+    std::vector<complex> pars = {
+        2.8147348,   // alpha_1
+        -6418.4101,  // beta_1
+        6080.5513,   // gamma_1
+        -11550.85,   // zeta_1
+        // 0.,          // eta
+        -53.094403,  // alpha_3
+        399.23876,   // beta_3
+        -900.79741,  // gamma_3
+        1071.8038,   // zeta_3
+        -64.398136,  // mu
+        4602.7463    // nu
+    };
+    fitter.do_fit(pars);
 };

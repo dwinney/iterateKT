@@ -56,17 +56,17 @@ void calculate_observables()
     for (auto iso : amp->get_isobars()) iso->import_iteration<11>(path+prefix+iso->name()+".dat");
                                  
     std::vector<complex> pars = {
-        27.611261,   // alpha_1
-        -6678.5455,  // beta_1
-        6188.2744,   // gamma_1
-        -11167.016,  // zeta_1
-        0.,            // eta
-        -47.936992,  // alpha_3
-        331.57282,   // beta_3
-        -747.00108,   // gamma_3
-        1160.6997,   // zeta_3
-        -82.744473,  // mu
-        4746.9644     // nu
+        2.8147348,   // alpha_1
+        -6418.4101,  // beta_1
+        6080.5513,   // gamma_1
+        -11550.85,   // zeta_1
+        0.,          // eta
+        -53.094403,  // alpha_3
+        399.23876,   // beta_3
+        -900.79741,  // gamma_3
+        1071.8038,   // zeta_3
+        -64.398136,  // mu
+        4602.7463    // nu
     };
     amp->set_parameters(amp->process_fitter_parameters(pars));
     
