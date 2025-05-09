@@ -100,7 +100,8 @@ namespace iterateKT
         if ((close_to_rth) && (s <= _rth)) eps *= -1;
 
         std::array<complex,3> ecs = rthreshold_expansion(i, s_exp, eps);
-        return (ecs[0]+ecs[1]*(s-s_exp)+ecs[2]*pow(s-s_exp,2))/nus;
+        complex a  = ecs[0], b = ecs[1], c = ecs[2];
+        return (a + b*(s-s_exp) + c*pow(s-s_exp,2)) / nus;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -138,38 +139,6 @@ namespace iterateKT
             return {NaN<complex>(), NaN<complex>(), NaN<complex>()};
            };
         };
-        // switch (sign(e)*n)
-        // {
-        //     case +1:  // S-waves (above)
-        //     {
-        //         as = {-15, +12, -4, 8};
-        //         bs = { -5,  +8, -4, 4};
-        //         cs = { -3,  +4, -4, 8};
-        //         break;
-        //     };
-        //     case -1:  // S-waves (below)
-        //     {
-        //         as = {+15, +12, +4, 8};
-        //         bs = { -5,  -8, -4, 4};
-        //         cs = { +3,  +4, +4, 8};
-        //         break;
-        //     };
-        //     case +3:  // P-waves (above)
-        //     {
-        //         as = {+35, -20, +4, 8};
-        //         bs = {+21, -16, +4, 4};
-        //         cs = {+15, -12, +4, 8};
-        //         break;
-        //     };
-        //     case -3:  // P-waves (below)
-        //     {
-        //         as = {+35, +20, +4, 8};
-        //         bs = {-21, -16, -4, 4};
-        //         cs = {+15, +12, +4, 8};
-        //         break;
-        //     };
-        //     default : fatal("raw_iteration::pthreshold_expansion", "Invalid singularity order (n="+std::to_string(n)+")!");
-        // };
 
         double s_exp = s+e;
         complex f    = _re_inhom[i]->Eval(s_exp)   + I*_im_inhom[i]->Eval(s_exp);
@@ -180,8 +149,10 @@ namespace iterateKT
         complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(std::abs(e), n/2.+1.));
         complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(std::abs(e), n/2.+2.));
 
+        // If we expand below (i.e. e < 0) then only b changes sign
         if (e < 0) b *= -1;
-        return {a,b,c};
+
+        return {a, b, c};
     };
 
     // -----------------------------------------------------------------------
