@@ -25,6 +25,12 @@
 namespace iterateKT
 {
     // ---------------------------------------------------------------------------
+    // Angles
+    
+    inline double degrees(double radians){ return radians*DEG2RAD; };
+    inline double radians(double degrees){ return degrees/DEG2RAD; };
+
+    // ---------------------------------------------------------------------------
     // Out of the box std::complex<double> doesnt play well with ints. Here we explicitly
     // give it the functionality we want
 

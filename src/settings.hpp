@@ -32,6 +32,7 @@ namespace iterateKT
 
         // The infinitesimal to use for ieps inside Cauchy kernels
         double _infinitesimal      = 1E-5;
+        double _derivative_h       = 1E-3;
 
         // Interval +- regular thresholds around which to remove singularities
         std::array<double,3> _matching_intervals = {0.05, 0.05, 0.05};
