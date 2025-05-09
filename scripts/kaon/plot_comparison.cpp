@@ -92,44 +92,44 @@ void plot_comparison()
 
     std::vector<plot> F_plots;
     F_plots.emplace_back(plot_basis(F0, 0, "F_{0}^{#alpha}", {-0.1, 1.7}));
-    F_plots.back().add_curve(S0[0], S0[1], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S0[0], S0[2], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S0[0], S0[1], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S0[0], S0[2], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F1, 0, "F_{1}^{#alpha}", {-50E-3, 150E-3}));
-    F_plots.back().add_curve(S0[0], S0[3], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S0[0], S0[4], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S0[0], S0[3], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S0[0], S0[4], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F2, 0, "F_{2}^{#alpha}", {-130E-3, 25E-3}));
-    F_plots.back().add_curve(S0[0], S0[5], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S0[0], S0[6], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S0[0], S0[5], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S0[0], S0[6], dashed(jpacColor::DarkGrey));
 
     F_plots.emplace_back(plot_basis(F0, 1, "F_{0}^{#beta}",  {-20E-3, 275E-3}));
-    F_plots.back().add_curve(S1[0], S1[1], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S1[0], S1[2], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S1[0], S1[1], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S1[0], S1[2], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F1, 1, "F_{1}^{#beta}",  {-20E-4, 300E-4}));
-    F_plots.back().add_curve(S1[0], S1[3], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S1[0], S1[4], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S1[0], S1[3], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S1[0], S1[4], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F2, 1, "F_{2}^{#beta}",  {-10E-3, 6E-3}));
-    F_plots.back().add_curve(S1[0], S1[5], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S1[0], S1[6], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S1[0], S1[5], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S1[0], S1[6], dashed(jpacColor::DarkGrey));
     
     F_plots.emplace_back(plot_basis(F0, 2, "F_{0}^{#gamma}", {-3E-3, 40E-3}));
-    F_plots.back().add_curve(S2[0], S2[1], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S2[0], S2[2], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S2[0], S2[1], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S2[0], S2[2], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F1, 2, "F_{1}^{#gamma}", {-50E-4, 40E-4}));
-    F_plots.back().add_curve(S2[0], S2[3], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S2[0], S2[4], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S2[0], S2[3], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S2[0], S2[4], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F2, 2, "F_{2}^{#gamma}", {-65E-5, 25E-5}));
-    F_plots.back().add_curve(S2[0], S2[5], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S2[0], S2[6], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S2[0], S2[5], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S2[0], S2[6], dashed(jpacColor::DarkGrey));
 
     F_plots.emplace_back(plot_basis(F0, 3, "F_{0}^{#zeta}", {-5E-4, 40E-4}));
-    F_plots.back().add_curve(S3[0], S3[1], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S3[0], S3[2], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S3[0], S3[1], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S3[0], S3[2], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F1, 3, "F_{1}^{#zeta}", {-10E-3, 225E-3}));
-    F_plots.back().add_curve(S3[0], S3[3], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S3[0], S3[4], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S3[0], S3[3], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S3[0], S3[4], dashed(jpacColor::DarkGrey));
     F_plots.emplace_back(plot_basis(F2, 3, "F_{2}^{#zeta}", {-125E-5, 75E-5}));
-    F_plots.back().add_curve(S3[0], S3[5], dashed(jpacColor::Grey));
-    F_plots.back().add_curve(S3[0], S3[6], dashed(jpacColor::Grey));
+    F_plots.back().add_curve(S3[0], S3[5], dashed(jpacColor::DarkGrey));
+    F_plots.back().add_curve(S3[0], S3[6], dashed(jpacColor::DarkGrey));
     plotter.combine({3,4}, F_plots, "Fs.pdf");
 
     plot pGr = plotter.new_plot();
@@ -139,7 +139,7 @@ void plot_comparison()
     pGr.add_vertical(kin->rth());
     pGr.set_ranges({smin, smax}, {-1, 1});
     pGr.add_curve({smin, smax}, [&](double s){ return real(G1->basis_function(4, s+IEPS)); }, solid(jpacColor::Red));
-    pGr.add_curve(Sp[0], Sp[1], dashed(jpacColor::Grey));
+    pGr.add_curve(Sp[0], Sp[1], dashed(jpacColor::DarkGrey));
 
     plot pGi = plotter.new_plot();
     pGi.set_curve_points(1000);
@@ -148,21 +148,21 @@ void plot_comparison()
     pGi.add_vertical(kin->rth());
     pGi.set_ranges({smin, smax}, {-1E-4, 3E-4});
     pGi.add_curve({smin, smax}, [&](double s){ return imag(G1->basis_function(4, s+IEPS)); }, solid(jpacColor::Blue));
-    pGi.add_curve(Sp[0], Sp[2], dashed(jpacColor::Grey));
+    pGi.add_curve(Sp[0], Sp[2], dashed(jpacColor::DarkGrey));
     plotter.combine({2,1}, {pGr, pGi}, "G.pdf");
 
     std::vector<plot> H_plots;
     H_plots.emplace_back(plot_basis(H1, 5, "H_{1}^{#mu}", {-1E-3, 1.5}));
-    H_plots.back().add_curve(St1[0], St1[1], dashed(jpacColor::Grey));
-    H_plots.back().add_curve(St1[0], St1[2], dashed(jpacColor::Grey));
+    H_plots.back().add_curve(St1[0], St1[1], dashed(jpacColor::DarkGrey));
+    H_plots.back().add_curve(St1[0], St1[2], dashed(jpacColor::DarkGrey));
     H_plots.emplace_back(plot_basis(H2, 5, "H_{2}^{#mu}", {-5E-3, 4E-2}));
-    H_plots.back().add_curve(St1[0], St1[3], dashed(jpacColor::Grey));
-    H_plots.back().add_curve(St1[0], St1[4], dashed(jpacColor::Grey));
+    H_plots.back().add_curve(St1[0], St1[3], dashed(jpacColor::DarkGrey));
+    H_plots.back().add_curve(St1[0], St1[4], dashed(jpacColor::DarkGrey));
     H_plots.emplace_back(plot_basis(H1, 6, "H_{1}^{#nu}", {-5E-3, 25E-2}));
-    H_plots.back().add_curve(St2[0], St2[1], dashed(jpacColor::Grey));
-    H_plots.back().add_curve(St2[0], St2[2], dashed(jpacColor::Grey));
+    H_plots.back().add_curve(St2[0], St2[1], dashed(jpacColor::DarkGrey));
+    H_plots.back().add_curve(St2[0], St2[2], dashed(jpacColor::DarkGrey));
     H_plots.emplace_back(plot_basis(H2, 6, "H_{2}^{#nu}", {-5E-3, 5E-3}));
-    H_plots.back().add_curve(St2[0], St2[3], dashed(jpacColor::Grey));
-    H_plots.back().add_curve(St2[0], St2[4], dashed(jpacColor::Grey));
+    H_plots.back().add_curve(St2[0], St2[3], dashed(jpacColor::DarkGrey));
+    H_plots.back().add_curve(St2[0], St2[4], dashed(jpacColor::DarkGrey));
     plotter.combine({2,2}, H_plots, "Hs.pdf");
 };
