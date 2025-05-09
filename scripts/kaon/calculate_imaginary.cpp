@@ -31,7 +31,7 @@ void calculate_imaginary()
 
     // Amplitude itself is given by the isospin limit
     kinematics kin = new_kinematics(M_KAON_AVG, M_PION_PM);
-    amplitude  amp = new_amplitude<K_3Pi>(kin, "K -> 3π");
+    amplitude  amp = new_amplitude<K_3pi>(kin, "K -> 3π");
 
     // Empty array of subtraction indices for isobars with no polynomial
     std::vector<uint> empty = {};
