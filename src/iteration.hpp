@@ -108,7 +108,11 @@ namespace iterateKT
         double _sth, _pth, _rth;
 
         // The threshold square root continuation
-        inline complex k(double s){ return (s <= _pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);  };
+        inline complex k(complex s)
+        { 
+            if (abs(imag(s)) >= _settings._infinitesimal) return csqrt(_pth - s);
+            return  (real(s) <= _pth) ? csqrt(_pth-s) : +I*csqrt(s-_pth);  
+        };
 
         // The saved data and interpolation of the discontinuity
         std::vector<ROOT::Math::Interpolator*> _re_inhom, _im_inhom;
@@ -129,7 +133,6 @@ namespace iterateKT
 
         // Analytic parts of the dispersion which we've subtracted away
         complex Q(int n, complex s, std::array<double,2> bounds);
-        complex R(int n, complex s, std::array<double,2> bounds);
 
         // Consider two cases of dispersion integrals
         // They either contain the pth singularity or the cauchy one
