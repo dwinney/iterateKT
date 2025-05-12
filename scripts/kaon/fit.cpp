@@ -68,22 +68,17 @@ void fit()
     fitter.set_parameter_labels(labels);
 
     // Add data
-    auto P_ppm = kaon::get_data(option::P_ppm);
-    auto P_zzp = kaon::get_data(option::P_zzp);
-    auto L_pmz = kaon::get_data(option::L_pmz);
-    auto L_zzz = kaon::get_data(option::L_zzz);
-
-    fitter.add_data(P_ppm);
-    fitter.add_data(P_zzp);
-    fitter.add_data(L_pmz);
-    fitter.add_data(L_zzz);
+    fitter.add_data(kaon::get_dalitz_data(option::P_ppm));
+    fitter.add_data(kaon::get_dalitz_data(option::P_zzp));
+    fitter.add_data(kaon::get_dalitz_data(option::L_pmz));
+    fitter.add_data(kaon::get_dalitz_data(option::L_zzz));
+    fitter.add_data(kaon::get_lambda_data());
 
     // We only fit real parts so force only fitting real parts
     for (auto par : labels) fitter.make_real(par);
     // Also fix eta which isnt fit
     fitter.fix_parameter("eta", 0.);
     
-    // Initial parameters from a previous fit
     std::vector<complex> pars = {
         2.8147348,   // alpha_1
         -6418.4101,  // beta_1

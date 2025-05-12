@@ -22,15 +22,16 @@ namespace iterateKT { namespace kaon
         // Static identifiers for data_set types
         // Have two 'types' one which contains only Gamma and h
         // and another with Gamma, g, h, k
-        static const uint kAll = 0, kHOnly = 1;
+        static const uint kAll = 0, kHOnly = 1, kLambda = 2;
         
         // String letting us know what is being fit
         static std::string data_type(int i)
         {
             switch (i)
             {
-                case kAll:   return "Γ & {g, h, k}";
-                case kHOnly: return "Γ & h";
+                case kAll:    return "Γ & {g, h, k}";
+                case kHOnly:  return "Γ & h";
+                case kLambda: return "λ";
                 default: return "ERROR!";
             };
         };
@@ -46,6 +47,12 @@ namespace iterateKT { namespace kaon
         // Indidivudal chi2 from a single data set
         static double chi2(const data_set & data, amplitude to_fit)
         {
+            if (data._type == kLambda)
+            {
+                auto chi2s = chi2_lambda(data, to_fit);
+                return chi2s[0] + chi2s[1];
+            };
+
             to_fit->set_option(data._option);
             
             // output
@@ -63,9 +70,21 @@ namespace iterateKT { namespace kaon
         // Compare widths
         static double chi2_width(const data_set & data, amplitude to_fit)
         {
-            double gam_th = width_with_physical_masses(to_fit, data._option);
+            double gam_th = physical_width(to_fit, data._option);
             double gam_ex = data._z[0], dgam_ex = data._dz[0];
             return norm((gam_th - gam_ex)/dgam_ex);
+        };
+
+        // Interference lambda parameter
+        static std::array<double,2> chi2_lambda(const data_set & data, amplitude to_fit)
+        {
+            complex lam_th = interference_lambda(to_fit);
+            complex re_ex = data._z[0], dre_ex = data._dz[0];
+            double chi2_re = norm((real(lam_th) - re_ex)/dre_ex);
+
+            complex im_ex = data._z[1], dim_ex = data._dz[1];
+            double chi2_im = norm((imag(lam_th) - im_ex)/dim_ex);
+            return {chi2_re, chi2_im};
         };
 
         // Compare g, h, k
@@ -93,7 +112,18 @@ namespace iterateKT { namespace kaon
         };
     };
 
-    inline data_set get_data(option opt)
+    inline data_set get_lambda_data()
+    {
+        data_set out;
+        out._id   = "KL - KS interference";
+        out._type = fit::kLambda;
+        out._N    = 2;
+        out._z    = {0.0334, -0.0108};
+        out._dz   = {7E-4, 48E-4};
+        return out;
+    };
+
+    inline data_set get_dalitz_data(option opt)
     {
         data_set out;
         switch (opt)
