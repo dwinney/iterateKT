@@ -221,13 +221,13 @@ namespace iterateKT
         // We just use a (4-point) central finite difference 
         // since these are assumed to be well behaved and fairly smooth
         // derivatives of our F in terms of s and u
-        dFds    = derivative<double>(Fs, s0, e);
-        dFdu    = derivative<double>(Fu, s0, e);
+        dFds    = central_difference_derivative<double>(1, Fs, s0, e);
+        dFdu    = central_difference_derivative<double>(1, Fu, s0, e);
 
         // 2nd Derivatives
-        d2Fd2s  = second_derivative<double>(Fs, s0, e);
-        d2Fd2u  = second_derivative<double>(Fu, s0, e);
-        d2Fdsdu = second_derivative<double>(F, {s0, s0}, e);
+        d2Fd2s  = central_difference_derivative<double>(2, Fs, s0, e);
+        d2Fd2u  = central_difference_derivative<double>(2, Fu, s0, e);
+        d2Fdsdu = mixed_partial_derivatives<double>(F, {s0, s0}, e);
 
         // derivatives of s and u with respect to X and Y
         // X = (t - s) /m2

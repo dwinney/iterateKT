@@ -533,25 +533,39 @@ namespace iterateKT
     };
 
     // ---------------------------------------------------------------------------
-    // Simple functions to calculate numerical derivatives using a 4-point
-    // Central difference rule
-
+    // Simple functions to calculate numerical derivatives up to error ~ h^4
+    // Coefficients taken from https://en.wikipedia.org/wiki/Finite_difference_coefficient
+    
+    // Central difference 
     template<typename T> 
-    T derivative(std::function<T(double)> F, double x, double e)
+    inline T central_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
     {
-        T fp = F(x+e), f2p = F(x+2*e), fm = F(x-e), f2m = F(x-2*e);
-        return (f2m - 8*fm + 8*fp - f2p)/12/e;
-    };
-    template<typename T> 
-    T second_derivative(std::function<T(double)> F, double x, double e)
-    {
-        T f = F(x), fp = F(x+e), f2p = F(x+2*e), fm = F(x-e), f2m = F(x-2*e);
-        return (-f2p + 16*fp -30*f +16*fm - f2m)/12/e/e;
+        T f3m, f2m, fm, f, fp, f2p, f3p;
+        f   = F(x);
+        fp  = F(x+h),    fm = F(x-h);
+        f2p = F(x+2*h), f2m = F(x-2*h);
+        if (n >= 3) { f3p = F(x+3*h); f3m = F(x-3*h); };
+        
+        T num;
+        switch (n)
+        {
+            case 0  : return F(x);
+            case 1  : num =          +f2m/12  -2*fm/3          +2*fp/3   -f2p/12;          break;
+            case 2  : num =          -f2m/12  +4*fm/3  -5*f/2  +4*fp/3   -f2p/12;          break;
+            case 3  : num = +f3m/8   -f2m    +13*fm/8         -13*fp/8   +f2p     -f3p/8;  break;
+            case 4  : num = -f3m/6 +2*f2m    -13*fm/2 +28*f/3 -13*fp/2 +2*f2p     -f3p/6;  break;
+            default : 
+            {
+                warning("central_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
+                return NaN<T>();
+            };
+        };
+        return num / pow(h, n);
     };
 
-    // Mixed derivative of a function of 2 variables d2F(x,y)/dxdy
+    // Mixed central derivative of a function of 2 variables d2F(x,y)/dxdy
     template<typename T>
-    T second_derivative(std::function<T(double,double)> F, std::array<double,2> xs, double e)
+    inline T mixed_partial_derivatives(std::function<T(double,double)> F, std::array<double,2> xs, double e)
     {
         double x = xs[0], y = xs[1];
         T f2p2p = F(x+2*e,y+2*e), f2p2m = F(x+2*e,y-2*e), f2m2p = F(x-2*e,y+2*e), f2m2m = F(x-2*e,y-2*e);
@@ -561,6 +575,59 @@ namespace iterateKT
         return (8*(fp2m+f2pm+f2mp+fm2p)     -  8*(fm2m+f2mm+fp2p+f2pp)
                  -(f2p2m+f2m2p-f2m2m-f2p2p) + 64*(fmm+fpp-fpm-fmp))/144/e/e;
     };
+
+    // Forward difference 
+    template<typename T> 
+    inline T forward_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
+    {
+        if (n == 0) return F(x);
+
+        std::vector<double> c;
+        switch (n)
+        {
+            case 1  : c = {-25./12, 4., -3., 4./3, -1./4}; break;
+            case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
+            case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
+            case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
+
+            default : 
+            {
+                warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
+                return NaN<T>();
+            };
+        };
+        T num = 0;
+        for (int i = 0; i <= 3+n; i++) num += c[i] * F(x+i*h);
+
+        return num / pow(h, n);
+    };
+    
+    // and finally backward finite difference 
+    template<typename T> 
+    inline T backward_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
+    {
+        if (n == 0) return F(x);
+
+        std::vector<double> c;
+        switch (n)
+        {
+            case 1  : c = {-25./12, 4., -3., 4./3, -1./4}; break;
+            case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
+            case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
+            case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
+
+            default : 
+            {
+                warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
+                return NaN<T>();
+            };
+        };
+        T num = 0;
+        for (int i = 0; i <= 3+n; i++) num += c[i] * F(x-i*h);
+
+        return pow(-1, n) * num / pow(h, n);
+    };
+
 };
 // ---------------------------------------------------------------------------
 

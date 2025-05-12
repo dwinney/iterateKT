@@ -112,9 +112,12 @@ namespace iterateKT
         complex basis_function(unsigned int basis_id, complex x);
 
         // Calculate the first and second derivatives of basis function at the subraction point (s=0)
-        complex basis_derivative       (unsigned int basis_id, double x, double eps = 1E-5);
-        complex basis_second_derivative(unsigned int basis_id, double x, double eps = 1E-5);
-
+        template<uint order>
+        inline complex basis_derivative(uint basis_id, double x, double eps)
+        {
+            auto f = [this,basis_id](double s){ return basis_function(basis_id, s); };
+            return central_difference_derivative<complex>(order, f, x, eps);
+        };
 
         // Take in an array of isobars and use their current state to calculate the next disc
         basis_grid calculate_next(std::vector<isobar> & previous_list);

@@ -93,8 +93,10 @@ namespace iterateKT
         double s_exp; std::array<complex,3> coeffs;
         if (close_to_sth){ s_exp = _sth; coeffs = _sth_expansion[i]; }
         else             { s_exp = _rth; coeffs = (s > _rth) ? _above_rth_expansion[i] : _below_rth_expansion[i]; };
-        complex a  = coeffs[0], b = coeffs[1], c = coeffs[2];
-        return (a + b*(s-s_exp) + c*pow(s-s_exp,2)) / nus;
+
+        complex expansion = 0;
+        for (int i = 0; i < coeffs.size(); i++) expansion += coeffs[i] * pow(s-s_exp, i);
+        return expansion / nus;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -123,6 +125,13 @@ namespace iterateKT
                 as = {+63, -28, +4, 8};
                 bs = {-45, +24, -4, 4};
                 cs = {+35, -20, +4, 8};
+                break;
+            };
+            case 7: // F-waves
+            {
+                as = {+99, -36, +4, 8};
+                bs = {-77, +32, -4, 4};
+                cs = {+63, -28, +4, 8};
                 break;
             };
             default : 
@@ -159,9 +168,8 @@ namespace iterateKT
         bool close_to_pth = are_equal( s, _pth, xi);
 
         // Sign of the s_exp = s \pm epsilon expansion
+        // ecs = expansion coefficients
         auto ecs = (s < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
-        // Expansion coefficients
-        complex a = ecs[0], b = ecs[1], c = ecs[2], d = ecs[3];
 
         // Momentum factor we will be dividing out
         complex ks = k(s);
@@ -169,15 +177,16 @@ namespace iterateKT
         // if we're not near any threshold just divide like normal
         if (!close_to_pth)
         {
-            complex subtracted = half_regularized_integrand(i, s) - a;
-            // for p-wave also subtract the first derivative
-            if (_n > 1) subtracted -= (_pth-s)*b;
+            complex subtracted = half_regularized_integrand(i, s);
+            // Subtract away as many terms as required to cancel the singularity at pth
+            for (int i = 0; i <= _l; i++) subtracted -= ecs[i] * pow(_pth-s,i);
             return subtracted/pow(ks, _n);
         };
 
         // Finally, if we're close to pth return the expansion in k(s)
-        return (_n == 1) ? b + c*ks + d*ks*ks
-                         :     c    + d*ks;
+        complex expansion = 0;
+        for (int i = 1+_l; i < ecs.size(); i++) expansion += ecs[i] * pow(ks, i-1-_l);
+        return expansion;
     };
 
     // Expand the ksf_inhomogeneity near regular thresholds
@@ -185,7 +194,6 @@ namespace iterateKT
     {
         // These coefficients only depend on the order of the singularity
         // and whether we're above or below pth
-        int ell = (_n-1)/2;
         std::array<int,3> bs, cs, ds;
         switch (sign(epsilon)*int(_n))
         {
@@ -224,14 +232,25 @@ namespace iterateKT
         auto    F     = [this,i](double s){ return half_regularized_integrand(i,s); };
         complex f0    = F(_pth);
         complex f     = F(_pth+epsilon);
-        complex fp    = derivative<complex>       (F, _pth+epsilon, _settings._derivative_h);
-        complex fpp   = second_derivative<complex>(F, _pth+epsilon, _settings._derivative_h);
+
+        // Because we are discontinuious at pth, the central difference derivative might not be the best 
+        complex fp, fpp;
+        if (epsilon < 0)
+        {
+            fp    = backward_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
+            fpp   = backward_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
+        }
+        else 
+        {
+            fp    = forward_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
+            fpp   = forward_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
+        };
         
         double  e = abs(epsilon);
         complex a = f0;
-        complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (ell+1)/2.);
-        complex c = (cs[0]*(f-f0)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e, (ell+2)/2.);
-        complex d = (ds[0]*(f-f0)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (ell+3)/2.);
+        complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (_l+1)/2.);
+        complex c = (cs[0]*(f-f0)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e, (_l+2)/2.);
+        complex d = (ds[0]*(f-f0)+ds[1]*e*fp+ds[2]*e*e*fpp)/pow(e, (_l+3)/2.);
 
         return {a, b, c, d};
     };

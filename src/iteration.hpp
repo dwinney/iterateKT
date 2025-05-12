@@ -52,7 +52,10 @@ namespace iterateKT
         raw_iteration(kinematics kin, basis_grid & dat, settings sets) 
         : _zeroth(false),   _n(dat._n_singularity),
           _kinematics(kin), _settings(sets)
-        { initialize(dat); };
+        { 
+            _l = (_n-1)/2;
+            initialize(dat);
+        };
 
         // Clean up manual pointers
         ~raw_iteration()
@@ -98,6 +101,7 @@ namespace iterateKT
         // Whether this is the homogeneous solution with a trivial integral
         bool _zeroth = false;
 
+        uint _l  = 1; // Angular momentum 
         uint _n  = 3; // degree of singular kinematic factors
 
         // These are convenient to save so to not have to keep redefining them
