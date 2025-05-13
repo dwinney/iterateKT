@@ -21,15 +21,15 @@ namespace iterateKT
     complex raw_kinematics::kacser(complex s)
     {
         complex kappa = csqrt(1-sth()/s)*csqrt(pth()-s)*csqrt(rth()-s);
-        if (std::real(s) < sth() || !is_zero(std::imag(s))) return kappa;
+        if (real(s) < sth() || !is_zero(imag(s))) return kappa;
         
         // Handle the continuation piecewise
-        int region = (std::real(s) >= pth()) + (std::real(s) > rth());
+        int region = (real(s) >= pth()) + (real(s) > rth());
         switch (region)
         {
-            case 0: return +  std::abs(kappa);
-            case 1: return +I*std::abs(kappa);
-            case 2: return -  std::abs(kappa);
+            case 0: return +  abs(kappa);
+            case 1: return +I*abs(kappa);
+            case 2: return -  abs(kappa);
         };
         return NaN<complex>();
     };
@@ -93,8 +93,8 @@ namespace iterateKT
             complex tprime = t_curve(phi_i);
 
             phi.push_back(phi_i);
-            re.push_back( std::real(tprime) );
-            im.push_back( std::imag(tprime) );
+            re.push_back( real(tprime) );
+            im.push_back( imag(tprime) );
         };
 
         _re_tphi.SetData(phi, re);
@@ -121,7 +121,7 @@ namespace iterateKT
         if (s > rth() || s < pth()) return error("kinematics::phi_plus", 
                                                    "Outside egg region!", NaN<double>());
         double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m()/2;
-        if (!are_equal(std::abs(cosine), 1)) return TMath::ACos(cosine);
+        if (!are_equal(abs(cosine), 1)) return TMath::ACos(cosine);
         return (cosine > 0) ? 0 : PI;
     };
     double raw_kinematics::phi_minus(double s)

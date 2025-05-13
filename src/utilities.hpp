@@ -136,12 +136,12 @@ namespace iterateKT
 
     inline bool are_equal(double a, double b)
     {
-        return ( std::abs(a - b) < EPS );
+        return ( abs(a - b) < EPS );
     }
 
     inline bool are_equal(double a, double b, double tol)
     {
-        return ( std::abs(a - b) < tol );
+        return ( abs(a - b) < tol );
     }
 
     // Same thing for comparing complex doubles
@@ -160,14 +160,14 @@ namespace iterateKT
     template<typename T>
     inline bool is_zero(T a)
     {
-        return (std::abs(a) < EPS);
+        return (abs(a) < EPS);
     };
 
     // Aliases for special cases of the above
     template<typename T>
     inline bool is_zero(T a, double tol)
     {
-        return (std::abs(a) < tol);
+        return (abs(a) < tol);
     };
 
     inline bool is_odd(int a)
@@ -576,7 +576,7 @@ namespace iterateKT
                  -(f2p2m+f2m2p-f2m2m-f2p2p) + 64*(fmm+fpp-fpm-fmp))/144/e/e;
     };
 
-    // Forward difference 
+    // Forward difference
     template<typename T> 
     inline T forward_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
     {
@@ -585,11 +585,16 @@ namespace iterateKT
         std::vector<double> c;
         switch (n)
         {
+            // O(h^4)
             case 1  : c = {-25./12, 4., -3., 4./3, -1./4}; break;
             case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
             case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
             case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
 
+            // // O(h^6)
+            // case  1 : c = {-49./20, 6., -15./2, 20./3, -15./4, 6./5, -1./6}; break;
+            // case  2 : c = {469./90, -223./10, 879./20, -949./18, 41., -201./10, 1019./180, -7./10}; break;
+            // case  3 : c = {-801./80, 349./6, -18353./120, 2391./10, -1457./6, 4891./30, -561./8, 527./30, -469./240}; break;
             default : 
             {
                 warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
@@ -597,12 +602,12 @@ namespace iterateKT
             };
         };
         T num = 0;
-        for (int i = 0; i <= 3+n; i++) num += c[i] * F(x+i*h);
+        for (int i = 0; i < c.size(); i++) num += c[i] * F(x+i*h);
 
         return num / pow(h, n);
     };
     
-    // and finally backward finite difference 
+    // and finally backward finite difference
     template<typename T> 
     inline T backward_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
     {
@@ -611,11 +616,16 @@ namespace iterateKT
         std::vector<double> c;
         switch (n)
         {
+            // These are O(h^4)
             case 1  : c = {-25./12, 4., -3., 4./3, -1./4}; break;
             case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
             case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
             case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
 
+            // // These are O(h^6)
+            // case  1 : c = {-49./20, 6., -15./2, 20./3, -15./4, 6./5, -1./6}; break;
+            // case  2 : c = {469./90, -223./10, 879./20, -949./18, 41., -201./10, 1019./180, -7./10}; break;
+            // case  3 : c = {-801./80, 349./6, -18353./120, 2391./10, -1457./6, 4891./30, -561./8, 527./30, -469./240}; break;
             default : 
             {
                 warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
@@ -623,7 +633,7 @@ namespace iterateKT
             };
         };
         T num = 0;
-        for (int i = 0; i <= 3+n; i++) num += c[i] * F(x-i*h);
+        for (int i = 0; i < c.size(); i++) num += c[i] * F(x-i*h);
 
         return pow(-1, n) * num / pow(h, n);
     };

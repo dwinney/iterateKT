@@ -95,7 +95,7 @@ namespace iterateKT
         else             { s_exp = _rth; coeffs = (s > _rth) ? _above_rth_expansion[i] : _below_rth_expansion[i]; };
 
         complex expansion = 0;
-        for (int i = 0; i < coeffs.size(); i++) expansion += coeffs[i] * pow(s-s_exp, i);
+        for (int i = 0; i < coeffs.size(); i++) expansion += coeffs[i] * pow(abs(s-s_exp), i);
         return expansion / nus;
     };
 
@@ -150,9 +150,6 @@ namespace iterateKT
         complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(abs(e), _n/2.+1.));
         complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(abs(e), _n/2.+2.));
 
-        // If we expand below (i.e. e < 0) then only b changes sign
-        if (e < 0) b *= -1;
-
         return {a, b, c};
     };
 
@@ -168,8 +165,7 @@ namespace iterateKT
         bool close_to_pth = are_equal( s, _pth, xi);
 
         // Sign of the s_exp = s \pm epsilon expansion
-        // ecs = expansion coefficients
-        auto ecs = (s < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
+        auto coeffs =  (s < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
 
         // Momentum factor we will be dividing out
         complex ks = k(s);
@@ -179,13 +175,13 @@ namespace iterateKT
         {
             complex subtracted = half_regularized_integrand(i, s);
             // Subtract away as many terms as required to cancel the singularity at pth
-            for (int i = 0; i <= _l; i++) subtracted -= ecs[i] * pow(_pth-s,i);
+            for (int i = 0; i <= _l; i++) subtracted -= coeffs[i] * pow(_pth-s,i);
             return subtracted/pow(ks, _n);
         };
 
         // Finally, if we're close to pth return the expansion in k(s)
         complex expansion = 0;
-        for (int i = 1+_l; i < ecs.size(); i++) expansion += ecs[i] * pow(ks, i-1-_l);
+        for (int i = 1+_l; i < coeffs.size(); i++) expansion += coeffs[i] * pow(ks, i-1-_l);
         return expansion;
     };
 
@@ -232,20 +228,9 @@ namespace iterateKT
         auto    F     = [this,i](double s){ return half_regularized_integrand(i,s); };
         complex f0    = F(_pth);
         complex f     = F(_pth+epsilon);
-
-        // Because we are discontinuious at pth, the central difference derivative might not be the best 
-        complex fp, fpp;
-        if (epsilon < 0)
-        {
-            fp    = backward_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
-            fpp   = backward_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
-        }
-        else 
-        {
-            fp    = forward_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
-            fpp   = forward_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
-        };
-        
+        complex fp    = central_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
+        complex fpp   = central_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
+       
         double  e = abs(epsilon);
         complex a = f0;
         complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (_l+1)/2.);
@@ -289,17 +274,15 @@ namespace iterateKT
 
     // -----------------------------------------------------------------------
 
-    // Q functions analytically do integrals. They should either have the cauchy or pth singularity
-    // within the bounds but not both
+    // Q functions analytically do integrals. 
+    // These are of the form \int dx 1\frac{1}{(pth-x)^{n/2}(x-s-ieps)}
+    // and can be defined recoursively but recursion is slower than nonrecursion
     complex raw_iteration::Q(int n, complex s, std::array<double,2> bounds)
     {
-        if (n < 0) return 0.;
+        if (n <= 0 || n%2==0) return 0.;
         complex ks = k(s), kx = k(bounds[0]), ky = k(bounds[1]);
-        complex Q1 = 2*(atanh(kx/ks)-atanh(ky/ks))/ks;
-        if (n == 1) return Q1;
-        complex Q3 = (2/ky - 2/kx + Q1)/(_pth-s);
-        if (n == 3) return Q3;
-        return error("raw_iteration::Q: Requested Q_n/2 hasnt been added!", NaN<complex>());
+        if (n == 1) return 2*(atanh(kx/ks)-atanh(ky/ks))/ks;
+        return (2/ky-2/kx+Q(n-2,s,bounds))/(_pth-s)/(n-2);
     };
 
     // -----------------------------------------------------------------------
@@ -309,32 +292,27 @@ namespace iterateKT
     complex raw_iteration::disperse_with_pth(unsigned int i, complex s, std::array<double,2> bounds)
     {
         using namespace boost::math::quadrature;
-
-        auto coeffs = (real(s) < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
-
-        complex a = coeffs[0], b = coeffs[1];
         auto fdx = [this,i,s](double x){ return regularized_integrand(i,x)/(x-s); };
         // Integrate on either side of the pth singularity 
         complex integral = gauss_kronrod<double,N_GAUSS_PSEUDO>::integrate(fdx, bounds[0], _pth, _settings._pseudo_integrator_depth, 1.E-9, NULL)
                          + gauss_kronrod<double,N_GAUSS_PSEUDO>::integrate(fdx, _pth, bounds[1], _settings._pseudo_integrator_depth, 1.E-9, NULL);
-
-        return integral + a*Q(_n,s,bounds) + b*Q(_n-2,s,bounds);
+        // Add back the analytic pieces we subtracted before
+        auto coeffs = (real(s) < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
+        for (int i = 0; i <= _l; i++) integral += coeffs[i] * Q(_n-2*i,s,bounds);
+        return integral;
     };
 
     // This is the integral which contains and handles the cauchy singularity
     complex raw_iteration::disperse_with_cauchy(unsigned int i, complex s, std::array<double,2> bounds)
     {
         using namespace boost::math::quadrature;
-
         complex a = half_regularized_integrand(i, real(s));
         auto fdx = [this,i,s,a](double x)
         { 
             return (half_regularized_integrand(i,x) - a)/(x-s)/pow(k(x),_n); 
         };
-
         complex integral = gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, bounds[0], real(s), _settings._cauchy_integrator_depth, 1.E-9, NULL)
                          + gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, real(s), bounds[1], _settings._cauchy_integrator_depth, 1.E-9, NULL);
-
         return integral + a*Q(_n,s,bounds);
     };
 }; // namespace iterateKT

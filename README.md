@@ -12,7 +12,7 @@ For maximum flexibility, the code only requires specifying the elastic phase shi
 
 The driving term, $P_{n-1}(s)$, parameterizes the left-hand cuts associated with the production of the 3-body system. This function should therefore not contain right-hand cuts and is bounded by $s^{n-1}$. Traditionally, this is simply a polynomial of order $n-1$ but the code allows arbitrary functions to incorporate production effects. 
 
-Note that convergence of the KT equations is not guaranteed! This may depend on the number of isobars, number of subtractions, and quantum numbers considered.
+Note that convergence of the KT equations is not guaranteed! This may depend on the number of isobars, number of subtractions, masses and quantum numbers considered.
 
 ##  INSTALLATION
 
@@ -33,7 +33,7 @@ export ITERATEKT=/path/to/iterateKT # for bash
 setenv ITERATEKT /path/to/iterateKT # for csh
 ```
 
-The usual CMake installation may not work if you are running macOS. To circumvent this, a shell script has `macos_build.sh` is included to add extra necessary steps to get things working on a Mac. 
+The usual CMake installation may not work if you are running macOS. To circumvent this, the shell script `macos_build.sh` is included to get things working on a Mac. 
 
 ##  USAGE
 The compiled executable pipes an analysis script, relevent header files, and the compiled library into ROOT's cling interpeter to run. 

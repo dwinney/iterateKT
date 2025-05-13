@@ -14,8 +14,8 @@
 namespace iterateKT
 {
     // ----------------------------------------------------------------------- 
-    // Set up the zeroth iteration but also save interpoaltions of the LHC
-    // amplitude since this is always the same
+    // Set up the zeroth iteration 
+    // and set up the s values which will be used for interpolations later on
     void raw_isobar::initialize()
     {
         // Add the 'zeroth' iteration to the list
@@ -43,35 +43,30 @@ namespace iterateKT
         int N_3  = N_0 - N_1;
         int N_4  = Ns[2];
 
-        for (int i = 0; i < N_1; i++) _s_list.push_back(s0 + (s1 - s0)*double(i)/double(N_1-1));
+        for (int i = 0; i < N_1; i++) _s_list.push_back(s0+i*(s1-s0)/(N_1-1));
         s1 += eps;
-        for (int i = 0; i < N_2; i++) _s_list.push_back(s1 + (s2 - s1)*double(i)/double(N_2-1));
+        for (int i = 0; i < N_2; i++) _s_list.push_back(s1+i*(s2-s1)/(N_2-1));
         s2 += eps;
-        for (int i = 0; i < N_3; i++) _s_list.push_back(s2 + (s3 - s2)*double(i)/double(N_3-1));
+        for (int i = 0; i < N_3; i++) _s_list.push_back(s2+i*(s3-s2)/(N_3-1));
         s3 += eps;
-        for (int i = 0; i < N_4; i++) _s_list.push_back(s3 + (s4 - s3)*double(i)/double(N_4-1));
+        for (int i = 0; i < N_4; i++) _s_list.push_back(s3+i*(s4-s3)/(N_4-1));
 
-        // We also need to be able to excluse a part of the isobars around pth
+                // We also need to be able to excluse a part of the isobars around pth
         int N = _settings._exclusion_points/2;
-        for (int k = 0; k <= N; k++)
-        {
-            double low  = (pth - 2*_settings._exclusion_offsets[0]);
-            double high = (pth -   _settings._exclusion_offsets[0]);
-            _s_around_pth.push_back(low - (low - high)*double(k)/double(N));
-        };
-        for (int k = 0; k <= N; k++)
-        {
-            double low  = (pth +   _settings._exclusion_offsets[1]);
-            double high = (pth + 2*_settings._exclusion_offsets[1]);
-            _s_around_pth.push_back(low - (low - high)*double(k)/double(N));
-        };
+        double low, high;
+        low  = (pth - 2*_settings._exclusion_offsets[0]);
+        high = (pth -   _settings._exclusion_offsets[0]);
+        for (int k = 0; k <= N; k++) _s_around_pth.push_back(low-k*(low-high)/N);
+        low  = (pth +   _settings._exclusion_offsets[1]);
+        high = (pth + 2*_settings._exclusion_offsets[1]);
+        for (int k = 0; k <= N; k++) _s_around_pth.push_back(low-k*(low-high)/N);
     };
 
     // Save an interpolation of the LHC since this never changes and is called a lot
     void raw_isobar::interpolate_lhc()
     {
         std::vector<double> lhc;
-        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/std::abs(omnes(s+_ieps)) );
+        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/abs(omnes(s+_ieps)) );
         _lhc.SetData(_s_list, lhc); 
         _lhc_interpolated = true;
     };
@@ -84,7 +79,7 @@ namespace iterateKT
         using namespace boost::math::quadrature;
 
         // Only explciitly evaluate above cut, below is given by Schwarz
-        if (imag(s) < 0) return std::conj(omnes(std::conj(s)));
+        if (imag(s) < 0) return conj(omnes(conj(s)));
 
         // bounds of integration
         double low  = _kinematics->sth();
@@ -111,7 +106,7 @@ namespace iterateKT
         // If we're close to the real axis, we split the integration in two parts
         // to properly handle the Principle Value and ieps perscription
 
-        double RHCs = (std::real(s) <= _kinematics->sth()) ? 0 : phase_shift(real(s));
+        double RHCs = (real(s) <= _kinematics->sth()) ? 0 : phase_shift(real(s));
         auto    fdx = [this,s,RHCs](double x)
         {
             complex integrand;
@@ -168,8 +163,8 @@ namespace iterateKT
             for (auto s : _s_list)
             {
                 complex ksf_disc = LHC(s)/pow(s,_max_sub)*pinocchio_integral(i,s,previous);
-                re.push_back( std::real(ksf_disc) );
-                im.push_back( std::imag(ksf_disc) );
+                re.push_back( real(ksf_disc) );
+                im.push_back( imag(ksf_disc) );
             };
             output._re_list.push_back(re);
             output._im_list.push_back(im);
@@ -192,15 +187,15 @@ namespace iterateKT
             case 0: 
             case 3:
             {
-                double sp = std::real(_kinematics->t_plus(s));
-                double sm = std::real(_kinematics->t_minus(s));
+                double sp = real(_kinematics->t_plus(s));
+                double sm = real(_kinematics->t_minus(s));
                 return linear_segment(basis_id, {sm, sp, 0}, s, previous);
             };
             // s+ is above cut but s- is below cut
             case 1:
             {
-                double sp = std::real(_kinematics->t_plus(s));
-                double sm = std::real(_kinematics->t_minus(s));
+                double sp = real(_kinematics->t_plus(s));
+                double sm = real(_kinematics->t_minus(s));
                 return linear_segment(basis_id, {_kinematics->sth(), sp, +1}, s, previous)  //+ieps
                      + linear_segment(basis_id, {sm, _kinematics->sth(), -1}, s, previous); //-ieps
             };

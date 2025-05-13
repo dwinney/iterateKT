@@ -56,7 +56,7 @@ namespace iterateKT
     {
         double u = _kinematics->Sigma() - s - t;
 
-        bool in_physical_region = (std::real(_kinematics->kibble(s, t, u)) >= 0);
+        bool in_physical_region = (real(_kinematics->kibble(s, t, u)) >= 0);
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
@@ -85,8 +85,8 @@ namespace iterateKT
         };
 
         // Limits are purely real in the decay region
-        double min = std::real(_kinematics->t_minus(s));
-        double max = std::real(_kinematics->t_plus(s));
+        double min = real(_kinematics->t_minus(s));
+        double max = real(_kinematics->t_plus(s));
         return gauss_kronrod<double,15>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
@@ -165,7 +165,7 @@ namespace iterateKT
         double smax  = _kinematics->pth();
         double sigma = _kinematics->Sigma();
 
-        std::vector<double> s, t, abs; 
+        std::vector<double> s, t, absA; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
@@ -179,7 +179,7 @@ namespace iterateKT
                 complex ampij = evaluate(si, tij);
 
                 s.push_back(si); t.push_back(tij);
-                abs.push_back(  std::abs(ampij) );
+                absA.push_back(  abs(ampij) );
             };
         };
 
@@ -193,7 +193,7 @@ namespace iterateKT
         }
 
         plot2D p = _kinematics->new_dalitz_plot(pltr);
-        p.set_data({s,t,abs});
+        p.set_data({s,t,absA});
         p.set_labels(xlabel, ylabel);
 
         return p;
@@ -208,10 +208,10 @@ namespace iterateKT
     std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double m2)
     {
         double s0 = _kinematics->s0(); 
-        double N  = std::norm(evaluate(s0,s0));
+        double N  = norm(evaluate(s0,s0));
 
         // Rename our function for readibility
-        auto F  = [this,N,s0](double s, double u){ return std::norm(evaluate(s,3*s0-s-u))/N; };
+        auto F  = [this,N,s0](double s, double u){ return norm(evaluate(s,3*s0-s-u))/N; };
         auto Fs = [this,F,s0](double s){ return F(s,s0); };
         auto Fu = [this,F,s0](double u){ return F(s0,u); };
 
