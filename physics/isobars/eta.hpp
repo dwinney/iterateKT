@@ -35,8 +35,12 @@ namespace iterateKT
         dI2_P1, dI2_S2             //        yes           |      yes
     };
 
+<<<<<<< HEAD
     // All our default settings related to technicals of KT solution
     inline settings default_settings()
+=======
+    inline static const settings default_settings()
+>>>>>>> main
     {
         settings sets;
         sets._exclusion_points        = 10;
@@ -45,20 +49,31 @@ namespace iterateKT
         sets._intermediate_energy     = 100;
         sets._cutoff                  = 1000;
         sets._interpolation_offset    = 0.1;
+<<<<<<< HEAD
         sets._interpolation_points    = {400, 22, 150};
 
         double xi_sth = 0.4,   eps_sth = 0.4;
         double xi_pth = 0.4,   eps_pth = 0.4;
         double xi_rth = 0.3,   eps_rth = 1.9;
+=======
+        sets._interpolation_points    = {300, 22, 150};
+
+        double xi_sth = 0.2,   eps_sth = 0.2;
+        double xi_pth = 0.5,   eps_pth = 0.5;
+        double xi_rth = 0.2,   eps_rth = 1.7;
+>>>>>>> main
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
     };
 
+<<<<<<< HEAD
     // Filenames and parameters associated with interpolations of phase_shifts
     phase_args isospin_0 = {"bern/phase_pipi_0.dat", 114., 1};
     phase_args isospin_1 = {"bern/phase_pipi_1.dat", 80,   1};
     phase_args isospin_2 = {"bern/phase_pipi_2.dat", 800,  0};
+=======
+>>>>>>> main
 
     // ------------------------------------------------------------------------------
     // Isobars with total \delta I = 0
@@ -68,8 +83,16 @@ namespace iterateKT
     class dI0_P1 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI0_P1(isobar_args args) : raw_isobar(args, isospin_1){};
         inline unsigned int angular_momentum(){ return 1; };
+=======
+        dI0_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
+
+        inline unsigned int singularity_power()        { return 2; };
+        inline double       phase_shift(double s)      { return _delta1(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
@@ -79,6 +102,10 @@ namespace iterateKT
                 default:         return 0;
             };
         };
+<<<<<<< HEAD
+=======
+        class phase_shift _delta1;
+>>>>>>> main
     };
 
     // ------------------------------------------------------------------------------
@@ -89,16 +116,30 @@ namespace iterateKT
     class dI1_S0 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI1_S0(isobar_args args) : raw_isobar(args, isospin_0){};
         inline unsigned int angular_momentum(){ return 0; };
+=======
+        dI1_S0(isobar_args args) : raw_isobar(args), _delta0("bern/phase_pipi_0.dat", 114., 1){};
+
+        inline unsigned int singularity_power()        { return 0; };
+        inline double phase_shift(double s)            { return _delta0(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
+<<<<<<< HEAD
                 case id::dI1_S0: return 2./3;
                 case id::dI1_P1: return 2*(s-r+kz/3);
                 case id::dI1_S2: return 20./9;
+=======
+                case id::dI1_S0: return 2/3;
+                case id::dI1_P1: return 2*(s-r+kz/3);
+                case id::dI1_S2: return 20/9;
+>>>>>>> main
                 default:         return 0;
             };
         };
@@ -109,38 +150,71 @@ namespace iterateKT
     class dI1_P1 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI1_P1(isobar_args args) : raw_isobar(args, isospin_1){};
         inline unsigned int angular_momentum(){ return 1; };
+=======
+        dI1_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
+
+        inline unsigned int singularity_power()        { return 2; };
+        inline double       phase_shift(double s)      { return _delta1(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
                 case id::dI1_S0: return 3*kz;
+<<<<<<< HEAD
                 case id::dI1_P1: return 9./2*kz*(s-r+kz/3);
+=======
+                case id::dI1_P1: return 9/2*kz*(s-r+kz/3);
+>>>>>>> main
                 case id::dI1_S2: return -5*kz;
                 default:         return 0;
             };
         };
+<<<<<<< HEAD
+=======
+        class phase_shift _delta1;
+>>>>>>> main
     };
 
     // dI = 1, I = 2, S-wave
     class dI1_S2 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI1_S2(isobar_args args) : raw_isobar(args, isospin_2){};
         inline unsigned int angular_momentum(){ return 0; };
+=======
+        dI1_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
+
+        inline unsigned int singularity_power()        { return 0; };
+        inline double phase_shift(double s)            { return _delta2(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
                 case id::dI1_S0: return 1;
+<<<<<<< HEAD
                 case id::dI1_P1: return -3./2*(s-r+kz/3);
                 case id::dI1_S2: return 1./3;
                 default:         return 0;
             };
         };
+=======
+                case id::dI1_P1: return -3/2*(s-r+kz/3);
+                case id::dI1_S2: return 2/3;
+                default:         return 0;
+            };
+        };
+        class phase_shift _delta2;
+>>>>>>> main
     };
 
     // ------------------------------------------------------------------------------
@@ -151,14 +225,26 @@ namespace iterateKT
     class dI2_P1 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI2_P1(isobar_args args) : raw_isobar(args, isospin_1){};
         inline unsigned int angular_momentum(){ return 1; };
+=======
+        dI2_P1(isobar_args args) : raw_isobar(args), _delta1("bern/phase_pipi_1.dat", 80., 1){};
+
+        inline unsigned int singularity_power()        { return 2; };
+        inline double       phase_shift(double s)      { return _delta1(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
+<<<<<<< HEAD
                 case id::dI2_P1: return 9./2*kz*(s-r+kz/3);
+=======
+                case id::dI2_P1: return 9*kz/2*(s-r+kz/3);
+>>>>>>> main
                 case id::dI2_S2: return 3*kz;
                 default:         return 0;
             };
@@ -170,18 +256,36 @@ namespace iterateKT
     class dI2_S2 : public raw_isobar
     {
         public: 
+<<<<<<< HEAD
         dI2_S2(isobar_args args) : raw_isobar(args, isospin_2){};
         inline unsigned int angular_momentum(){ return 0; };
+=======
+        dI2_S2(isobar_args args) : raw_isobar(args), _delta2("bern/phase_pipi_2.dat", 800, 0){};
+
+        inline unsigned int singularity_power()        { return 0; };
+        inline double       phase_shift(double s)      { return _delta2(s); };
+        inline static const settings default_settings(){ return iterateKT::default_settings(); };
+>>>>>>> main
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             double  r  = _kinematics->r(); complex kz = _kinematics->kz(s,t);
             switch (iso_id)
             {
+<<<<<<< HEAD
                 case id::dI2_P1: return 9./2*(s-r+kz/3);
+=======
+                case id::dI2_P1: return 9/2*(s-r+kz/3);
+>>>>>>> main
                 case id::dI2_S2: return -1;
                 default:         return 0;
             };
         };
+<<<<<<< HEAD
     };
+=======
+        class phase_shift _delta2;
+    };
+
+>>>>>>> main
 }; /*  namespace iterateKT */
 #endif // ETA_ISOBARS_HPP
