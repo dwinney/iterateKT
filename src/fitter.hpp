@@ -246,7 +246,9 @@ namespace iterateKT
         inline void set_tolerance(double tol){ _tolerance = tol; };
 
         // Number of degrees of freedom
-        inline int dof(){ return _N - _minuit->NFree(); };
+        inline int    dof()    { return _N - _minuit->NFree(); };
+        inline double fcn()    { return _minuit->MinValue(); };
+        inline double fcn_dof(){ return _minuit->MinValue()/dof(); };
 
         private:
 
