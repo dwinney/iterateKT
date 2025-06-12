@@ -55,7 +55,7 @@ void iterations()
     p1.set_legend(0.7, 0.65);
     p1.set_curve_points(1000);
     p1.set_ranges({smin, smax}, {-4, 7.5});
-    p1.set_labels("#sigma   [GeV^{2}]", "#it{f}#kern[-1]{_{#alpha}} (#sigma + #it{i}#epsilon)");
+    p1.set_labels("#sigma   [GeV^{2}]", "#it{F}_{#alpha} (#sigma + #it{i}#epsilon)");
     p1.add_horizontal(0);
     p1.shade_region({A,C});
     p1.add_vertical(D);
@@ -66,7 +66,7 @@ void iterations()
     p2.set_legend(0.7, 0.65);
     p2.set_curve_points(1000);
     p2.set_ranges({smin, smax}, {-3, 4.5});
-    p2.set_labels("#sigma   [GeV^{2}]", "#it{f}#kern[-1]{_{#beta}} (#sigma + #it{i}#epsilon)");
+    p2.set_labels("#sigma   [GeV^{2}]", "#it{F}_{#beta} (#sigma + #it{i}#epsilon)");
     p2.add_horizontal(0);
     p2.shade_region({A,C});
     p2.add_vertical(D);

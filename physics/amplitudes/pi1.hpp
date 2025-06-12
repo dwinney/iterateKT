@@ -17,6 +17,7 @@
 #include "GKPY.hpp"
 
 #include"isobars/pi1.hpp"
+#include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
 { 
@@ -37,9 +38,39 @@ namespace iterateKT
         // s = (pi- + pi+)^2 
         // t = (pi- + pi+)^2
         // u = (pi- + pi-)^2
-        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave) ? -I*csqrt(_kinematics->kibble(s,t,u))/4 : 0; };
+        inline complex prefactor_s(id iso_id, complex s, complex t, complex u){ return (iso_id == id::P_wave) ? csqrt(_kinematics->kibble(s,t,u)) : 0; };
         inline complex prefactor_t(id iso_id, complex s, complex t, complex u){ return - prefactor_s(iso_id, t, s, u); };
         inline complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
+    };
+
+    // Contributions with deck amplitude
+    class deck : public raw_amplitude
+    {
+        public: 
+        
+        // Constructor
+        deck(kinematics kin, std::string id) : raw_amplitude(kin,id)
+        {};
+        
+        // Spin 1 decay so (2j+1) = 3
+        inline double combinatorial_factor(){ return 3; };
+
+        // Loop integral
+        static inline complex projection(double t, double m3pi, double sig)
+        {
+            using namespace boost::math::quadrature;
+            auto f = [&](double x, double y)
+            {
+                complex a, b, c, d, mu = M_PION;
+                a = t;
+                b = x*(mu*mu + t - m3pi*m3pi) - t;
+                c = (1-x)*(1-x)*mu*mu + x*sig - IEPS;
+                d = csqrt(b*b - 4*a*c);
+                return (4*a*y - (b+2*a*y)*log(a*y*y+b*y+c) - 2*d*atanh((b+2*a*y)/d))/a;
+            };
+            auto integrand = [&](double x){ return f(x, 1-x) - f(x, 0); };
+            return gauss_kronrod<double,61>::integrate(integrand, 0, 1, 0, 1.E-9, NULL);
+        };
     };
 }; // namespace iterateKT 
 

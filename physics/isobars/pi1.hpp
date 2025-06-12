@@ -34,12 +34,12 @@ namespace iterateKT
         sets._intermediate_energy     = 4;
         sets._cutoff                  = 20;
         sets._interpolation_offset    = 0.1;
-        sets._interpolation_points    = {400, 10, 200};
+        sets._interpolation_points    = {200, 10, 100};
         double xi_sth = 1E-3,  eps_sth = 1E-3;
-        double xi_pth = 1E-2,  eps_pth = 1E-2;
-        double xi_rth = 1E-2,  eps_rth = 1E-2;
+        double xi_pth = 1E-2,  eps_pth = 2E-2;
+        double xi_rth = 1E-2,  eps_rth = 1E-1;
 
-        sets._exclusion_offsets   = {1E-1, 1E-1};
+        sets._exclusion_offsets   = {2E-1, 2E-1};
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
         return sets;
