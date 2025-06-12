@@ -71,8 +71,8 @@ namespace iterateKT
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
     {
-        if (i >= _re.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         if (s <= _sth || s >= _settings._cutoff || _zeroth) return 0.;
+        if (i >= _re.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         return _re[i]->Eval(s) + I*_im[i]->Eval(s);
     };
 

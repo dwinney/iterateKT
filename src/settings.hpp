@@ -18,7 +18,10 @@ namespace iterateKT
     struct settings
     {
         settings(){};
-        
+
+        // Rate at which we iterate ideally should be [0, 1] but honestly do whatever you want
+        double _iteration_multiplier = 1.0;
+
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
         double _omnes_cutoff     = std::numeric_limits<double>::infinity();

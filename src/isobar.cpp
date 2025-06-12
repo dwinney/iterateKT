@@ -156,15 +156,17 @@ namespace iterateKT
         output._s_list        = _s_list;
         output._s_around_pth  = _s_around_pth;
         
+        double x = _settings._iteration_multiplier;
         // Sum over basis functions
         for (int i = 0; i < _subtractions->N_basis(); i++)
         {
             std::vector<double> re, im;
             for (auto s : _s_list)
             {
-                complex ksf_disc = LHC(s)/pow(s,_max_sub)*pinocchio_integral(i,s,previous);
-                re.push_back( real(ksf_disc) );
-                im.push_back( imag(ksf_disc) );
+                complex new_disc = LHC(s)/pow(s,_max_sub)*pinocchio_integral(i,s,previous);
+                complex old_disc = (are_equal(x, 1.0)) ? 0. : _iterations.back()->ksf_inhomogeneity(i, s);
+                re.push_back( real((1-x)*old_disc + x*new_disc) );
+                im.push_back( imag((1-x)*old_disc + x*new_disc) );
             };
             output._re_list.push_back(re);
             output._im_list.push_back(im);
