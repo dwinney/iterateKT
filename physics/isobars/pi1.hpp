@@ -23,20 +23,20 @@
 
 namespace iterateKT
 { 
-    // Ids for all our isobars, we only have one though
-    enum class id : unsigned int { P_wave };
+    // Ids for all our isobars
+    enum class id : unsigned int { P_wave, Contact, Deck };
 
     inline settings default_settings()
     {
         settings sets;
         sets._exclusion_points        = 6;
         sets._infinitesimal           = 1E-7;
-        sets._intermediate_energy     = 4;
+        sets._intermediate_energy     = 2;
         sets._cutoff                  = 20;
         sets._interpolation_offset    = 0.1;
         sets._interpolation_points    = {200, 10, 100};
         double xi_sth = 1E-3,  eps_sth = 1E-3;
-        double xi_pth = 1E-2,  eps_pth = 2E-2;
+        double xi_pth = 1E-3,  eps_pth = 1E-2;
         double xi_rth = 1E-2,  eps_rth = 1E-1;
 
         sets._exclusion_offsets   = {2E-1, 2E-1};
@@ -59,7 +59,7 @@ namespace iterateKT
         inline double  phase_shift(double s){ return GKPY::phase_shift(1,1, s); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
-            if (iso_id != id::P_wave) return 0.;
+            if (iso_id == id::Deck && real(s) >= _kinematics->pth()) return 0.;
             complex  k  = _kinematics->kacser(s), kz = _kinematics->kz(s,t);
             return -3/2*(k*k - kz*kz); // We've multiplied by k^2 which is why singularity_power() = 2
         };
