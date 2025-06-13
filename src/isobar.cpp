@@ -156,7 +156,7 @@ namespace iterateKT
         output._s_list        = _s_list;
         output._s_around_pth  = _s_around_pth;
         
-        double x = _settings._iteration_intercept + _iterations.size()*_settings._iteration_slope;
+        double x = _settings._iteration_rate_intercept + _iterations.size()*_settings._iteration_rate_slope;
         if (x >= 1) x = 1.0;
 
         // Sum over basis functions
