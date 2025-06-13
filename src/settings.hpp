@@ -19,8 +19,11 @@ namespace iterateKT
     {
         settings(){};
 
-        // Rate at which we iterate ideally should be [0, 1] but honestly do whatever you want
-        double _iteration_multiplier = 1.0;
+        // We use variable iterations to improve convergence by articially surpressing KT effects
+        // At each next iteration we decrease the surpression linearly until we arrive back 
+        // at the original KT equations
+        double _iteration_rate_intercept  = 1.0;
+        double _iteration_rate_slope      = 0.;
 
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
