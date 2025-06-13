@@ -39,10 +39,10 @@ void variable_convergence_test()
     // Set up our amplitude 
     amplitude amplitude = new_amplitude<vector_decay>(kinematics);
 
-    int nmax = 6;
+    int nmax = 8;
     settings sets = default_settings();
-    sets._iteration_multiplier = 0.2;
-    sets._iteration_slope      = (1-sets._iteration_multiplier)/nmax;
+    sets._iteration_rate_intercept = 0.3;
+    sets._iteration_rate_slope      = (1-sets._iteration_rate_intercept)/nmax;
 
     // We need to load our amplitude with our isobars 
     // Up to two subtractions so we have two basis functions
