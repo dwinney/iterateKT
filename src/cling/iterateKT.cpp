@@ -33,11 +33,14 @@ int main(int argc, char **argv)
     argc += 2;    
 
     TRint * app = new TRint( "iterateKT", &argc, argv);
-    TString env = gSystem->Getenv("ITERATEKT");
     
-    if (env.Length() == 0) std::cout << "Environment variable ITERATEKT not set!" << std::endl;
+    // Use the predefined path from CMake
+    TString env = ITERATEKT_PATH;
     
-    app->ProcessLine(".x $ITERATEKT/src/cling/Load.C");
+    // Set a ROOT variable that Load.C can use
+    app->ProcessLine(Form("gSystem->Setenv(\"ITERATEKT_PATH\", \"%s\");", env.Data()));
+    
+    app->ProcessLine(Form(".x %s/src/cling/Load.C", env.Data()));
     app->ProcessLine(Form(".x %s", macroName.Data()));
     app->Terminate(0);
 

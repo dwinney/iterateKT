@@ -388,11 +388,10 @@ namespace iterateKT
     inline std::string main_dir()
     {
        // Find the correct data file using the top level repo directory
-        std::string top_dir;
-        char const * env = std::getenv("ITERATEKT");
+        char const * env = std::getenv("ITERATEKT_PATH");
         if ( env == NULL || std::string(env) == "" )
         {
-            return error("main_dir(): Cannot find environment variable ITERATEKT!", "");
+            return error("main_dir(): Cannot find environment variable ITERATEKT_PATH!", "");
         }
         return std::string(env);  
     };
