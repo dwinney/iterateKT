@@ -6,7 +6,7 @@ That is, solutions to the system of coupled integral equations involving any num
 ```
 satisfying the unitarity condition
 ```math
-    \text{disc }F_i(s) =  \sin\delta_i(s) \, e^{-i\delta_i(s)} \left[ F_i(s) + \sum_{j} \int dt \,  K_{ij}(s,t) \,  F_j(t) \right] ~.
+    \text{disc }F_i(s) =  \sin\delta_i(s) \, e^{-i\delta_i(s)} \left[ F_i(s) + \sum_{j} \int dt \, K_{ij}(s,t) \, F_j(t) \right] ~.
 ```
 For maximum flexibility, the code only requires specifying the elastic phase shift $\delta_i(s)$ and kernel functions $K_{ij}(s,t)$ of each isobar. Things such as isospin and/or helicity amplitudes can be built outside of the core iterative functionality by combining isobars into a full amplitude.
 
@@ -14,72 +14,94 @@ The driving term, $P_{n-1}(s)$, parameterizes the left-hand cuts associated with
 
 Note that convergence of the KT equations is not guaranteed! This may depend on the number of isobars, number of subtractions, masses and quantum numbers considered.
 
-##  INSTALLATION
+## Quick Start
 
-Compilation of the base library requires only [CMake](https://cmake.org/) (version $\geq$ 3.30), [ROOT](https://root.cern.ch/) (tested with version 6.24) with [*MathMore*](https://root.cern.ch/mathmore-library), and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68).
+If you have the prerequisites installed, you can build and run the project with:
+```bash
+git clone <repository-url>
+cd iterateKT
+mkdir build && cd build
+cmake ..
+make
+make install
+cd ..
+./bin/iterateKT scripts/your_script.cpp
+```
+
+## Prerequisites
+
+Before building, ensure you have:
+- **CMake** (version ≥ 3.16)
+- **ROOT** (tested with version 6.24) with MathMore library
+- **Boost C++** (version ≥ 1.68) with system, filesystem, and math components
+
+## Installation
 
 To install, clone normally and use:
 ```bash
 cd iterateKT
 mkdir build && cd build
 cmake ..
-cmake --build . --target install
+make
+make install
 ```
-This will create the core library `/lib/libITERATEKT.so` with the linkable library as well as ROOT dictionary (.pcm) files. 
+This will create the core library in `lib/` (relative to project root) with the linkable library (`.so` on Linux, `.dylib` on macOS) as well as ROOT dictionary (`.pcm`) files. 
 
-Additionally a [scripting executable](./src/cling/iterateKT.cpp) will be installed into `/bin/iterateKT` which short-cuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.   This executable requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. This can be done as such:
+Additionally, a [scripting executable](./src/cling/iterateKT.cpp) will be installed into `bin/iterateKT` which shortcuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.
+
+The CMake build system automatically detects your operating system and handles platform-specific requirements. 
+
+## USAGE
+The compiled executable pipes an analysis script, relevant header files, and the compiled library into ROOT's cling interpreter to run. 
+This setup mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude files. To run a script, you can either:
 ```bash
-export ITERATEKT=/path/to/iterateKT # for bash
-setenv ITERATEKT /path/to/iterateKT # for csh
-```
+# Run from the project root directory
+./bin/iterateKT my_script.cpp
 
-The usual CMake installation may not work if you are running macOS. To circumvent this, the shell script `macos_build.sh` is included to get things working on a Mac. 
-
-##  USAGE
-The compiled executable pipes an analysis script, relevent header files, and the compiled library into ROOT's cling interpeter to run. 
-This set up mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude files. To run a script located in the bin directory simply run 
-```bash
+# Or add the bin directory to your PATH
+export PATH=$PATH:$(pwd)/bin
 iterateKT my_script.cpp
-```
-or add the bin directory to $PATH to call `iterateKT` from any directory. 
+``` 
 
 The classes of interest are:
 - [`kinematics`](./src/kinematics.hpp) contains all relevant information regarding the masses of particles involved and kinematic quantities. So far, the three final state particles must have the same mass. 
 - [`amplitude`](./src/amplitude.hpp) acts as a container class which specifies how different isobars contribute to a specific process and how to combine them to a full amplitude in terms of all Mandelstam variables.
 - [`isobar`](./src/isobar.hpp) is the main physics object as it reconstructs two-particle subsystems in terms of basis functions after arbitrary iterations of the KT equations.
 
-A typical script may look like this
+A typical script may look like this:
 ```c++
-// Specify decay masses
-kinematics kin = new_kinematics(m_decay, m_final_state);
+// Specify decay masses (example: eta -> 3pi)
+kinematics kin = new_kinematics(0.548, 0.140); // eta mass, pion mass
 
 // Specify amplitude structure (quantum numbers)
-amplitude  amp = new_amplitude<my_amplitude>(kin);
+amplitude amp = new_amplitude<my_amplitude>(kin);
 
 // Specify each isobar and number of subtractions
 // Total number of basis functions (per isobar) will be (i+j+k)
-amp->add_isobar<first_isobar> (i, id::first_isobar);
-amp->add_isobar<second_isobar>(j, id::second_isobar);
-amp->add_isobar<third_isobar> (k, id::third_isobar);
+amp->add_isobar<first_isobar>(2, id::first_isobar);   // 2 subtractions
+amp->add_isobar<second_isobar>(1, id::second_isobar); // 1 subtraction
+amp->add_isobar<third_isobar>(1, id::third_isobar);   // 1 subtraction
 
-// Iterate the KT equations
-amp->iterate(N);
+// Iterate the KT equations (example: 3 iterations)
+amp->iterate(3);
 
 // Access all isobars
 std::vector<isobar> isobars = amp->get_isobars();
 // or an individual one
 isobar first_isobar = amp->get_isobar(id::first_isobar);
 
-// Evaluate the lth basis function above and below cut
-print("above", first_isobar->basis_function(l, s+IEPS));
-print("below", first_isobar->basis_function(l, s-IEPS));
+// Evaluate the 0th basis function above and below cut
+double s = 0.5; // example Mandelstam variable
+double IEPS = 1e-6; // small imaginary part for analytic continuation
+print("above", first_isobar->basis_function(0, s + IEPS));
+print("below", first_isobar->basis_function(0, s - IEPS));
 
 // Evaluate the full amplitude
-print(amp->evaluate(s, t, u));
+print(amp->evaluate(s, 0.3, 0.2)); // example s, t, u values
 ```
 
 ### Virtual functions
-As illustrated above, `isobar` is a pointer to an instance of an abstract template class ( `raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
+As illustrated above, `isobar` is a pointer to an instance of an abstract template class (`raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
 
 ##### `double raw_isobar::phase_shift(double s)`
 The elastic phase shift $\delta_i(s)$ fully determines the Omnes function $\Omega_i(s)$ and therefore the initial guess for each isobar.
@@ -96,14 +118,28 @@ The above are sufficient if one is only interested in finding the basis function
 ```math
 \mathcal{A}(s,t,u) = \sum_i \left[P^i_s(s,t,u) \, F_i(s) + P^i_t(s,t,u) \, F_i(t) + P^i_u(s,t,u)\, F_i(u) \right] ~,
 ```
-for arbitrary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding  `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These can be used to provide any barrier factors, isospin coefficients, or angular structure which are irrelevant to solving the KT equations. 
+for arbitrary complex $s$, $t$, and $u$. The function $P_s^i$ is specified by overriding `raw_amplitude::prefactor_s(uint i, complex s, complex t, complex u)` and analogous functions for $P_t^i$ and $P_u^i$ (i.e. `prefactor_t` and `prefactor_u`). These can be used to provide any barrier factors, isospin coefficients, or angular structure which are irrelevant to solving the KT equations. 
 
 From here one may calculate the double-differential decay width using `raw_amplitude::differential_width(double s, double t)`:
 ```math
 \frac{dΓ}{ds\,dt} = \frac{1}{(2\pi)^3 \, 32 \, M^3} \frac{1}{\mathcal{N}} \, \left|\mathcal{A}(s,t,u)\right|^2 ~,
 ```
-where $\mathcal{N}$ is a numerical factor specificied by `raw_amplitude::combinatorial_factor()` and can be used to add constants related to indentical particles and/or averaging over initial-state helicities. Single differential or fully integrated widths may also be accessed with `raw_amplitude::differential_width(double s)` and `raw_amplitude::width()`.  
+where $\mathcal{N}$ is a numerical factor specified by `raw_amplitude::combinatorial_factor()` and can be used to add constants related to identical particles and/or averaging over initial-state helicities. Single differential or fully integrated widths may also be accessed with `raw_amplitude::differential_width(double s)` and `raw_amplitude::width()`.  
 
 ### Plotting and Fitting
 Many utilities are available to effectively fit amplitudes to data and plot the results. 
-See documentation in [`fitter.hpp`](./src/fitter.hpp) and [`plotter.hpp`](./src/plotter.hpp) for details or the example scripts in [`/scripts`](./scripts/) and example fitting interfaces in [`/analysis`](./analysis/).
+See documentation in [`fitter.hpp`](./src/fitter.hpp) and [`plotter.hpp`](./src/plotter.hpp) for details or the example scripts in [`/scripts`](./scripts/).
+
+## Troubleshooting
+
+**Common build issues:**
+
+- **ROOT not found**: Ensure ROOT is installed and `root-config` is in your PATH
+- **Boost not found**: Install Boost with `brew install boost` (macOS) or `sudo apt-get install libboost-all-dev` (Ubuntu)
+- **CMake version too old**: Update CMake to version 3.16 or higher
+- **Library loading errors**: Ensure the build completed successfully and `make install` was run
+
+**Runtime issues:**
+
+- **Script not found**: Check that the script path is correct relative to where you run `iterateKT`
+- **Header files not found**: Ensure the project was built and installed correctly
