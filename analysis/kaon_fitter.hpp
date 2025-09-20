@@ -125,9 +125,9 @@ namespace iterateKT { namespace kaon
             // Now we actually solve the matrix equation relating reMu and imMu
             TMatrixD M = reT.Invert()*imT;
 
-            Double_t rePars_data[dim];
+            std::vector<Double_t> rePars_data(dim);
             for (int i = 0; i < dim; i++) rePars_data[i] = real(in_pars[i]);
-            TVectorD rePars(dim, rePars_data), imPars = M*rePars;
+            TVectorD rePars(dim, rePars_data.data()), imPars = M*rePars;
             
             // Assemble together output vector
             std::vector<complex> out_pars;

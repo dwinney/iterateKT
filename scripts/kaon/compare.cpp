@@ -27,6 +27,7 @@ void compare()
 {
     using namespace iterateKT;
     using iterateKT::complex;
+    using iterateKT::option;
 
     // -----------------------------------------------------------------------
     // Set up data

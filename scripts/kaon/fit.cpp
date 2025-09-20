@@ -18,6 +18,7 @@
 void fit()
 {
     using namespace iterateKT;
+    using iterateKT::option;
 
     uint N = 10;
 
