@@ -8,11 +8,23 @@
 void Load()
 {
     TString lib_ext   = gSystem->GetSoExt();
+    
+    // Fix for macOS - ROOT sometimes returns .so instead of .dylib
+    #ifdef __APPLE__
+    if (lib_ext == ".so") {
+        lib_ext = ".dylib";
+    }
+    #endif
 
     //----------------------------------------------------------------------
     // Core library
 
-    TString main_dir  = gSystem->Getenv("ITERATEKT");
+    // Get the directory from the environment variable set by the executable
+    TString main_dir = gSystem->Getenv("ITERATEKT_PATH");
+    if (main_dir == "") {
+        // Fallback: try to find the executable in the current working directory
+        main_dir = gSystem->pwd();
+    }
 
     // Load the main library files
     TString lib  = main_dir + "/lib/libITERATEKT." + lib_ext;
@@ -31,6 +43,9 @@ void Load()
         gInterpreter->AddIncludePath( data.Data());
         gInterpreter->AddIncludePath( physics.Data());
         gInterpreter->AddIncludePath( main_dir.Data());
+        
+        // Add Boost include path
+        gInterpreter->AddIncludePath("/opt/homebrew/include");
     }
     else
     {
