@@ -7,6 +7,7 @@
 // -----------------------------------------------------------------------------
 
 #include <iostream>
+#include <filesystem>
 #include <TRint.h>
 #include <TEnv.h>
 #include <TString.h>
@@ -34,6 +35,23 @@ int main(int argc, char **argv)
 
     TRint * app = new TRint( "iterateKT", &argc, argv);
     TString env = gSystem->Getenv("ITERATEKT");
+    
+    if (env.Length() == 0)
+    {
+        // Auto-detect project root using argv[0]: executable is <root>/bin/iterateKT
+        try {
+            std::filesystem::path exePath = std::filesystem::absolute(argv[0]);
+            std::filesystem::path binDir  = exePath.parent_path();
+            std::filesystem::path rootDir = binDir.parent_path();
+            if (!rootDir.empty())
+            {
+                gSystem->Setenv("ITERATEKT", rootDir.c_str());
+                env = rootDir.c_str();
+            }
+        } catch (...) {
+            // ignore and fall back to requiring env var
+        }
+    }
     
     if (env.Length() == 0) std::cout << "Environment variable ITERATEKT not set!" << std::endl;
     
