@@ -12,11 +12,16 @@ set(CMAKE_INSTALL_BINDIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
-# macOS is stupid, use these to get it to stop renaming install files
-set(SKIP_BUILD_RPATH         TRUE)
-set(CMAKE_SKIP_RPATH         TRUE)
-set(CMAKE_SKIP_INSTALL_RPATH TRUE)
-set(INSTALL_NAME_DIR           "")
+# OS-conditional runtime path configuration
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH ON)
+    set(CMAKE_INSTALL_NAME_DIR "@rpath")
+    set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+    set(CMAKE_BUILD_RPATH   "@loader_path/../lib")
+elseif(UNIX)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+    set(CMAKE_BUILD_RPATH   "$ORIGIN/../lib")
+endif()
 
 ##-----------------------------------------------------------------------
 ## CERN ROOT
