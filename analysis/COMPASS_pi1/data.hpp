@@ -26,7 +26,58 @@ using json = nlohmann::json;
 namespace iterateKT { namespace COMPASS
 {
     // Static identifiers for data_set types
-    static const int kReal = 0, kImag = 1, kAbs = 2;
+    static const int kReal = 0, kImag = 1, kAbs = 2, kReal1D = 3, kImag1D = 4, kDalitz = 5;
+    
+    inline std::array<data_set,2>  parse_JSON_1D(std::string input)
+    {
+        data_set re_out, im_out;
+        
+        // ---------------------------------------------------------------------------
+        // Read in json and organize everything 
+
+        std::string path_to_file = analysis_dir() + "COMPASS_pi1/raw_files/" + input;
+        std::ifstream raw_file(path_to_file);
+        if (!raw_file) fatal("Could not open file: " + path_to_file);
+        json data = json::parse(raw_file);
+    
+        // Calculate central m3pi in bin
+        auto m3pi_upper = data["bin_ranges"]["m3pi_upper_limit"].template get<double>();
+        auto m3pi_lower = data["bin_ranges"]["m3pi_lower_limit"].template get<double>();
+        double m3pi = (m3pi_upper + m3pi_lower)/2;
+        
+        // Calculate central t in bin
+        auto t_upper = data["bin_ranges"]["t_upper_limit"].template get<double>();
+        auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
+        double t = -(t_upper + t_lower)/2;
+    
+        std::string id = "m3π = " + to_string(m3pi,2) + ", t' = " + to_string(-t,2);
+
+        auto bins      = data["bin_centers"];
+        auto reF       = data["real(F)"];
+        auto imF       = data["imag(F)"];
+        int N          = bins.size();
+
+        std::vector<double> s, re, im;
+        for (int i = 0; i < N; i++)
+        {
+            s.push_back(bins[i]);
+            re.push_back(reF[i]);
+            im.push_back(imF[i]);
+        };
+
+        // ---------------------------------------------------------------------------
+        //  Organize everything
+        re_out._N    = N;                   im_out._N    = N; 
+        re_out._id   = id;                  im_out._id   = id;               
+        re_out._type = kReal1D;             im_out._type = kImag1D;     
+        re_out._extras["Nbins"] = N;        im_out._extras["Nbins"] = N; 
+        re_out._extras["m3pi"] = m3pi;      im_out._extras["m3pi"] = m3pi; 
+        re_out._extras["t"]    = t;         im_out._extras["t"]    = t;    
+        re_out._x = s;                      im_out._x = s;  
+        re_out._z = re;                     im_out._z = im;               
+
+        return {re_out, im_out};
+    };
 
     // Parse a JSON file importing everything in a data_set object
     // Columns correspond to: s, t, Abs(M), Err(M)
@@ -53,7 +104,7 @@ namespace iterateKT { namespace COMPASS
         auto t_lower = data["bin_ranges"]["t_lower_limit"].template get<double>();
         double t = -(t_upper + t_lower)/2;
     
-        std::string id = "m3π = " + to_string(m3pi,2) + ", t' = " + to_string(-t,2);
+        std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
         auto bins      = data["bin_centers"];
         auto abs_M     = data["abs_M"];
@@ -65,9 +116,9 @@ namespace iterateKT { namespace COMPASS
     
         kinematics kin = new_kinematics(m3pi, M_PION);
         std::vector<double> sig1, sig2, absM, errM;
-        for (int i = 0; i < N; i++)
+        for (int i = 1; i < N; i++)
         {
-            for (int j = 0; j < N; j++)
+            for (int j = 1; j < N; j++)
             {
                 double s1 = bins[i];
                 double s2 = bins[j];
@@ -87,7 +138,7 @@ namespace iterateKT { namespace COMPASS
         //  Organize everything
         out._N    = N_actual;         
         out._id   = id;               
-        out._type = kAbs;     
+        out._type = kDalitz;     
         out._extras["Nbins"] = N; 
         out._extras["m3pi"] = m3pi; 
         out._extras["t"]    = t;    
@@ -95,6 +146,17 @@ namespace iterateKT { namespace COMPASS
         out._y = sig2;             
         out._z = absM; out._dz = errM;               
 
+        return out;
+    };
+
+    // Do the above but input bin numbers IDs which are subsequently saved in the data_set
+    inline data_set parse_JSON(uint m3pi_bin, uint t_bin)
+    {
+        std::string sm3pi = to_string(m3pi_bin), st = to_string(t_bin);
+        std::string filename = "tBin_"+st+"/dalitz_m3piBin_"+sm3pi+"_tBin_"+st+".json";
+        auto out = parse_JSON(filename);
+        out._extras["t_bin"]    = t_bin;
+        out._extras["m3pi_bin"] = m3pi_bin;
         return out;
     };
 

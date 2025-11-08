@@ -198,6 +198,17 @@ namespace iterateKT
             free_parameter(_pars[index]);
         };
 
+        inline void add_extra_parameter()
+        {
+            _pars.push_back(_pars.size());
+            _Nfree += 2;
+        };
+
+        inline void add_extra_parameters(uint n)
+        {
+            for (int i = 0; i < n; i++) add_extra_parameter();
+        };
+
         // Actually do the fit given a vector of size amp->N_pars() as starting values
         // Prints results to command line but also returns the best-fit chi2 value
         inline void do_fit(std::vector<complex> starting_guess, bool show_data = true)
@@ -214,10 +225,9 @@ namespace iterateKT
 
             if (show_data) { line(); data_info(); };
             parameter_info();
-
+            
             auto start = std::chrono::high_resolution_clock::now();
             std::cout << "Beginning fit..." << std::flush; 
-
             if (_print_level != 0) line();   
             _minuit->Minimize();
             if (_print_level != 0) line();   
@@ -340,11 +350,8 @@ namespace iterateKT
             // Sometimes we want the amplitude to do something to the fitter output
             // Before we actually save them, run through amplitudes processing function
             // By default this does nothing
-            std::vector<complex> processed = F::process_fitter_parameters(pars, _amplitude);
+            F::process_parameters(pars, _amplitude);
     
-            // Pass parameters to the amplitude
-            _amplitude->set_parameters(processed);
-
             // Pass both this and data to fit function
             return F::fcn(_data, _amplitude); 
         };
@@ -499,7 +506,7 @@ namespace iterateKT
             divider(); line();
             
             // At the end update the amplitude parameters to include the fit results
-            _amplitude->set_parameters(complex_convert(_minuit->X()));
+            F::process_parameters(complex_convert(_minuit->X()), _amplitude);
         };
     };
 }; // namespace iterateKT

@@ -77,7 +77,7 @@ namespace iterateKT { namespace kaon
 
         // We only fit the real parts of the parameters while the imaginary parts are
         // given by requiring Taylor invariants have vanishing imaginary parts
-        static std::vector<complex> process_fitter_parameters(std::vector<complex> in_pars, amplitude amp)
+        static std::vector<complex> process_parameters(std::vector<complex> in_pars, amplitude amp)
         {
             double eps = 1E-5, r = amp->get_kinematics()->s0();
             
@@ -176,6 +176,9 @@ namespace iterateKT { namespace kaon
 
             out_pars.push_back(reNup[0] + I*imNup[0]);
             out_pars.push_back(reNup[1] + I*imNup[1]);
+
+            // Save to amplitude
+            to_fit->set_parameters(out_pars);
             return out_pars;
         };
     };

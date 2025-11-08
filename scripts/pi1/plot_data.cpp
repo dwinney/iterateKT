@@ -11,7 +11,6 @@
 // ------------------------------------------------------------------------------
 
 #include "kinematics.hpp"
-#include "amplitude.hpp"
 #include "utilities.hpp"
 #include "colors.hpp"
 #include "constants.hpp"
@@ -27,7 +26,7 @@ void plot_data()
     // Operating options
 
     // Data file
-    std::string data_file = "dalitz_m3pi_bin_number_22_tBin_3.json";
+    std::string data_file = "tBin_0/dalitz_m3piBin_22_tBin_0.json";
     
     // Bounds for the axes
     std::array<double,2> xy_bounds = {0, 1.7}, z_bounds = {-1200, 1200};

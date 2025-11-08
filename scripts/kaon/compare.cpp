@@ -74,7 +74,8 @@ void compare()
 
     // Amplitude itself is given by the isospin limit
     kinematics kin = new_kinematics(M_KAON_AVG, M_PION_PM);
-    amplitude  amp = new_amplitude<charged_kaon>(kin, "K -> 3π");
+    amplitude  amp = new_amplitude<charged_kaon>(kin);
+    amp->set_name("K -> 3π");
 
     // Empty array of subtraction indices for isobars with no polynomial
     std::vector<uint> empty = {};

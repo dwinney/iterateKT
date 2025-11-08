@@ -176,7 +176,7 @@ namespace iterateKT
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
                 
-                complex ampij = evaluate(si, tij);
+                complex ampij = evaluate(si, tij, sigma - si - tij);
 
                 s.push_back(si); t.push_back(tij);
                 absA.push_back(  abs(ampij) );
@@ -211,10 +211,10 @@ namespace iterateKT
     
     std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double s0, std::array<double,2> m)
     {
-        double N  = norm(evaluate(s0,s0));
+        double N  = norm(evaluate(s0,s0,s0));
 
         // Rename our function for readibility
-        auto F  = [this,N,s0](double s, double t){ return norm(evaluate(s,t))/N; };
+        auto F  = [this,N,s0](double s, double t){ return norm(evaluate(s,t,_kinematics->Sigma()-s-t))/N; };
         auto Fs = [this,F,s0](double s){ return F(s,s0); };
         auto Ft = [this,F,s0](double t){ return F(s0,t); };
 

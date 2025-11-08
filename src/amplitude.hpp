@@ -35,9 +35,17 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A=raw_amplitude>
-    inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude")
+    inline amplitude new_amplitude(kinematics kin)
     {
-        auto x = std::make_shared<A>(kin, id);
+        auto x = std::make_shared<A>(kin);
+        return std::static_pointer_cast<raw_amplitude>(x);
+    };
+
+    // This function serves as our "constructor" with some extra needed arg
+    template<class A=raw_amplitude, typename B>
+    inline amplitude new_amplitude(kinematics kin, B extra_args)
+    {
+        auto x = std::make_shared<A>(kin, extra_args);
         return std::static_pointer_cast<raw_amplitude>(x);
     };
 
@@ -48,15 +56,10 @@ namespace iterateKT
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        raw_amplitude(kinematics xkin, std::string id) : solver(xkin), _name(id)
-        {};
+        raw_amplitude(kinematics xkin) : solver(xkin) {};
    
         // Evaluate the full amplitude.
         virtual complex evaluate(complex s, complex t, complex u);
-
-        // If we only have two mandelstams and both are real
-        // output u from the on-shell condition
-        inline  complex evaluate(double s, double t){ return evaluate(s, t, _kinematics->Sigma() - s - t); };
 
         // Factor to divide by in width calculation
         virtual double  combinatorial_factor(){ return 1; };
@@ -84,9 +87,10 @@ namespace iterateKT
 
         // Pass an option flag and so something. By default we dont do anything 
         // Can be overloaded to do whatever you want 
-        virtual inline void set_option(option opt){ return; }; 
+        virtual inline void set_option(option opt)          { return; }; 
+        virtual inline void set_option(option opt, double x){ return; }; 
 
-        inline void set_parameters( std::vector<complex> pars)
+        virtual inline void set_parameters( std::vector<complex> pars)
         {
             if (pars.size() != _subtractions->N_basis())
             {
@@ -97,11 +101,14 @@ namespace iterateKT
         };
 
         // Number of free parameters (used by fitters)
-        inline uint N_pars(){ return _subtractions->N_basis(); };
+        virtual inline uint N_pars(){ return _subtractions->N_basis(); };
 
         // Get a vector of the currently saved subtraction parameters
-        inline std::vector<complex> get_pars()       { return _subtractions->_values; };
-        inline std::vector<complex> get_parameters() { return get_pars(); };
+        virtual inline std::vector<complex> get_pars()       { return _subtractions->_values; };
+        virtual inline std::vector<complex> get_parameters() { return get_pars(); };
+
+        // Return a pointer to the interally saved kinematics instance
+        virtual inline kinematics get_kinematics() { return _kinematics;}
 
         // -----------------------------------------------------------------------
         // Automate making plots of the amplitude

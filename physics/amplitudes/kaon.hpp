@@ -68,7 +68,7 @@ namespace iterateKT
     {
         public:
 
-        I1(kinematics kin, std::string id) : raw_amplitude(kin,id){};
+        I1(kinematics kin) : raw_amplitude(kin) {};
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -99,7 +99,7 @@ namespace iterateKT
     {
         public:
 
-        I2(kinematics kin, std::string id) : raw_amplitude(kin,id){};
+        I2(kinematics kin) : raw_amplitude(kin) {};
 
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -130,7 +130,7 @@ namespace iterateKT
     {
         public: 
         
-        charged_kaon(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
+        charged_kaon(kinematics xkin) : raw_amplitude(xkin)
         {
             _F = new_amplitude<I1>(xkin); _H = new_amplitude<I2>(xkin);
         };

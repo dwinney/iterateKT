@@ -54,8 +54,7 @@ namespace iterateKT
     class charged_mode : public raw_amplitude
     {
         public: 
-        charged_mode(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        charged_mode(kinematics xkin) : raw_amplitude(xkin) {};
         
         inline complex prefactor_s(id iso_id, complex s, complex t, complex u)
         {
@@ -99,8 +98,7 @@ namespace iterateKT
     class neutral_mode : public raw_amplitude
     {
         public: 
-        neutral_mode(kinematics xkin, std::string id) : raw_amplitude(xkin, id)
-        {};
+        neutral_mode(kinematics xkin) : raw_amplitude(xkin) {};
         
         // 3 identical particles in the final state
         inline double combinatorial_factor(){ return 6; };

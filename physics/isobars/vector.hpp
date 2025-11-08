@@ -18,7 +18,6 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "GKPY.hpp"
 
 namespace iterateKT
 { 
@@ -39,9 +38,6 @@ namespace iterateKT
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
         inline unsigned int angular_momentum(){ return 1; };
-
-        // Use GKPY phase shift, smoothly extrapolated to pi 
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
 
         // Kernels is 3*(1-z^2) but to remove kinematic singularities
         // we multiply by two powers of kappa
@@ -102,8 +98,6 @@ namespace iterateKT
         
         // Constructor 
         charged(isobar_args args) : raw_isobar(args) {};
-        
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
         inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
@@ -120,8 +114,6 @@ namespace iterateKT
         
         // Constructor 
         neutral(isobar_args args) : raw_isobar(args) {};
-        
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
         inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 

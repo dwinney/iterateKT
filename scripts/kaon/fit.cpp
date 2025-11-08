@@ -39,7 +39,8 @@ void fit()
     kinematics kin = new_kinematics(M_KAON_PM, M_PION_PM);
 
     // Set up our amplitude 
-    amplitude amp = new_amplitude<charged_kaon>(kin, "K⁺ → π⁺π⁺π⁻");
+    amplitude amp = new_amplitude<charged_kaon>(kin);
+    amp->set_name("K⁺ → π⁺π⁺π⁻");
 
     settings sets = default_settings();
     sets._cauchy_integrator_depth  = 5;

@@ -39,6 +39,10 @@ namespace iterateKT
         sets._exclusion_offsets   = {1E-1, 1E-1};
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
+
+        phase_args iso_1   = {"madrid/delta_11.dat", 1.69,  1, 1, 2};
+        sets._phase_shifts = { {id::P_wave, iso_1}, {id::charged, iso_1}, {id::neutral, iso_1} };
+
         return sets;
     };
 
@@ -49,8 +53,7 @@ namespace iterateKT
         public: 
         
         // Constructor
-        vector_decay(kinematics kin, std::string id) : raw_amplitude(kin,id)
-        {};
+        vector_decay(kinematics kin) : raw_amplitude(kin) {};
 
         // Divide by 3 polarizations
         inline double combinatorial_factor(){ return 3; };
@@ -68,8 +71,7 @@ namespace iterateKT
         public: 
         
         // Constructor
-        rho_omega_mixing(kinematics kin, std::string id) : raw_amplitude(kin,id)
-        {};
+        rho_omega_mixing(kinematics kin) : raw_amplitude(kin) {};
 
         inline double helicity_factor(){ return 3; };
         

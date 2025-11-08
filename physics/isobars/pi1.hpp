@@ -18,7 +18,6 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "GKPY.hpp"
 #include "phase_shift.hpp"
 
 namespace iterateKT
@@ -37,7 +36,6 @@ namespace iterateKT
         P_wave(isobar_args args) : raw_isobar(args){};
 
         inline uint    angular_momentum()   { return 1; };
-        inline double  phase_shift(double s){ return GKPY::phase_shift(1,1, s); };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
             if (iso_id != get_id()) return 0.; // Only interact with self
