@@ -110,6 +110,15 @@ namespace iterateKT
         // Return a pointer to the interally saved kinematics instance
         virtual inline kinematics get_kinematics() { return _kinematics;}
 
+        // Importing solutions from file are typically trickier than exporting
+        // So we kep this as an overrideable function which does nothing by defualt
+        // the importing procedure should be written by user
+        virtual inline void import_solution(std::string path){ return; };
+
+        // Some amplitudes contain pointers to other amplitudes this can be specified to allowed one to access
+        // the currently pointed to subamplitude. By default this will return nullptr
+        virtual inline amplitude get_current(){ return nullptr; };
+
         // -----------------------------------------------------------------------
         // Automate making plots of the amplitude
 

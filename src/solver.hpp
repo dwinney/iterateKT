@@ -70,7 +70,7 @@ namespace iterateKT
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
         inline isobar add_isobar(std::vector<std::function<complex(complex)>> driving_terms, uint nsub, 
-                               id id, std::string name = "isobar", settings sets = default_settings())
+                                 id id, std::string name = "isobar", settings sets = default_settings())
         { 
             isobar_args args;
             args._kin      = _kinematics;
@@ -104,8 +104,7 @@ namespace iterateKT
 
         template<class T>
         inline isobar add_isobar(std::function<complex(complex)> driving_term, uint nsub, id id, 
-                                                                                        std::string name = "isobar", 
-                                                                                        settings sets = default_settings())
+                                 std::string name = "isobar", settings sets = default_settings())
         { 
             return add_isobar<T>(std::vector<std::function<complex(complex)>>{driving_term}, nsub, id, name, sets);
         };
@@ -113,7 +112,7 @@ namespace iterateKT
         // Else you can pass a vector of uints with the orders which get 
         template<class T>
         inline isobar add_isobar(std::vector<uint> poly, uint nsub, id id, std::string name = "isobar", 
-                                                                         settings sets = default_settings())
+                                 settings sets = default_settings())
         { 
             std::vector<std::function<complex(complex)>> driving_terms;
             for (auto power : poly)
@@ -127,7 +126,7 @@ namespace iterateKT
         // With just a single int nsub, we assume we have all subtraction coefficients to order nsub-1
         template<class T>
         inline isobar add_isobar(uint nsub, id id, std::string name = "isobar", 
-                                                 settings sets = default_settings())
+                                 settings sets = default_settings())
         { 
             std::vector<uint> pows;
             for (int i = 0; i < nsub; i++) pows.push_back(i);
@@ -138,7 +137,7 @@ namespace iterateKT
         inline std::vector<isobar> get_isobars(){ return _isobars; };
 
         // Print to file necessary info to reconstruct isobars later
-        void export_solution(std::string prefix, uint precision = 12);
+        virtual void export_solution(std::string prefix, uint precision = 12);
 
         // output the saved kinematics
         inline kinematics get_kinematics(){ return _kinematics; };
