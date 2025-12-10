@@ -28,7 +28,7 @@ namespace iterateKT
         settings sets;
         sets._exclusion_points        = 10;
         sets._infinitesimal           = 1E-8;
-        sets._intermediate_energy     = 4;
+        sets._intermediate_energy     = 5;
         sets._cutoff                  = 20;
         sets._interpolation_offset    = 0.1;
         sets._interpolation_points    = {200, 10, 100};
@@ -160,8 +160,8 @@ namespace iterateKT
     {
         public:
 
-        pi1_across_tbins(kinematics xkin, std::array<double,4> tvals)
-        : raw_amplitude(xkin), _tvals(tvals)
+        pi1_across_tbins(kinematics xkin, std::tuple<std::array<double,4>,uint> args)
+        : raw_amplitude(xkin), _tvals(std::get<0>(args)), _niter(std::get<1>(args))
         {
             for (int i = 0; i < 4; i++) 
             { 
@@ -226,16 +226,22 @@ namespace iterateKT
 
         // We require an overall xkin but this will be ignored since we
         // create individual instances for each needed amplitude
-        pi1_binned(kinematics xkin, std::tuple<std::vector<double>,std::array<double,4>> bins)
+        pi1_binned(kinematics xkin, std::tuple<std::vector<double>,std::array<double,4>,uint> args)
         : raw_amplitude(xkin)
         {
-            auto m3pi_vals = std::get<0>(bins);
-            auto t_vals    = std::get<1>(bins);
+            timer timer;
+            timer.start();
+            auto m3pi_vals = std::get<0>(args);
+            auto t_vals    = std::get<1>(args);
+            auto nint      = std::get<2>(args);
             for (auto m3pi : m3pi_vals) 
             { 
                 _kins.emplace_back(new_kinematics(m3pi, M_PION));
-                _m3pibins.emplace_back(new_amplitude<pi1_across_tbins>(_kins.back(), t_vals));
+                _m3pibins.emplace_back(new_amplitude<pi1_across_tbins>(_kins.back(), std::make_tuple(t_vals, nint)));
+                timer.lap("initialized amplitude with m3pi = "+to_string(m3pi));
             };
+            timer.stop(); 
+            timer.print_elapsed();
             set_option(option::set_m3pibin, 0);
             set_option(option::set_tbin,    0);
         };
