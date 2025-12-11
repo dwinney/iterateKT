@@ -56,6 +56,8 @@ namespace iterateKT
     };
 
     // Print to file necessary info to reconstruct isobars later
+    // Here prefix is expected to contain a relative path (from main_dir())
+    // and any additional filename prefix common to all isobars
     void solver::export_solution(std::string prefix, uint precision)
     {
         uint spacing   = precision + 10;
@@ -68,7 +70,7 @@ namespace iterateKT
             // As a precaution to unnamed isobars overriding the same file,  
             // append the index it appears with
             if (name == "isobar") name += to_string(i);
-            output.open(prefix + "_" + name + ".dat");
+            output.open(main_dir() + prefix + "_" + name + ".dat");
 
             auto last_iter = isobar->get_iteration();
             uint N         = isobar->_subtractions->N_basis();

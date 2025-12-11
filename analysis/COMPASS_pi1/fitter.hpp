@@ -40,8 +40,8 @@ namespace iterateKT { namespace COMPASS
             double chi2 = 0;
             for (auto data : data_vector)
             {
-                to_fit->set_option(option::set_tbin,            data._extras["t_bin"]);
-                to_fit->set_option(option::set_m3pibin_COMPASS, data._extras["m3pi_bin"]);
+                to_fit->set_option(option::set_tbin,         data._extras["t_bin"]);
+                to_fit->set_option(option::set_mbin_COMPASS, data._extras["m3pi_bin"]);
                 for (int i = 0; i < data._N; i++)
                 {
                     double from_data  = data._z[i];
@@ -102,7 +102,7 @@ namespace iterateKT { namespace COMPASS
             // Cycle through m3pibins
             for (int i = 0; i < N; i++)
             {
-                to_fit->set_option(option::set_m3pibin, i);
+                to_fit->set_option(option::set_mbin, i);
                 // and through tbins
                 for (int j = 0; j < 4; j++)
                 {

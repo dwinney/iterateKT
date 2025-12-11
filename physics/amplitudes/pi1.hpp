@@ -154,21 +154,33 @@ namespace iterateKT
     // The following are container amplitudes which holds multiple copies of the above
     // but at different bins in production t for simultaneous fits
 
-    enum class option : unsigned int { set_m3pibin, set_tbin, set_m3pibin_COMPASS };
+    enum class option : unsigned int { set_mbin, set_tbin, set_mbin_COMPASS };
 
     class pi1_across_tbins : public raw_amplitude
     {
         public:
 
-        pi1_across_tbins(kinematics xkin, std::tuple<std::array<double,4>,uint> args)
-        : raw_amplitude(xkin), _tvals(std::get<0>(args)), _niter(std::get<1>(args))
+        // With no extra int assume we dont iterate
+        pi1_across_tbins(kinematics xkin, std::tuple<std::array<double,4>> args)
+        : raw_amplitude(xkin), _tvals(std::get<0>(args))
         {
             for (int i = 0; i < 4; i++) 
             { 
                 _tbins.emplace_back(new_amplitude<pi1>(xkin));
-                _tbins[i]->set_name("tbin " + to_string(i));
+                _tbins[i]->set_name("tbin_" + to_string(i));
             };
-            initialize();
+            initialize(0);
+        };
+
+        pi1_across_tbins(kinematics xkin, std::tuple<std::array<double,4>,uint> args)
+        : raw_amplitude(xkin), _tvals(std::get<0>(args))
+        {
+            for (int i = 0; i < 4; i++) 
+            { 
+                _tbins.emplace_back(new_amplitude<pi1>(xkin));
+                _tbins[i]->set_name("tbin_" + to_string(i));
+            };
+            initialize(std::get<1>(args));
         };
 
         inline void set_option(option opt, double x)
@@ -183,10 +195,24 @@ namespace iterateKT
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
 
-        private:
+        // Export solution iterates over the four tbins exporting each one
+        inline void export_solution(std::string path, uint precision)
+        {          
+            std::string file = main_dir() + path;
+            for (int i = 0; i < 4; i++) _tbins[i]->export_solution(path, precision);
+        };
 
-        // how many times to iterate by default
-        int _niter = 10;
+        // Similar with import
+        inline void import_solution(std::string path)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                std::string file = path + "_t_" + to_string(-_tvals[i]) + ".dat";
+                _tbins[i]->get_isobars()[0]->import_iteration<2>(file);
+            };
+        };
+
+        private:
 
         // Save each of the 4 bins as a pointer
         std::array<double,4>   _tvals;
@@ -195,7 +221,7 @@ namespace iterateKT
         // This is the one that gets called
         amplitude _current;
 
-        inline void initialize()
+        inline void initialize(uint niter)
         {
             auto constant = [ ](complex sigma){ return complex(1.); };
             auto deck     = [&](double t)
@@ -207,8 +233,8 @@ namespace iterateKT
             // Set up all the amplitudes
             for (int i = 0; i < 4; i++)
             {
-                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 3, id::P_wave, "P-wave");
-                _tbins[i]->iterate(_niter);
+                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 3, id::P_wave, "t_"+to_string(-_tvals[i]));
+                _tbins[i]->iterate(niter);
             };
 
             // At end place the first one in _current
@@ -231,19 +257,37 @@ namespace iterateKT
         {
             timer timer;
             timer.start();
-            auto m3pi_vals = std::get<0>(args);
-            auto t_vals    = std::get<1>(args);
-            auto nint      = std::get<2>(args);
-            for (auto m3pi : m3pi_vals) 
+            auto m_vals  = std::get<0>(args);
+            auto t_vals  = std::get<1>(args);
+            auto nint    = std::get<2>(args);
+            for (auto m3pi : m_vals) 
             { 
-                _kins.emplace_back(new_kinematics(m3pi, M_PION));
-                _m3pibins.emplace_back(new_amplitude<pi1_across_tbins>(_kins.back(), std::make_tuple(t_vals, nint)));
+                _mbins.emplace_back(new_amplitude<pi1_across_tbins>(new_kinematics(m3pi, M_PION), std::make_tuple(t_vals, nint)));
                 timer.lap("initialized amplitude with m3pi = "+to_string(m3pi));
             };
             timer.stop(); 
             timer.print_elapsed();
-            set_option(option::set_m3pibin, 0);
-            set_option(option::set_tbin,    0);
+            set_option(option::set_mbin, 0);
+            set_option(option::set_tbin, 0);
+        };
+
+        // With no last uint, we assume uniterated
+        pi1_binned(kinematics xkin, std::tuple<std::vector<double>,std::array<double,4>> args)
+        : raw_amplitude(xkin)
+        {
+            timer timer;
+            timer.start();
+            auto m_vals  = std::get<0>(args);
+            auto t_vals  = std::get<1>(args);
+            for (auto m3pi : m_vals) 
+            { 
+                _mbins.emplace_back(new_amplitude<pi1_across_tbins>(new_kinematics(m3pi, M_PION), std::make_tuple(t_vals)));
+                timer.lap("initialized amplitude with m3pi = "+to_string(m3pi));
+            };
+            timer.stop(); 
+            timer.print_elapsed();
+            set_option(option::set_mbin, 0);
+            set_option(option::set_tbin, 0);
         };
 
         // Most utilities should just pipe to whatever _current is pointed to 
@@ -252,7 +296,7 @@ namespace iterateKT
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
 
         // Except the total number of pars which are cumulative
-        inline uint N_pars(){ return _current->N_pars()*_m3pibins.size(); };
+        inline uint N_pars(){ return _current->N_pars()*_mbins.size(); };
 
         // Maneuver which subamplitude we're pointing to
         inline void set_option(option opt, double x)
@@ -260,15 +304,15 @@ namespace iterateKT
             int ix = int(std::round(x));
             switch (opt)
             {
-                case option::set_m3pibin_COMPASS:  
+                case option::set_mbin_COMPASS:  
                 {
-                    _current = _m3pibins[find_COMPASS_bin(ix)]; 
+                    _current = _mbins[find_COMPASS_bin(ix)]; 
                     _current->set_option(option::set_tbin, _current_tbin);
                     break;
                 };
-                case option::set_m3pibin:  
+                case option::set_mbin:  
                 {
-                    _current = _m3pibins[ix]; 
+                    _current = _mbins[ix]; 
                     _current->set_option(option::set_tbin, _current_tbin);
                     break;
                 };
@@ -282,11 +326,32 @@ namespace iterateKT
             };
         };
 
+        // Export solution now simply iterates over mbins making sure we name things correctly
+        inline void export_solution(std::string path, uint precision)
+        {
+            for (auto bin : _mbins)
+            {
+                double m = bin->get_kinematics()->M();
+                std::string file = path + "_M_" + to_string(m);
+                bin->export_solution(file, precision);
+            }
+        };
+
+        // Similar with import
+        inline void import_solution(std::string path)
+        {
+            for (auto bin : _mbins)
+            {
+                double m = bin->get_kinematics()->M();
+                std::string new_path = path + "_M_" + to_string(m);
+                bin->import_solution(new_path);
+            };
+        };
+
         private: 
 
         // Store each m3pi requires its own kinematics and amplitude
-        std::vector<kinematics> _kins;
-        std::vector<amplitude>  _m3pibins;
+        std::vector<amplitude>  _mbins;
 
         // The way we navigate bins, we want to keep track of which tbin we're looking at
         uint _current_tbin = 0;
@@ -299,9 +364,9 @@ namespace iterateKT
         {
             // Bins are 40 MeV wide and start at 0.96 GeV
             double M = 0.96 + (bin-11)*0.04;
-            for (int i = 0; i < _m3pibins.size(); i++)
+            for (int i = 0; i < _mbins.size(); i++)
             {
-                double Mi = _kins[i]->M();
+                double Mi = _mbins[i]->get_kinematics()->M();
                 if (are_equal(Mi, M)) return i;
             };
             return -1;
