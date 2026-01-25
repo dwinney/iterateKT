@@ -1,5 +1,5 @@
 // Take in any number of m3pi and t bins (using COMPASS indexing) then iterate
-// and export KT solutions for each
+// and export the KT solutions for each. 
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2025)
@@ -29,20 +29,31 @@ void bulk_iterate()
     // -----------------------------------------------------------------------
     // Operating options
 
+    // How many times to iterate
     int niterate = 10;
+
+    // Range of bins to consider (following COMPASS numbering) 
+    int min = 11, max = 49;
+
+    // Where to put files
     std::string export_path  = "/scripts/pi1/basis_functions/";
+
+    // Prefix to label output files with
     std::string file_prefix  = "CD"; /* Contact & Deck */
 
     // -----------------------------------------------------------------------
+    // Set up amplitude and iterative solution  
+    
     // Check that our file directory exists
-
     std::filesystem::create_directory(main_dir()+export_path);
 
-    // -----------------------------------------------------------------------
-    // Set up amplitude and iterative solution
+    // Grab sub-array of bin values
+    std::vector<double> m_bins;
+    for (int i = min; i <= max; i++) m_bins.push_back(COMPASS::m_bins[i-11]);
 
-    std::vector<double> m_bins = {1.3, 1.4, 1.5};
     // Set up our amplitude 
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(m_bins, COMPASS::t_bins, niterate));
+    
+    // and export
     amp->export_solution(export_path + file_prefix); 
 };

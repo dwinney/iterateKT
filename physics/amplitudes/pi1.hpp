@@ -28,9 +28,9 @@ namespace iterateKT
         settings sets;
         sets._exclusion_points        = 10;
         sets._infinitesimal           = 1E-8;
-        sets._intermediate_energy     = 5;
+        sets._intermediate_energy     = 2.0;
         sets._cutoff                  = 20;
-        sets._interpolation_offset    = 0.1;
+        sets._interpolation_offset    = 0.01;
         sets._interpolation_points    = {200, 10, 100};
         double xi_sth = 1E-3,  eps_sth = 1E-3;
         double xi_pth = 3E-3,  eps_pth = 4E-3;
@@ -243,8 +243,7 @@ namespace iterateKT
     };
 
     // ------------------------------------------------------------------------------
-    // Increasing complexity, this class allows simultaneous 2D fits to a bunch of
-    // bins in both m3pi and t
+    // Increasing complexity, this class allows simultaneous 2D fits to a bunch of bins in both m3pi and t
 
     class pi1_binned : public raw_amplitude
     {
@@ -332,7 +331,7 @@ namespace iterateKT
             for (auto bin : _mbins)
             {
                 double m = bin->get_kinematics()->M();
-                std::string file = path + "_M_" + to_string(m);
+                std::string file = path + "_m_" + to_string(m);
                 bin->export_solution(file, precision);
             }
         };
@@ -343,7 +342,7 @@ namespace iterateKT
             for (auto bin : _mbins)
             {
                 double m = bin->get_kinematics()->M();
-                std::string new_path = path + "_M_" + to_string(m);
+                std::string new_path = path + "_m_" + to_string(m);
                 bin->import_solution(new_path);
             };
         };

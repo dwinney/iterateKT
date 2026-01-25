@@ -36,12 +36,17 @@ void bulk_fit()
     // Which range of m3pi bins to consider
     int min = 15, max = 44; 
 
+    // Path to precalculated isoabrs
+    std::string iso_path    = "/scripts/pi1/basis_functions/";
+    // and the prefix given to each file
+    std::string file_prefix = "CD";
+
     // Are we taking initial values from file? if so which?
     bool initial_from_file = true;
-    std::string in_file   = main_dir()+"/scripts/pi1/in_pars.dat";
+    std::string in_pars_file   = "/scripts/pi1/in_pars.dat";
 
     // Where do we export the fit parameter values
-    std::string out_file  = main_dir()+"/scripts/pi1/out_pars.dat";
+    std::string out_pars_file  = "/scripts/pi1/out_pars.dat";
     // Put a file description at the beginning
     std::string description = "deck + contact, no form factors";
     
@@ -69,7 +74,7 @@ void bulk_fit()
 
     if (initial_from_file)
     {
-        std::ifstream infile(in_file);
+        std::ifstream infile(main_dir()+in_pars_file);
         std::string line;
 
         int nimported = 0; // Mark how many lines we've imported
@@ -104,10 +109,13 @@ void bulk_fit()
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
-    // Set up our amplitude 
-    auto args   = std::make_tuple(m3pi_vals, COMPASS::t_bins, 10);
+    // Set up our amplitude (uniterated)
+    auto args   = std::make_tuple(m3pi_vals, COMPASS::t_bins);
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, args);
     amp->set_name("π₁ → 3π");
+
+    // and import the pre-calculated isobars
+    amp->import_solution(iso_path+file_prefix);
 
     // -----------------------------------------------------------------------
     // Set up fitter
@@ -140,7 +148,7 @@ void bulk_fit()
     auto pars = fitter.pars();
  
     std::ofstream out;
-    out.open(out_file);
+    out.open(main_dir()+out_pars_file);
     int  precision = 12, spacing = precision + 10;
     
     // Preamble info
