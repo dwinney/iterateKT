@@ -33,7 +33,7 @@ namespace iterateKT
         double s_int = _settings._intermediate_energy;
 
         int order = (pth > s_int) + (pth > s_cut);
-        std::array<double, 5> s = {sth, pth-1.5*xi-eps, pth+1.5*xi, s_cut, s_int};
+        std::array<double, 5> s = {sth, pth-1.5*xi, pth+1.5*xi, s_cut, s_int};
         std::sort(s.begin(), s.end());
 
         std::array<int,3> N = _settings._interpolation_points;
@@ -70,9 +70,10 @@ namespace iterateKT
         // Populate the s values we need to evaluate at
         for (int i = 0; i < 4; i++)
         {
+            double s1 = s[i]+(i!=0)*eps, s2 = s[i+1];
+            if (s1 >= s2 || n[i] < 2) continue;
             for (int j = 0; j < n[i]; j++)
             {
-                double s1 = s[i]+(i!=0)*eps, s2 = s[i+1];
                 double x = s1 + j*(s2-s1)/(n[i]-1);
                 _s_list.push_back(x);
             }
