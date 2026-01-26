@@ -106,9 +106,9 @@ namespace iterateKT
         // Methods to add data points to your plot
 
         // Convert a data_set object to a plot_entry
-        void add_data(std::array<std::vector<double>,2> x, std::array<std::vector<double>,2> y, jpacColor color = jpacColor::DarkGrey);
-        void add_data(std::vector<double> x, std::array<std::vector<double>,2> y, jpacColor color = jpacColor::DarkGrey);
-        void add_data(std::vector<double> x, std::vector<double> y, jpacColor color = jpacColor::DarkGrey);
+        void add_data(std::array<std::vector<double>,2> x, std::array<std::vector<double>,2> y, entry_style style);
+        void add_data(std::vector<double> x, std::array<std::vector<double>,2> y, entry_style style);
+        void add_data(std::vector<double> x, std::vector<double> y, entry_style style);
 
         // Add a small offset to change the running color index
         inline void color_offset(unsigned n)

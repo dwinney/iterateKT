@@ -43,6 +43,7 @@ namespace iterateKT
         std::string _draw_opt = "L";                // string which enters ROOT::Draw() 
     };
 
+    // Easy presets for curve styles
     inline entry_style dashed(jpacColor color, std::string id = "")
     {
         entry_style dashed;
@@ -73,6 +74,50 @@ namespace iterateKT
         return dotted;
     };
 
+    // Also for data points
+    inline entry_style dot(jpacColor color, std::string id = "")
+    {
+        entry_style marker;
+        marker._color = color;
+        marker._style = 20; 
+        marker._label = id;
+        marker._add_to_legend = (id != "");
+        marker._draw_opt = "P";
+        return marker;
+    };
+
+    inline entry_style square(jpacColor color, std::string id = "")
+    {
+        entry_style marker;
+        marker._color = color;
+        marker._style = 21; 
+        marker._label = id;
+        marker._add_to_legend = (id != "");
+        marker._draw_opt = "P";
+        return marker;
+    };
+
+    inline entry_style triangle(jpacColor color, std::string id = "")
+    {
+        entry_style marker;
+        marker._color = color;
+        marker._style = 22; 
+        marker._label = id;
+        marker._add_to_legend = (id != "");
+        marker._draw_opt = "P";
+        return marker;
+    };
+
+    inline entry_style star(jpacColor color, std::string id = "")
+    {
+        entry_style marker;
+        marker._color = color;
+        marker._style = 29; 
+        marker._label = id;
+        marker._add_to_legend = (id != "");
+        marker._draw_opt = "P";
+        return marker;
+    };
 };
 
 

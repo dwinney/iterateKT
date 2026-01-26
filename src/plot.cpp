@@ -155,55 +155,37 @@ namespace iterateKT
     // ---------------------------------------------------------------------------
     // Convert data_set and amplitude easily into plot_entries
 
-    void plot::add_data(std::array<std::vector<double>,2> vx, std::array<std::vector<double>,2> vy, jpacColor color)
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
         double *x, *y, *dx, *dy;
         x  = &(vx[0][0]);        y  = &(vy[0][0]);
         dx = &(vx[1][0]);       dy  = &(vy[1][0]);
         TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, dy);
 
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = color;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
-
         _Ndata++;
         _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
 
-    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, jpacColor color)
+    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
         double *x, *y, *dy;
         x  = &(vx[0]);        y  = &(vy[0][0]);
                              dy  = &(vy[1][0]);
         TGraph *graph = new TGraphErrors(vx.size(), x, y, nullptr, dy);
 
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = color;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
-
         _Ndata++;
         _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
 
-        void plot::add_data(std::vector<double> vx, std::vector<double> vy, jpacColor color)
+        void plot::add_data(std::vector<double> vx, std::vector<double> vy, entry_style style)
     {
         double *x, *y;
         x  = &(vx[0]);        y  = &(vy[0]);
         TGraph *graph = new TGraph(vx.size(), x, y);
-
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = color;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
 
         _Ndata++;
         _Nlegend++;
