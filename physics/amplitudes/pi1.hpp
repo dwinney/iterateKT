@@ -274,17 +274,12 @@ namespace iterateKT
         pi1_binned(kinematics xkin, std::tuple<std::vector<double>,std::array<double,4>> args)
         : raw_amplitude(xkin)
         {
-            timer timer;
-            timer.start();
             auto m_vals  = std::get<0>(args);
             auto t_vals  = std::get<1>(args);
             for (auto m3pi : m_vals) 
             { 
                 _mbins.emplace_back(new_amplitude<pi1_across_tbins>(new_kinematics(m3pi, M_PION), std::make_tuple(t_vals)));
-                timer.lap("initialized amplitude with m3pi = "+to_string(m3pi));
             };
-            timer.stop(); 
-            timer.print_elapsed();
             set_option(option::set_mbin, 0);
             set_option(option::set_tbin, 0);
         };
