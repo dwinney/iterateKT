@@ -55,10 +55,12 @@ namespace iterateKT { namespace COMPASS
                     iterateKT::complex from_model = to_fit->evaluate(s, t, u);  
 
                     if (is_zero(data._dz[i])) continue;
-                    chi2  += norm((from_data - abs(from_model)) / data._dz[i]); 
+
+                    // Minimize average chi2 per data plot
+                    chi2  += norm((from_data - abs(from_model)) / data._dz[i]) / data._N; 
                 };
             };
-            return chi2;
+            return chi2 / data_vector.size();
         };
     };
 
