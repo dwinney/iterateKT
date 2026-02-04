@@ -18,8 +18,8 @@ Note that convergence of the KT equations is not guaranteed (and the code provid
 
 Compilation of the base library requires:
 - [CMake](https://cmake.org/) ($\geq$ v3.30)
-- [ROOT](https://root.cern.ch/) (tested with v6.24-6.30 compiled with [g++/gcc](https://gcc.gnu.org/releases.html) v11.4) with [*MathMore*](https://root.cern.ch/mathmore-library)
-- [Boost C++](https://www.boost.org/) ($\geq$ v1.68)
+- [ROOT](https://root.cern.ch/) (tested with v6.24-6.30 compiled with [g++/gcc](https://gcc.gnu.org/releases.html) v11.4) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
+- [Boost](https://www.boost.org/) ($\geq$ v1.68)
 
 Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
 
