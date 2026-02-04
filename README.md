@@ -1,6 +1,6 @@
 # iterateKT
-Solver for iterative solutions to general Omnes-Khuri-Treiman problems.
-That is, solutions to the system of coupled integral equations involving any number of isobars single-variable of the form:
+Solver for iterative solutions to general Omnès-Khuri-Treiman problems.
+That is, solutions to systems of coupled integral equations which arise from three-body decays involving any number of single-variable isobars of the form:
 ```math
     F_i(s) = P_{n-1}(s) + \frac{s^n}{\pi} \int ds^\prime \, \frac{\text{disc }F_i(s^\prime)}{s^{\prime n} \, (s^\prime - s)} ~,
 ```
@@ -16,7 +16,12 @@ Note that convergence of the KT equations is not guaranteed (and the code provid
 
 ##  INSTALLATION
 
-Compilation of the base library requires only [CMake](https://cmake.org/) (version $\geq$ 3.30), [ROOT](https://root.cern.ch/) (tested with version 6.24-6.30) with [*MathMore*](https://root.cern.ch/mathmore-library), and [Boost C++](https://www.boost.org/) (version $\geq$ 1.68). Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. 
+Compilation of the base library requires:
+- [CMake](https://cmake.org/) ($\geq$ v3.30)
+- [ROOT](https://root.cern.ch/) (tested with v6.24-6.30 compiled with [g++/gcc](https://gcc.gnu.org/releases.html) v11.4) with [*MathMore*](https://root.cern.ch/mathmore-library)
+- [Boost C++](https://www.boost.org/) ($\geq$ v1.68)
+
+Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
 
 To install, clone normally and use:
 ```bash
@@ -25,30 +30,24 @@ mkdir build && cd build
 cmake ..
 cmake --build . --target install
 ```
-This will create the core library `/lib/libITERATEKT.so` with the linkable library as well as ROOT dictionary (.pcm) files. 
-
-Additionally a [scripting executable](./src/cling/iterateKT.cpp) will be installed into `/bin/iterateKT` which short-cuts loading the libraries into an interactive ROOT session and running a .cpp file as an interpreted script.   This executable requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. This can be done as such:
-```bash
-export ITERATEKT=/path/to/iterateKT # for bash
-setenv ITERATEKT /path/to/iterateKT # for csh
-```
+This will create the core linkable library file and ROOT dictionary (.pcm) files in the `lib` directory. 
+Additionally a [scripting executable](./src/cling/iterateKT.cpp) which shortcuts running scripts in an interactive ROOT session will be installed in the `bin` directory.
 
 The usual CMake installation may not work if you are running macOS. To circumvent this, the shell script `macos_build.sh` is included to get things working on a Mac. 
 
 ##  USAGE
 The compiled executable pipes an analysis script, relevent header files, and the compiled library into ROOT's cling interpeter to run. 
-This set up mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude files. To run a script located in the bin directory simply run 
+This set up mimics a Python-like environment without requiring recompilation of the whole library when changes are made to amplitude or analysis files. To run a script located in the bin directory simply run 
 ```bash
 iterateKT my_script.cpp
 ```
-or add the bin directory to $PATH to call `iterateKT` from any directory. 
 
 The classes of interest are:
 - [`kinematics`](./src/kinematics.hpp) contains all relevant information regarding the masses of particles involved and kinematic quantities. So far, the three final state particles must have the same mass. 
-- [`amplitude`](./src/amplitude.hpp) acts as a container class which specifies how different isobars contribute to a specific process and how to combine them to a full amplitude in terms of all Mandelstam variables.
 - [`isobar`](./src/isobar.hpp) is the main physics object as it reconstructs two-particle subsystems in terms of basis functions after arbitrary iterations of the KT equations.
+- [`amplitude`](./src/amplitude.hpp) acts as a container class which specifies how different isobars contribute to a specific process and how to combine them to a full amplitude in terms of all Mandelstam variables.
 
-A typical script may look like this
+A typical script may look like this (see specific examples [here](./scripts/)):
 ```c++
 // Specify decay masses
 kinematics kin = new_kinematics(m_decay, m_final_state);
@@ -79,7 +78,7 @@ print(amp->evaluate(s, t, u));
 ```
 
 ### Virtual functions
-As illustrated above, `isobar` is a pointer to an instance of an abstract template class ( `raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
+As illustrated above, each `isobar` is a pointer to an instance of an abstract template class (`raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
 
 ##### `double phase_shift(double s)`
 The elastic phase shift $\delta_i(s)$ fully determines the Omnès function (the solution to the homogenous unitarity equation) which serves as the initial guess in the iterative procedure.
