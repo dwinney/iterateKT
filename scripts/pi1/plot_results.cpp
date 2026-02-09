@@ -1,4 +1,5 @@
-// Take results from a multi-dimensional fit and output distributions of chi2
+// Take results from a multi-dimensional fit and output distributions of chi2/N 
+// for each dalitz plot as well as the fit parameters as a function of m3π
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2026)
@@ -19,7 +20,7 @@
 #include "COMPASS_pi1/fitter.hpp"
 #include "COMPASS_pi1/data.hpp"
 
-void histograms()
+void plot_results()
 {
     using namespace iterateKT;
     using iterateKT::complex;
@@ -37,7 +38,7 @@ void histograms()
     std::string file_prefix = "CD";
 
     // File containing parameters
-    std::string in_pars_file   = "/scripts/pi1/in_pars.dat";
+    std::string in_pars_file   = "/scripts/pi1/alpha_pars_best.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -53,6 +54,7 @@ void histograms()
     // Import fit values
 
     std::vector<complex> pars;
+    std::vector<double>  v_alpha, v_redelta, v_imdelta;
 
     std::ifstream infile(main_dir()+in_pars_file);
     std::string line;
@@ -72,6 +74,12 @@ void histograms()
             // we do about these though
             is >> alpha >> redelta >> imdelta;
 
+            // save them to plot later 
+            v_alpha.push_back(alpha / 1E3);
+            v_redelta.push_back(redelta / 1E3);
+            v_imdelta.push_back(imdelta / 1E3);
+            
+            // but also to pass them to amplitude
             pars.push_back(alpha);
             pars.push_back(redelta+I*imdelta);
             nimported++;
@@ -103,7 +111,7 @@ void histograms()
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
 
-    std::array<std::array<std::vector<double>,2>,4> chi2s;
+    std::array<std::vector<double>,4> chi2s;
     double total_chi2 = 0, total_N = 0;
     for (int j = 0; j < 4; j++)
     {
@@ -121,8 +129,7 @@ void histograms()
                 if (is_zero(bin._dz[i])) continue;
                 chi2  += norm((from_data - abs(from_model)) / bin._dz[i]); 
             };
-            chi2s[j][0].push_back(bin._extras["m3pi"]);
-            chi2s[j][1].push_back(chi2/bin._N);
+            chi2s[j].push_back(chi2/bin._N);
             total_N    += bin._N;
             total_chi2 += chi2;
         };
@@ -135,15 +142,24 @@ void histograms()
 
     plotter plotter;
 
-    plot p = plotter.new_plot();
-    p.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{N}");
-    p.set_legend(0.6, 0.7);
-    p.set_ranges({1.0, 2.4}, {1, 13});
-    p.add_horizontal(chi2_dof, {kBlack, kDashed});
-    p.add_data(chi2s[3][0], chi2s[3][1], star(    jpacColor::Orange, "#minus #it{t} = 0.66"));
-    p.add_data(chi2s[2][0], chi2s[2][1], triangle(jpacColor::Green,  "#minus #it{t} = 0.26"));
-    p.add_data(chi2s[1][0], chi2s[1][1], square(  jpacColor::Red,    "#minus #it{t} = 0.17"));
-    p.add_data(chi2s[0][0], chi2s[0][1], dot(     jpacColor::Blue,   "#minus #it{t} = 0.12"));
-    p.save("chi2s.pdf");
+    // Plot distributions of chi2s
+    plot p1 = plotter.new_plot();
+    p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{N}");
+    p1.set_legend(0.6, 0.7);
+    p1.set_ranges({1.0, 2.4}, {1, 13});
+    p1.add_horizontal(chi2_dof, {kBlack, kDashed});
+    p1.add_data(m3pi_vals, chi2s[3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV"));
+    p1.add_data(m3pi_vals, chi2s[2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV"));
+    p1.add_data(m3pi_vals, chi2s[1], square(  jpacColor::Red,    "#minus #it{t} = 0.17 GeV"));
+    p1.add_data(m3pi_vals, chi2s[0], dot(     jpacColor::Blue,   "#minus #it{t} = 0.12 GeV"));
+    p1.save("chi2s.pdf");
 
+    // Plot distributions of parameters
+    plot p2 = plotter.new_plot();
+    p2.set_legend(0.8,0.2);
+    p2.set_labels("#it{m}_{3#pi}   [GeV]", "par / 10^{3}");
+    p2.add_data(m3pi_vals, v_imdelta, dot(jpacColor::Green, "Im #delta"));
+    p2.add_data(m3pi_vals, v_redelta, dot(jpacColor::Red,   "Re #delta"));
+    p2.add_data(m3pi_vals, v_alpha,   dot(jpacColor::Blue,  "#alpha"));
+    p2.save("pars.pdf");
 };
