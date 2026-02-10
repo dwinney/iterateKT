@@ -39,21 +39,21 @@ void bulk_iterate()
     std::string export_path  = "/scripts/pi1/basis_functions/";
 
     // Prefix to label output files with
-    std::string file_prefix  = "CD"; /* Contact & Deck */
+    std::string file_prefix  = "CD"; /* contact & Deck */
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution  
     
-    // Check that our file directory exists
-    std::filesystem::create_directory(main_dir()+export_path);
-
+    
     // Grab sub-array of bin values
     std::vector<double> m_bins;
     for (int i = min; i <= max; i++) m_bins.push_back(COMPASS::m_bins[i-11]);
-
+    
     // Set up our amplitude 
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(m_bins, COMPASS::t_bins, niterate));
     
+    // Check that our file directory exists
+    std::filesystem::create_directory(main_dir()+export_path);
     // and export
     amp->export_solution(export_path + file_prefix); 
 };
