@@ -93,7 +93,7 @@ void plot_isobars()
     plot p2 = plotter.new_plot();
     p2.set_curve_points(1000);
     p2.set_xrange(bounds);
-    p2.add_header("    #minus #it{t} = 0.1 GeV^{2}");
+    p2.add_header("#it{t} = #minus 0.1 GeV^{2}");
     p2.set_labels("#sigma   [GeV^{2}]", "#it{F}#kern[-0.3]{_{#Delta}} (#it{t}, #it{m}_{3#pi}^{2} #; #sigma + #it{i}#epsilon)");
     p2.set_legend(0.6, 0.6);
 

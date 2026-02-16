@@ -39,8 +39,7 @@ namespace iterateKT { namespace COMPASS
             return pars; 
         };
             
-        // Function to minimize
-        // Filters whether we're looking at the real or imaginary parts 
+        // Function to minimize is the average chi2 per dalitz plot
         static double fcn(std::vector<data_set> & data_vector, amplitude to_fit)
         {
             double chi2 = 0;

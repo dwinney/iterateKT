@@ -34,22 +34,22 @@ void bulk_fit()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 15, max = 44; 
-    double tolerance = 0.02;
+    int min = 11, max = 49; 
+    double tolerance = 0.0001;
 
     // Path to precalculated isoabrs
     std::string iso_path    = "/scripts/pi1/basis_functions/";
     // and the prefix given to each file
-    std::string file_prefix = "BD";
+    std::string file_prefix = "CD";
 
     // Are we taking initial values from file? if so which?
     bool initial_from_file   = true;
-    std::string in_pars_file = "/scripts/pi1/delta_pars.dat";
-
+    std::string in_pars_file = "/scripts/pi1/in_pars.dat";
+    
     // Where do we export the fit parameter values
     std::string out_pars_file  = "/scripts/pi1/out_pars.dat";
     // Put a file description at the beginning
-    std::string description = "deck + bubble, Lambda = 200 MeV";
+    std::string description = "deck + contact, no form factor";
     
     // -----------------------------------------------------------------------
     // Data set up
@@ -154,7 +154,7 @@ void bulk_fit()
     
     // Preamble info
     out << std::left << "# "+description << std::endl;
-    out << std::left << "# average χ² = "+to_string(fitter.fcn()) << std::endl;
+    out << std::left << "# average χ²/Dalitz = "+to_string(fitter.fcn()) << std::endl;
     out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
     std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
     out << std::left;
