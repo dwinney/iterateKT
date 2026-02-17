@@ -32,7 +32,7 @@ void single_fit()
     // -----------------------------------------------------------------------
     // Operating options
 
-    int m3pibin    = 22;  // which m3pi bin to fit
+    int m3pibin    = 22;  // which m3pi bin to fit 22, 27 & 32
     int tbin       = 2;   // which t bin to fit
     int Niter      = 10;  // Number of KT iterations
 
@@ -45,11 +45,10 @@ void single_fit()
     auto   constant = [&](complex sigma){return 1.;};
     auto   linear   = [&](complex sigma){return sigma;};
     auto   quad     = [&](complex sigma){return sigma*sigma;};
-    auto   bubble   = [&](complex sigma){return pi1::bubble(m3pi*m3pi, sigma, 0.5);};
+    auto   bubble   = [&](complex sigma){return pi1::bubble(m3pi*m3pi, sigma, norm(0.2));};
     auto   deck     = [&](complex sigma){return pi1::deck(t, m3pi*m3pi, sigma);};
 
-    std::vector<std::function<complex(complex)>> driving_terms = {constant, bubble, deck};
-    std::vector<std::string> par_labels = {"alpha", "beta", "gamma"};
+    std::vector<std::function<complex(complex)>> driving_terms = {constant, deck};
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -76,13 +75,11 @@ void single_fit()
 
     // Add data
     fitter<COMPASS::fit_single_bin> fitter(amp, "Combined");
-    fitter.set_tolerance(1E-9);
+    fitter.set_tolerance(0.00001E3);
     fitter.set_print_level(3);
-    fitter.set_strategy(5);
     fitter.add_data(data);
     
-    fitter.set_parameter_labels(par_labels);
-    fitter.make_real("alpha"); 
+    fitter.make_real("par[0]"); 
     fitter.do_fit(initial_guess);
 
     // -----------------------------------------------------------------------
@@ -91,20 +88,22 @@ void single_fit()
     plotter plotter;
 
     std::array<double,2> bounds = {0, kin->pth()+0.1};
-    std::string xlabel = "#sigma_{b}  [GeV^{2}]", ylabel =  "#sigma_{c}  [GeV^{2}]";
+    std::string xlabel = "#sigma_{#it{a}}  [GeV^{2}]", ylabel =  "#sigma_{#it{b}}  [GeV^{2}]";
 
     // Plot the amplitude
     plot2D p1 = amp->plot_dalitz(plotter);
     p1.set_palette(kBird);
     p1.set_labels(xlabel, ylabel);
     p1.set_ranges(bounds, bounds);
+    p1.save("dalitz.pdf");
     
     // Finally calculatet the chi2 per bin
-    std::vector<double> pull;
+    std::vector<double> pull, bin_i;
     for (int i = 0; i < data._N; i++)
     {
+        bin_i.push_back(i);
         double s1 = data._x[i], s2 = data._y[i];
-        complex model = amp->evaluate(s1, s2);
+        complex model = amp->evaluate(s1, s2, amp->get_kinematics()->Sigma() - s1 - s2);
 
         double fcn = (is_zero(data._dz[i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[i];
         pull.push_back(fcn);
@@ -117,31 +116,5 @@ void single_fit()
     p2.set_data({data._x, data._y, pull});
     p2.set_labels(xlabel, ylabel);
     p2.set_ranges(bounds, bounds, {-max_pull, max_pull});
-
-    // Combine them all in one file
-    plotter.combine({2,1}, {p1,p2}, "fit_results.pdf");
-    
-    std::vector<double> bins, ends, model_in_bin; 
-    double max_z    = *std::max_element(data._z.begin(), data._z.end());
-    for (int i = 0; i < data._N; i++) 
-    {
-        bins.push_back(i);
-        
-        double s = data._x[i], t = data._y[i];
-        complex M = amp->evaluate(s, t);
-        model_in_bin.push_back( abs(M) );
-    };
-    
-    double n = data._N / 12;
-    std::vector<plot>   bin_plots;
-    for (int i = 0; i < 12; i++)
-    {
-        plot p = plotter.new_plot();
-        p.add_data(bins, {data._z, data._dz});
-        p.add_curve(bins, model_in_bin);
-        p.set_ranges({n*i, n*(i+1)}, {0, max_z});
-        bin_plots.push_back(p);
-    };
-
-    plotter.combine({4,3}, bin_plots, "bins.pdf");
+    p2.save("pull.pdf");
 };

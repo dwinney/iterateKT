@@ -79,8 +79,8 @@ void plot_isobars()
     p1.set_legend(0.65, 0.65);
 
     isobar uniterated = amps[0]->get_isobar(id::P_wave);
-    p1.add_curve(bounds, [&](double s) { return std::real(uniterated->basis_function(0, 0, s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
-    p1.add_curve(bounds, [&](double s) { return std::imag(uniterated->basis_function(0, 0, s+IEPS)); }, dashed(jpacColor::DarkGrey));
+    p1.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
+    p1.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
     for (auto amp : amps)
     {
@@ -88,7 +88,7 @@ void plot_isobars()
         p1.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, pwave->name());
         p1.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
     };
-    p1.save("f1_comparison.pdf");
+    p1.save("fc_comparison.pdf");
 
     plot p2 = plotter.new_plot();
     p2.set_curve_points(1000);
@@ -97,8 +97,8 @@ void plot_isobars()
     p2.set_labels("#sigma   [GeV^{2}]", "#it{F}#kern[-0.3]{_{#Delta}} (#it{t}, #it{m}_{3#pi}^{2} #; #sigma + #it{i}#epsilon)");
     p2.set_legend(0.6, 0.6);
 
-    p2.add_curve(bounds, [&](double s) { return std::real(uniterated->basis_function(0, 3, s+IEPS)); }, solid(jpacColor::DarkGrey, "#Delta(t, #it{m}_{3#pi}; #sigma) #Omega(#sigma)"));
-    p2.add_curve(bounds, [&](double s) { return std::imag(uniterated->basis_function(0, 3, s+IEPS)); }, dashed(jpacColor::DarkGrey));
+    p2.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
+    p2.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
     for (auto amp : amps)
     {
@@ -114,6 +114,9 @@ void plot_isobars()
     p3.add_header("#it{m}_{3#pi} = 1.6 GeV");
     p3.set_labels("#sigma   [GeV^{2}]", "#it{F}#kern[-0.3]{_{#it{B}}} ({#it{s}, #it{t}}#; #sigma + #it{i}#epsilon) / #it{F}#kern[-0.3]{_{#it{B}}} ({#it{s}, #it{t}}#; 0)");
     p3.set_legend(0.55, 0.6);
+    
+    p3.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
+    p3.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
     std::array<std::string,4> labels = {"Contact", "Bubble (#Lambda = 200 MeV)", "Bubble (#Lambda = 770 MeV)", "Deck (#it{t} = #minus 0.1 GeV^{2})"};
     for (int i = 0; i < 4; i++)

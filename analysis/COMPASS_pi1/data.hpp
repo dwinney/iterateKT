@@ -116,9 +116,9 @@ namespace iterateKT { namespace COMPASS
     
         kinematics kin = new_kinematics(m3pi, M_PION);
         std::vector<double> sig1, sig2, absM, errM;
-        for (int i = 1; i < N; i++)
+        for (int i = 0; i < N; i++)
         {
-            for (int j = 1; j < N; j++)
+            for (int j = 0; j < N; j++)
             {
                 double s1 = bins[i];
                 double s2 = bins[j];
