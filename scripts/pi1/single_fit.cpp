@@ -33,7 +33,7 @@ void single_fit()
     // Operating options
 
     int m3pibin    = 22;  // which m3pi bin to fit 22, 27 & 32
-    int tbin       = 2;   // which t bin to fit
+    int tbin       = 0;   // which t bin to fit
     int Niter      = 10;  // Number of KT iterations
 
     // Import our data set first so we can know the m3pi bin
@@ -71,7 +71,9 @@ void single_fit()
 
     // These vectors should be same size as Nsub above
     std::vector<complex> initial_guess;
-    for (auto x : driving_terms) initial_guess.push_back(1.0);
+    // for (auto x : driving_terms) initial_guess.push_back(1.0);
+    // initial_guess = {1009.56026045, complex(-1677.79215508,180.617166393)};
+    initial_guess = {319.8, 755.8*exp(I*3.13)};
 
     // Add data
     fitter<COMPASS::fit_single_bin> fitter(amp, "Combined");
@@ -116,5 +118,12 @@ void single_fit()
     p2.set_data({data._x, data._y, pull});
     p2.set_labels(xlabel, ylabel);
     p2.set_ranges(bounds, bounds, {-max_pull, max_pull});
-    p2.save("pull.pdf");
+    p2.save("pull_2D.pdf");
+
+    plot p3 = plotter.new_plot();
+    p3.add_data(bin_i, pull, dot(jpacColor::DarkGrey));
+    p3.add_horizontal(0);
+    p3.set_labels("Bin number", "Pull");
+    p3.set_ranges( {0, bin_i.back()}, {-6,6});
+    p3.save("pull_1D.pdf");
 };

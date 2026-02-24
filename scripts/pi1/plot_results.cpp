@@ -38,7 +38,7 @@ void plot_results()
     std::string file_prefix = "CD";
 
     // File containing parameters
-    std::string in_pars_file   = "/scripts/pi1/alpha_pars_best.dat";
+    std::string in_pars_file   = "/scripts/pi1/delta_pars_best.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -57,6 +57,7 @@ void plot_results()
     std::vector<double>  v_alpha, v_redelta, v_imdelta;
 
     std::ifstream infile(main_dir()+in_pars_file);
+    if (!infile) fatal("Cannot open file " + in_pars_file + "!");
     std::string line;
 
     int nimported = 0; // Mark how many lines we've imported
@@ -112,7 +113,7 @@ void plot_results()
     // Set up amplitude and iterative solution
 
     std::array<std::vector<double>,4> chi2s;
-    double total_chi2 = 0, total_N = 0;
+    double total_chi2 = 0, total_N = 0, avg_chi2 = 0.;
     for (int j = 0; j < 4; j++)
     {
         for (auto bin : data[j])
@@ -132,6 +133,7 @@ void plot_results()
             chi2s[j].push_back(chi2/bin._N);
             total_N    += bin._N;
             total_chi2 += chi2;
+            avg_chi2   += chi2/bin._N;
         };
     };
 
@@ -144,9 +146,9 @@ void plot_results()
 
     // Plot distributions of chi2s
     plot p1 = plotter.new_plot();
-    p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{N}");
-    p1.set_legend(0.6, 0.7);
-    p1.set_ranges({1.0, 2.4}, {1, 13});
+    p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
+    p1.set_legend(0.65, 0.725);
+    p1.set_ranges({1.12, 2.28}, {1.5, 9.0});
     p1.add_horizontal(chi2_dof, {kBlack, kDashed});
     p1.add_data(m3pi_vals, chi2s[3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV"));
     p1.add_data(m3pi_vals, chi2s[2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV"));
@@ -156,10 +158,12 @@ void plot_results()
 
     // Plot distributions of parameters
     plot p2 = plotter.new_plot();
-    p2.set_legend(0.8,0.2);
-    p2.set_labels("#it{m}_{3#pi}   [GeV]", "par / 10^{3}");
-    p2.add_data(m3pi_vals, v_imdelta, dot(jpacColor::Green, "Im #delta"));
-    p2.add_data(m3pi_vals, v_redelta, dot(jpacColor::Red,   "Re #delta"));
-    p2.add_data(m3pi_vals, v_alpha,   dot(jpacColor::Blue,  "#alpha"));
+    p2.set_legend(0.75,0.2);
+    p2.set_labels("#it{m}_{3#pi}   [GeV]", "#it{N} / 10^{3}");
+    p2.add_horizontal(0., {kBlack, kDashed});
+    p2.add_data(m3pi_vals, v_imdelta, dot(jpacColor::Green, "Im #it{N}_{#it{d}}"));
+    p2.add_data(m3pi_vals, v_redelta, dot(jpacColor::Red,   "Re #it{N}_{#it{d}}"));
+    p2.add_data(m3pi_vals, v_alpha,   dot(jpacColor::Blue,  "#it{N}_{#it{c}}"));
+    p2.set_ranges({1.12, 2.28}, {-9,5});
     p2.save("pars.pdf");
 };
