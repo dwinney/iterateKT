@@ -15,16 +15,9 @@
 
 namespace iterateKT { namespace kaon
 {
-    
     // Specify the fitter interface
     struct fit
     {
-        // Static identifiers for data_set types
-        static const int kAll = 0, kWidth = 1, kDalitz = 2;
-
-        // The offset we use for the derivatives of dpars
-        static constexpr double derivative_h = 1E-6;
-
         // Whether or not we are going to use the full set of subtractions allowed by 
         // the froissart bound asymptotics
         static const bool FULL_SUBTRACTIONS = false;
@@ -34,45 +27,48 @@ namespace iterateKT { namespace kaon
         {
             switch (i)
             {
-                case kAll:     return "Width & {g, h, k}";
-                case kWidth:   return "Width";
-                case kDalitz:  return "{g, h, k}";
-                default:       return "ERROR!";
+                case kDalitz_W:   return "Dalitz [Weinberg]";
+                case kDalitz_C:  return "Dalitz [Cabbibo-Isidori]";
+                case kDalitz_E:   return "Dalitz [Empirical]";
+                case kWidth:      return "Integrated Width";
+                default:          return "ERROR!";
             };
         };
 
         // Function being minimized, sum of chi2s of individual data sets and observables
         static double fcn(std::vector<data_set> & data_vector, amplitude to_fit)
         {
-            double chi2_tot = 0;
-            for (auto data : data_vector) chi2_tot += chi2(data, to_fit);
-            return chi2_tot;
+            double fcn_tot = 0;
+            for (auto data : data_vector)
+            {
+                switch (data._type)
+                {
+                    case kDalitz_W:  fcn_tot += fcn_W(data, to_fit); break;
+                    case kDalitz_C: fcn_tot += fcn_C(data, to_fit); break;
+                    case kDalitz_E:  fcn_tot += fcn_E(data, to_fit); break;
+                    default: break;
+                };
+            };
+            return fcn_tot;
         };
 
-        // Indidivudal chi2 from a single data set
-        static double chi2(const data_set & data, amplitude to_fit)
+        // Calculate average deviation from Weinberg expansion
+        static double fcn_W(const data_set & data, amplitude to_fit)
         {
-            int type = data._type;
-            bool n = (data._type == kAll); // Whether to skip the first slot (width) in the data
-            to_fit->set_option(data._option);
+            double g, h, k, s0;
+            g  = data._extras["g"];
+            h  = data._extras["h"];
+            k  = data._extras["k"];
+            s0 = data._extras["s0"];
+            auto dF = [&](double s, double t)
+            {
+                // Expansion variables
+                double u = 3*s0 - s - t;
+                double x = (t - u) /norm(M_PION_PM);
+                double y = (s - s0)/norm(M_PION_PM);
 
-            double chi2 = 0;
-            // χ² from Γ        
-            if (type == kAll || type == kWidth)
-            {
-                double gam_th = to_fit->width();
-                double gam_ex = data._z[0], dgam_ex = data._dz[0];
-                chi2 += norm((gam_th - gam_ex)/dgam_ex);
+                double N = norm(to_fit->evaluate(s0, s0, s0));
             };
-            // χ² from g h k
-            if (type == kAll || type == kDalitz)
-            {
-                double s0   = to_fit->get_kinematics()->s0();
-                auto dpars  = to_fit->get_dalitz_parameters(derivative_h, s0, {norm(M_PION_PM), norm(M_PION_PM)});
-                std::array<double,3> ghk = {dpars[0], dpars[1], dpars[3]};
-                for (int i = 0; i < 3; i++) chi2 += norm((ghk[i]-data._z[i+n])/data._dz[i+n]);
-            };
-            return chi2;
         };
 
         // We only fit the real parts of the parameters while the imaginary parts are
