@@ -30,7 +30,7 @@ void plot_results()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 15, max = 44; 
+    int min = 11, max = 49; 
 
     // Path to precalculated isoabrs
     std::string iso_path    = "/scripts/pi1/basis_functions/";
@@ -38,7 +38,7 @@ void plot_results()
     std::string file_prefix = "CD";
 
     // File containing parameters
-    std::string in_pars_file   = "/scripts/pi1/delta_pars_best.dat";
+    std::string in_pars_file   = "/scripts/pi1/in_pars.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -55,6 +55,7 @@ void plot_results()
 
     std::vector<complex> pars;
     std::vector<double>  v_alpha, v_redelta, v_imdelta;
+    double smin, smax;
 
     std::ifstream infile(main_dir()+in_pars_file);
     if (!infile) fatal("Cannot open file " + in_pars_file + "!");
@@ -72,6 +73,8 @@ void plot_results()
             double trash, alpha, redelta, imdelta;
             // Dont care about first two columns
             is >> trash >> trash;
+            if (nimported == 0)       smin = trash;
+            if (nimported == max-min) smax = trash;
             // we do about these though
             is >> alpha >> redelta >> imdelta;
 
@@ -138,6 +141,10 @@ void plot_results()
     };
 
     double chi2_dof = total_chi2/(total_N - pars.size());
+    avg_chi2 /= 4*chi2s[0].size();
+
+    print<20>("True chi2/dof =",  chi2_dof);
+    print<20>("Average chi2/N =", avg_chi2);
 
     // -----------------------------------------------------------------------
     // Plot results
@@ -148,7 +155,7 @@ void plot_results()
     plot p1 = plotter.new_plot();
     p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p1.set_legend(0.65, 0.725);
-    p1.set_ranges({1.12, 2.28}, {1.5, 9.0});
+    p1.set_ranges({smin, smax}, {1.5, 9.0});
     p1.add_horizontal(chi2_dof, {kBlack, kDashed});
     p1.add_data(m3pi_vals, chi2s[3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV"));
     p1.add_data(m3pi_vals, chi2s[2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV"));
@@ -164,6 +171,6 @@ void plot_results()
     p2.add_data(m3pi_vals, v_imdelta, dot(jpacColor::Green, "Im #it{N}_{#it{d}}"));
     p2.add_data(m3pi_vals, v_redelta, dot(jpacColor::Red,   "Re #it{N}_{#it{d}}"));
     p2.add_data(m3pi_vals, v_alpha,   dot(jpacColor::Blue,  "#it{N}_{#it{c}}"));
-    p2.set_ranges({1.12, 2.28}, {-9,5});
+    p2.set_ranges({smin, smax}, {-9,5});
     p2.save("pars.pdf");
 };
