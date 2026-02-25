@@ -32,7 +32,7 @@ void single_fit()
     // -----------------------------------------------------------------------
     // Operating options
 
-    int m3pibin    = 22;  // which m3pi bin to fit 22, 27 & 32
+    int m3pibin    = 22;  // which m3pi bin to fit
     int tbin       = 0;   // which t bin to fit
     int Niter      = 10;  // Number of KT iterations
 
@@ -71,10 +71,8 @@ void single_fit()
 
     // These vectors should be same size as Nsub above
     std::vector<complex> initial_guess;
-    // for (auto x : driving_terms) initial_guess.push_back(1.0);
-    // initial_guess = {1009.56026045, complex(-1677.79215508,180.617166393)};
-    initial_guess = {319.8, 755.8*exp(I*3.13)};
-
+    for (auto x : driving_terms) initial_guess.push_back(1.0);
+    
     // Add data
     fitter<COMPASS::fit_single_bin> fitter(amp, "Combined");
     fitter.set_tolerance(0.00001E3);
