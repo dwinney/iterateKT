@@ -70,12 +70,12 @@ namespace iterateKT
         virtual complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
 
         // Calculate widths in the physical (symmetric) decay region
-        double differential_width(double s, double t);
-        double differential_width(double s);
-        double width();
+        virtual double differential_width(double s, double t);
+        virtual double differential_width(double s);
+        virtual double width();
 
         // (inverse of) prefactors for the differential width
-        inline double prefactors()
+        virtual inline double prefactors()
         { return 32*pow(2*PI*_kinematics->M(),3)*combinatorial_factor(); }
 
         // -----------------------------------------------------------------------
