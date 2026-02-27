@@ -99,6 +99,7 @@ void single_fit()
     
     // Finally calculatet the chi2 per bin
     std::vector<double> pull, bin_i;
+    double avg_pull = 0;
     for (int i = 0; i < data._N; i++)
     {
         bin_i.push_back(i);
@@ -107,8 +108,11 @@ void single_fit()
 
         double fcn = (is_zero(data._dz[i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[i];
         pull.push_back(fcn);
+        avg_pull += fcn;
     };
     double max_pull = *std::max_element(pull.begin(), pull.end());
+    avg_pull /= pull.size();
+    print("Average pull = ", avg_pull);
 
     plot2D p2 = kin->new_dalitz_plot(plotter);
     p2.set_Nbins(data._extras["Nbins"]);
@@ -120,7 +124,7 @@ void single_fit()
 
     plot p3 = plotter.new_plot();
     p3.add_data(bin_i, pull, dot(jpacColor::DarkGrey));
-    p3.add_horizontal(0);
+    p3.add_horizontal(avg_pull);
     p3.set_labels("Bin number", "Pull");
     p3.set_ranges( {0, bin_i.back()}, {-6,6});
     p3.save("pull_1D.pdf");
