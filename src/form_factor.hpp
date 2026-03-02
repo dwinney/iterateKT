@@ -1,0 +1,93 @@
+// Top (abstract) level class which defines an X -> π transition form factor.
+// We take an X -> 3π amplitude object and specify an isobar.
+// This defines the type of current being claculated (i.e. P-wave isobar -> vector FF)
+//
+// ------------------------------------------------------------------------------
+// Author:       Daniel Winney (2026)
+// Affiliation:  Instituto de Ciencias Nucleares (ICN)
+//               Universidad Autónoma Nacional de México (UNAM)
+// Email:        daniel.winney@nucleares.unam.mx
+// ------------------------------------------------------------------------------
+
+#ifndef FORM_FACTOR_HPP
+#define FORM_FACTOR_HPP
+
+#include <memory>
+#include "kinematics.hpp"
+#include "amplitude.hpp"
+#include "isobar.hpp"
+#include "utilities.hpp"
+#include <boost/math/quadrature/gauss_kronrod.hpp>
+
+namespace iterateKT
+{
+    // Forward declare for the typedef below
+    class raw_form_factor;
+    
+    // Define form_factor objects only as pointers
+    using form_factor = std::shared_ptr<raw_form_factor>;
+
+    // "Constructors"
+    template<class A =raw_form_factor>
+    inline form_factor new_form_factor(amplitude amp, id proj)
+    {
+        auto x = std::make_shared<A>(amp, proj);
+        return std::static_pointer_cast<raw_form_factor>(x);
+    };
+
+    class raw_form_factor
+    {
+        // -----------------------------------------------------------------------
+        public:
+        
+        // A typical form factor will require:
+        // - number of subtractions to consider
+        // - a decay amplitude (which specifies the Xπ -> ππ amplitude)
+        // - the projection id (which specifies the projection i.e. FF with which spin-J)
+        raw_form_factor(uint nsub, amplitude amp, id projection):
+        _n_subtractions(nsub),
+        _decay_amplitude(amp), 
+        _projection(projection),
+        _direct_isobar(amp->get_isobar(projection)),
+        _kinematics(amp->get_kinematics())
+        {};
+        
+        // -----------------------------------------------------------------------
+        // These functions need to be implemented by a user-defined derived class 
+        
+        // In addition to the decay amplitude, we need to specify the
+        // ππ -> J form factor for arbitrary s on the real line
+        virtual complex external_current(double s) = 0; 
+
+        // Depending on how the amplitude is normalizes, we may need to
+        // add extra factors to match the relevant partial wave projection
+        virtual double kinematic_factors(double s) = 0;
+
+        // -----------------------------------------------------------------------
+        // With the above specified, the evaluation simply comes down 
+        // to evaluating a dispersion relation
+
+        complex discontinuity(double s); 
+
+        // -----------------------------------------------------------------------
+        protected:
+
+        // Related to subtraction polynomials
+        uint                 _n_subtraction; // number of subtractions
+        std::vector<complex> _subtractions;  // subtraction coefficients
+
+        // Get the kinematics from the decay amplitude
+        kinematics _kinematics; 
+
+        // Decay amplitude which supplies the Xπ -> ππ partial waves
+        amplitude _decay_amplitude;
+
+        // This id specifies the "direct channel" isobar and the relevant partial-wave projection
+        id _projection; 
+
+        // Save a pointer to the direct channel isobar for ease
+        isobar _direct_isobar;
+    };
+};
+
+#endif
