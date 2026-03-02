@@ -141,6 +141,10 @@ namespace iterateKT
         static inline complex deck_with_FF(complex t, complex M2, complex s, double lam2)
         { return deck(t, M2, s, _mu2) - deck(t, M2, s, lam2); };
 
+        // When we want the integrated width to just be the integrated intenstiy 
+        // and so we remove the flux prefactors to match COMPASS definition
+        inline double prefactors(){ return 1; };
+
         // Assuming a pi- pi- pi+ decay and only P-waves
         // s = (pi- + pi+)^2 
         // t = (pi- + pi+)^2
@@ -194,6 +198,9 @@ namespace iterateKT
         inline uint N_pars(){ return _current->N_pars(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+
+        // Observables
+        inline double width(){ return _current->width() ; };
 
         // Export solution iterates over the four tbins exporting each one
         inline void export_solution(std::string path, uint precision)
@@ -288,6 +295,9 @@ namespace iterateKT
         inline kinematics get_kinematics(){ return _current->get_kinematics(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+
+        // Observables
+        inline double width(){ return _current->width() ; };
 
         // Except the total number of pars which are cumulative
         inline uint N_pars(){ return _current->N_pars()*_mbins.size(); };
