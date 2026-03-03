@@ -121,7 +121,7 @@ void bulk_fit()
     // -----------------------------------------------------------------------
     // Set up fitter
 
-    fitter<COMPASS::fit_2D> fitter(amp, "Combined");
+    fitter<amplitude,COMPASS::fit_2D> fitter(amp, "Combined");
     fitter.set_tolerance(tolerance*1E3);
     fitter.set_print_level(4);
     fitter.set_strategy(0);

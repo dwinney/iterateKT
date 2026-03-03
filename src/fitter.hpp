@@ -60,24 +60,25 @@ namespace iterateKT
     // ---------------------------------------------------------------------------
     // Actual fitter object
     // This is templated because it requires an implementation of the chi2 function to be fit
+    // The template A should be the type of object being fit, e.g. either amplitude or form_factor
     // The template F should contain the details of the fit and the following static functions
     // fcn(amplitude, std::vector<data_set>&) [function to be minimized, e.g. chi2]
-    // 
-    template<class F>
+
+    template<class A,class F>
     class fitter
     {
         public: 
 
         // Basic constructor, only requires amplitude to be fit 
         // uses default settings for minuit
-        fitter(amplitude amp_to_fit)
+        fitter(A amp_to_fit)
         : _amplitude(amp_to_fit),
           _minuit(ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined"))
         { reset_parameters(); };
 
         // Parameterized constructor 
         // with explicit choice of minimization strategy and tolerance of minuit routines
-        fitter(amplitude amp_to_fit, std::string strategy, double tolerance = 1.E-6)
+        fitter(A amp_to_fit, std::string strategy, double tolerance = 1.E-6)
         : _amplitude(amp_to_fit), _tolerance(tolerance),
           _minuit(ROOT::Math::Factory::CreateMinimizer("Minuit2", strategy))
         { reset_parameters(); }; 
@@ -268,7 +269,7 @@ namespace iterateKT
         private:
 
         // This ptr should point to the amplitude to be fit
-        amplitude _amplitude = nullptr;
+        A _amplitude = nullptr;
 
         // -----------------------------------------------------------------------
         // Data handling

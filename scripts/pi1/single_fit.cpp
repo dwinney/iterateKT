@@ -74,7 +74,7 @@ void single_fit()
     for (auto x : driving_terms) initial_guess.push_back(1.0);
     
     // Add data
-    fitter<COMPASS::fit_single_bin> fitter(amp, "Combined");
+    fitter<amplitude,COMPASS::fit_single_bin> fitter(amp, "Combined");
     fitter.set_tolerance(0.00001E3);
     fitter.set_print_level(3);
     fitter.add_data(data);
