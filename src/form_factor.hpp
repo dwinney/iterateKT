@@ -1,6 +1,6 @@
 // Top (abstract) level class which defines an X -> π transition form factor.
 // We take an X -> 3π amplitude object and specify an isobar.
-// This defines the type of current being claculated (i.e. P-wave isobar -> vector FF)
+// This defines the type of current being calculated (i.e. P-wave isobar -> vector FF)
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2026)
@@ -15,6 +15,7 @@
 #include <memory>
 #include "kinematics.hpp"
 #include "amplitude.hpp"
+#include "settings.hpp"
 #include "isobar.hpp"
 #include "utilities.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
@@ -29,9 +30,9 @@ namespace iterateKT
 
     // "Constructors"
     template<class A =raw_form_factor>
-    inline form_factor new_form_factor(amplitude amp, id proj)
+    inline form_factor new_form_factor(uint nsub, amplitude amp, id proj, settings settings = default_settings())
     {
-        auto x = std::make_shared<A>(amp, proj);
+        auto x = std::make_shared<A>(nsub, amp, proj, settings);
         return std::static_pointer_cast<raw_form_factor>(x);
     };
 
@@ -44,13 +45,29 @@ namespace iterateKT
         // - number of subtractions to consider
         // - a decay amplitude (which specifies the Xπ -> ππ amplitude)
         // - the projection id (which specifies the projection i.e. FF with which spin-J)
-        raw_form_factor(uint nsub, amplitude amp, id projection):
+        raw_form_factor(uint nsub, amplitude amp, id projection, settings settings):
         _n_subtractions(nsub),
         _decay_amplitude(amp), 
-        _projection(projection),
-        _direct_isobar(amp->get_isobar(projection)),
-        _kinematics(amp->get_kinematics())
-        {};
+        _kinematics(amp->get_kinematics()),
+        _settings(settings)
+        {
+            _projections.push_back(projection);
+            _direct_isobars.push_back(amp->get_isobar(projection));
+        };
+
+        // OR if multiple isobars contribute to the "direct channel"
+        raw_form_factor(uint nsub, amplitude amp, std::vector<id> projections, settings settings):
+        _n_subtractions(nsub),
+        _decay_amplitude(amp), 
+        _projections(projections),
+        _kinematics(amp->get_kinematics()),
+        _settings(settings)
+        {
+            for (auto x : projections)
+            {
+                _direct_isobars.push_back(amp->get_isobar(x));
+            };
+        };
         
         // -----------------------------------------------------------------------
         // These functions need to be implemented by a user-defined derived class 
@@ -67,14 +84,17 @@ namespace iterateKT
         // With the above specified, the evaluation simply comes down 
         // to evaluating a dispersion relation
 
-        complex discontinuity(double s); 
+        complex evaluate(complex s); 
 
         // -----------------------------------------------------------------------
         protected:
 
+        // Holds all parameters related to integration and expansions and etc.
+        settings _settings; 
+
         // Related to subtraction polynomials
-        uint                 _n_subtraction; // number of subtractions
-        std::vector<complex> _subtractions;  // subtraction coefficients
+        uint                 _n_subtractions; // number of subtractions
+        std::vector<complex> _subtractions;   // subtraction coefficients
 
         // Get the kinematics from the decay amplitude
         kinematics _kinematics; 
@@ -83,10 +103,15 @@ namespace iterateKT
         amplitude _decay_amplitude;
 
         // This id specifies the "direct channel" isobar and the relevant partial-wave projection
-        id _projection; 
+        std::vector<id> _projections; 
 
         // Save a pointer to the direct channel isobar for ease
-        isobar _direct_isobar;
+        std::vector<isobar> _direct_isobars;
+
+        // Functions for evaluation
+
+        // Evaluation of the non-singular part of the dispersion integral
+        complex regular_piece(complex s);
     };
 };
 

@@ -206,6 +206,7 @@ namespace iterateKT
 
         // Private method only accessible to raw_amplitude
         friend class solver;
+        friend class raw_form_factor;
 
         // IDs
         std::string _name = "isobar";
