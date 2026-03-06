@@ -36,7 +36,7 @@ void bulk_iterate()
     int min = 11, max = 49;
 
     // Where to put files
-    std::string export_path  = "/scripts/pi1/basis_functions/";
+    std::string export_path  = main_dir() + "/scripts/pi1/basis_functions/";
 
     // Prefix to label output files with
     std::string file_prefix  = "CD"; /* contact & Deck */

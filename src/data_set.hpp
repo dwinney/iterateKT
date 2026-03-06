@@ -58,7 +58,7 @@ namespace iterateKT
 
         // Add the top level dir path to get full file path
         std::array<std::vector<double>, N> result;
-        std::string file_path = main_dir() + rel_path;
+        std::string file_path = rel_path;
         std::ifstream infile(file_path);
 
         if (!infile.is_open())
@@ -100,7 +100,7 @@ namespace iterateKT
 
         // Add the top level dir path to get full file path
         std::array<std::vector<double>, N> result;
-        std::string file_path = main_dir() + rel_path;
+        std::string file_path = rel_path;
         std::ifstream infile(file_path);
 
         if (!infile.is_open())
