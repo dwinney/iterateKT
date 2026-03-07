@@ -50,9 +50,10 @@ namespace iterateKT
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
 
-        phase_args iso_0 = {"madrid/delta_00.dat", 1.69,  1, 1, 2};
-        phase_args iso_1 = {"madrid/delta_11.dat", 1.69,  1, 1, 2};
-        phase_args iso_2 = {"madrid/delta_02.dat", 9.99,  0, 1, 2};
+        std::string path = main_dir() + "/physics/phase_shifts/";
+        phase_args iso_0 = {path+"madrid/delta_00.dat", 1.69,  1, 1, 2};
+        phase_args iso_1 = {path+"madrid/delta_11.dat", 1.69,  1, 1, 2};
+        phase_args iso_2 = {path+"madrid/delta_02.dat", 9.99,  0, 1, 2};
                 
         sets._phase_shifts = { {id::I0_P1, iso_1}, 
                                {id::I1_S0, iso_0}, {id::I1_P1, iso_1}, {id::I1_S2, iso_2},

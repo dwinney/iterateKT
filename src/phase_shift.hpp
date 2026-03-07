@@ -64,7 +64,7 @@ namespace iterateKT
         inline void interpolate(std::string file)
         {   
             // Assume data is in two columns
-            auto data = import_data<2>("/physics/phase_shifts/"+file);
+            auto data = import_data<2>(file);
             check<2>(data, file);
             _sth = data[0][0]; 
             _delta.SetData(data[0], data[1]);
