@@ -1,5 +1,5 @@
 # iterateKT
-Solver for iterative solutions to general Omnès-Khuri-Treiman problems.
+Solver for iterative solutions to general Khuri-Treiman problems.
 That is, solutions to systems of coupled integral equations which arise from three-body decays involving any number of single-variable isobars of the form:
 ```math
     F_i(s) = P_{n-1}(s) + \frac{s^n}{\pi} \int ds^\prime \, \frac{\text{disc }F_i(s^\prime)}{s^{\prime n} \, (s^\prime - s)} ~,
@@ -10,7 +10,7 @@ each satisfying the unitarity condition
 ```
 For maximum flexibility, the code only requires specifying an elastic phase shift $\delta_i(s)$ and kernel functions $K_{ij}(s,t)$ of each set of isobars. Full isospin and/or helicity amplitudes can be built outside of the core iterative functionality by combining the pre-iterated isobars.
 
-The driving term, $P_{n-1}(s)$, parameterizes the left-hand cuts associated with the production of the 3-body system. Traditionally, this is simply a polynomial of order $n-1$ but the code allows arbitrary complex functions with which to incorporate production effects. 
+The driving term, $P_{n-1}(s)$, parameterizes any effects not constrained by elastic unitarity. Traditionally, this is simply a polynomial of order $n-1$ but the code allows arbitrary complex functions with which to incorporate production effects. 
 
 Note that convergence of the KT equations is not guaranteed (and the code provides no automatic checks)! This may depend on the number of isobars, number of subtractions, masses and quantum numbers considered.
 
@@ -77,7 +77,8 @@ print("below", first_isobar->basis_function(l, s-IEPS));
 print(amp->evaluate(s, t, u));
 ```
 
-### Virtual functions
+## Virtual functions
+### Isobars
 As illustrated above, each `isobar` is a pointer to an instance of an abstract template class (`raw_isobar`). The following virtual functions which must be implemented by the user in a derived class in order to specify the physics case of interest:
 
 ##### `double phase_shift(double s)`
@@ -103,6 +104,14 @@ From here one may calculate the double-differential decay width using `different
 ```
 where $\mathcal{N}$ is a numerical factor specificied by `combinatorial_factor()` and can be used to add constants related to indentical particles and/or averaging over initial-state helicities. Single differential or fully integrated widths may also be accessed with `differential_width(double s)` and `width()`.  
 
-### Plotting and Fitting
+# Utilities 
+
 Many utilities are available to effectively fit amplitudes to data and plot the results. 
 See documentation in [`fitter.hpp`](./src/fitter.hpp) and [`plotter.hpp`](./src/plotter.hpp) for details or the example scripts in [`/scripts`](./scripts/) and example fitting interfaces in [`/analysis`](./analysis/).
+
+# References
++ [1] [JPAC Website](https://www.jpac-physics.org/)
+
+<p align="center">
+  <img width="300" src="./doc/JPAClogo.png">
+</p>
