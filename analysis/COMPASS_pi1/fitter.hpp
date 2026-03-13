@@ -63,6 +63,81 @@ namespace iterateKT { namespace COMPASS
         };
     };
 
+    inline std::vector<complex> import_parameters(std::array<int,2> minmax, std::string in_pars_file)
+    {
+        std::vector<complex> pars;
+        std::ifstream infile(in_pars_file);
+        std::string line;
+
+        int n = minmax[1] - minmax[0];
+
+        if (!infile) warning("COMPASS::import_parameters", "Cannot open file " + in_pars_file + "!");
+
+        int nimported = 0; // Mark how many lines we've imported
+        while (std::getline(infile, line))
+        {   
+            if (line.empty())        continue; // skips empty lines
+            if (line.front() == '#') continue; // Skip comment lines 
+            std::istringstream is(line);  
+            
+            if (nimported < n+1)
+            {
+                double trash, alpha, redelta, imdelta;
+                // Dont care about first two columns
+                is >> trash >> trash;
+                // we do about these though
+                is >> alpha >> redelta >> imdelta;
+    
+                pars.push_back(alpha);
+                pars.push_back(redelta+I*imdelta);
+                nimported++;
+                continue;
+            };
+
+            double b_alpha, b_delta;
+            is >> b_alpha >> b_delta; 
+            pars.push_back(b_alpha);
+            pars.push_back(b_delta);
+        };
+
+        return pars;
+    };
+
+    inline void export_parameters(std::array<int,2> minmax, std::vector<complex> pars, std::string description, std::string out_pars_file)
+    {    
+        std::ofstream out;
+        out.open(out_pars_file);
+        int  precision = 12, spacing = precision + 10;
+
+        int min = minmax[0], max = minmax[1];
+        
+        // Preamble info
+        out << std::left << "# "+description << std::endl;
+        out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
+        std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
+        out << std::left;
+        for (auto x : headers) out << std::setw(spacing) << x;
+        out << endl;
+        out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
+        // Table of subtraction pars
+        for (uint i = 0; i <= max - min; i++)
+        {
+            out << std::left << std::setprecision(precision);
+            out << std::setw(spacing) << i + min;
+            out << std::setw(spacing) << m_bins[i+min-11];
+            out << std::setw(spacing) << real(pars[2*i]);
+            out << std::setw(spacing) << real(pars[2*i+1]);
+            out << std::setw(spacing) << imag(pars[2*i+1]);
+            out << std::endl;
+        };
+        // Tack on the two t-slopes at the end
+        out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
+        out << std::left << std::setw(spacing) << "# b_alpha" << std::setw(spacing) << "b_delta" << std::endl;
+        out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
+        out << std::left << std::setw(spacing) << real(pars[2*(max-min)+2]) << std::setw(spacing) << real(pars[2*(max-min)+3]) << std::endl;
+        out.close();
+    };
+
     // This one on the other hand assumes we are looking at multiple tbins and have couplings with explicit t-dependence
     struct fit_across_tbins
     {

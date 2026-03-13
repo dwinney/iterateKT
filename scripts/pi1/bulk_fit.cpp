@@ -35,19 +35,19 @@ void bulk_fit()
 
     // Which range of m3pi bins to consider
     int min = 11, max = 49; 
-    double tolerance = 0.0001;
+    double tolerance = 0.01;
 
     // Path to precalculated isoabrs
-    std::string iso_path    = "/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CD";
 
     // Are we taking initial values from file? if so which?
     bool initial_from_file   = true;
-    std::string in_pars_file = "/scripts/pi1/in_pars.dat";
+    std::string in_pars_file = main_dir()+"/scripts/pi1/in_fit.dat";
     
     // Where do we export the fit parameter values
-    std::string out_pars_file  = "/scripts/pi1/out_pars.dat";
+    std::string out_pars_file  = main_dir()+"/scripts/pi1/out_pars.dat";
     // Put a file description at the beginning
     std::string description = "deck + contact, no form factor";
     
@@ -73,39 +73,8 @@ void bulk_fit()
 
     std::vector<complex> intial_vals;
 
-    if (initial_from_file)
-    {
-        std::ifstream infile(main_dir()+in_pars_file);
-        std::string line;
-
-        int nimported = 0; // Mark how many lines we've imported
-        while (std::getline(infile, line))
-        {   
-            if (line.empty())        continue; // skips empty lines
-            if (line.front() == '#') continue; // Skip comment lines 
-            std::istringstream is(line);  
-            
-            if (nimported < max-min+1)
-            {
-                double trash, alpha, redelta, imdelta;
-                // Dont care about first two columns
-                is >> trash >> trash;
-                // we do about these though
-                is >> alpha >> redelta >> imdelta;
-    
-                initial_vals.push_back(alpha);
-                initial_vals.push_back(redelta+I*imdelta);
-                nimported++;
-                continue;
-            };
-
-            double b_alpha, b_delta;
-            is >> b_alpha >> b_delta; 
-            initial_vals.push_back(b_alpha);
-            initial_vals.push_back(b_delta);
-        };
-    }
-    else initial_vals = std::vector<complex>(2*(max-min+1)+2, 1.);
+    if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, in_pars_file);
+    else                   initial_vals = std::vector<complex>(2*(max-min+1)+2, 1.);
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -145,37 +114,7 @@ void bulk_fit()
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file
-    
-    auto pars = fitter.pars();
- 
-    std::ofstream out;
-    out.open(main_dir()+out_pars_file);
-    int  precision = 12, spacing = precision + 10;
-    
-    // Preamble info
-    out << std::left << "# "+description << std::endl;
-    out << std::left << "# average χ²/Dalitz = "+to_string(fitter.fcn()) << std::endl;
-    out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
-    std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
-    out << std::left;
-    for (auto x : headers) out << std::setw(spacing) << x;
-    out << endl;
-    out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
-    // Table of subtraction pars
-    for (uint i = 0; i <= max - min; i++)
-    {
-        out << std::left << std::setprecision(precision);
-        out << std::setw(spacing) << i + min;
-        out << std::setw(spacing) << m3pi_vals[i];
-        out << std::setw(spacing) << real(pars[2*i]);
-        out << std::setw(spacing) << real(pars[2*i+1]);
-        out << std::setw(spacing) << imag(pars[2*i+1]);
-        out << std::endl;
-    };
-    // Tack on the two t-slopes at the end
-    out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
-    out << std::left << std::setw(spacing) << "# b_alpha" << std::setw(spacing) << "b_delta" << std::endl;
-    out << std::left << "# "+std::string(2*spacing-2, '-') << std::endl;
-    out << std::left << std::setw(spacing) << real(pars[2*(max-min)+2]) << std::setw(spacing) << real(pars[2*(max-min)+3]) << std::endl;
-    out.close();
+    COMPASS::export_parameters({min, max}, initial_vals, 
+                               "average χ² per Dalitz: "+iterateKT::to_string(fitter.fcn()), 
+                               out_pars_file);
 };
