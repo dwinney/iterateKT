@@ -85,31 +85,48 @@ namespace iterateKT
         // to evaluating a dispersion relation
 
         complex evaluate(complex s); 
+        
+        // Discontinuity across RHC, could be singular
+        complex discontinuity(double s);
+
+        // -----------------------------------------------------------------------
+        // Parameter settings
+        
+        void set_parameters(std::vector<complex> pars)
+        {
+            if (pars.size() != _n_subtractions)
+            {
+                warning("form_factor", "Wrong number of parameters recieved!");
+                return;
+            };
+            _subtractions = pars;
+        };
+
 
         // -----------------------------------------------------------------------
         protected:
-
+        
         // Holds all parameters related to integration and expansions and etc.
         settings _settings; 
-
+        
         // Related to subtraction polynomials
         uint                 _n_subtractions; // number of subtractions
         std::vector<complex> _subtractions;   // subtraction coefficients
-
+        
         // Get the kinematics from the decay amplitude
         kinematics _kinematics; 
-
+        
         // Decay amplitude which supplies the Xπ -> ππ partial waves
         amplitude _decay_amplitude;
-
+        
         // This id specifies the "direct channel" isobar and the relevant partial-wave projection
         std::vector<id> _projections; 
-
+        
         // Save a pointer to the direct channel isobar for ease
         std::vector<isobar> _direct_isobars;
-
+        
         // Functions for evaluation
-
+        
         // Evaluation of the non-singular part of the dispersion integral
         complex regular_piece(complex s);
     };

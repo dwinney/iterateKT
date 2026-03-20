@@ -18,6 +18,12 @@ namespace iterateKT
     {
         // Subtraction polynomial
         complex subtraction_polynomial = 0;
+        if (_n_subtractions != _subtractions.size())
+        {
+            warning("form_factor", "Subtractions not set!");
+            return NaN<double>();
+        };
+
         for (int i = 0; i < _n_subtractions; i++)
         {
             subtraction_polynomial += _subtractions[i]*pow(s, i);
@@ -26,34 +32,68 @@ namespace iterateKT
         // If evaluating at the subtraction point just return the polynomial
         if (is_zero(s)) return subtraction_polynomial;
 
-        return 0.;
+        return regular_piece(s);
     };
 
+    // The discontinutiy which gets dispersed
+    complex raw_form_factor::discontinuity(double s)
+    {
+        complex disc = 0;
+        for (auto isobar : _direct_isobars)
+        {
+            disc += external_current(s)
+                  * kinematic_factors(s)
+                  * isobar->evaluate(s);
+        };
+        return disc;
+    };
+    
     // Non-singular part of the dispersion integral
     complex raw_form_factor::regular_piece(complex s)
     {
         using namespace boost::math::quadrature;
 
-        auto integrand = [this,s](double x)
+        // Only explciitly evaluate above cut, below is given by Schwarz
+        if (imag(s) < 0) return conj(regular_piece(conj(s)));
+
+        // Bounds of integration
+        double low  = _kinematics->sth();
+        double mid  = _settings._intermediate_energy;
+        double high = _settings._cutoff;
+        double eps  = _settings._infinitesimal;
+
+        // If we're sufficiently far from the cut, evaluate normally
+        bool far_from_cut = (real(s) <= _kinematics->sth()) || (imag(s) > eps);
+        if  (far_from_cut)
         {
-            complex disc = 0;
-            for (auto isobar : _direct_isobars)
+            auto fdx = [this,s](double x)
             {
-                disc += external_current(x)
-                      * kinematic_factors(x)
-                      * isobar->evaluate(x);
+                return discontinuity(x)/(x-s)*pow(s/x, _n_subtractions);
             };
-            return disc/(x-s)/pow(x, _n_subtractions);
+
+            complex integral = gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, low, mid,  _settings._cauchy_integrator_depth, 1.E-9, NULL) 
+                             + gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, mid, high, _settings._cauchy_integrator_depth, 1.E-9, NULL);
+            return integral/PI;
         };
 
-        return 0.;
-         
-        // // Integrate on either side of the pth singularity 
-        // complex integral = gauss_kronrod<double,N_GAUSS_PSEUDO>::integrate(fdx, bounds[0], _pth, _settings._pseudo_integrator_depth, 1.E-9, NULL)
-        //                  + gauss_kronrod<double,N_GAUSS_PSEUDO>::integrate(fdx, _pth, bounds[1], _settings._pseudo_integrator_depth, 1.E-9, NULL);
-        // // Add back the analytic pieces we subtracted before
-        // auto coeffs = (real(s) < _pth) ? _below_pth_expansion[i] : _above_pth_expansion[i];
-        // for (int i = 0; i <= _l; i++) integral += coeffs[i] * Q(_n-2*i,s,bounds);
-        // return integral;
+        // If we're close to the cut, use Cauchy trick with ieps
+        double  rs     = real(s);
+        complex disc_s = (rs <= _kinematics->sth()) ? 0 : discontinuity(rs);
+
+        auto fdx = [this,rs,disc_s,eps,s](double x)
+        {
+            complex integrand;
+            integrand  = discontinuity(x)-disc_s;
+            integrand *= pow(rs/x, _n_subtractions);
+            integrand /= (x-(rs+I*eps));
+            return integrand;
+        };
+
+        // If using gauss gauss-legendre, split the integral into two pieces to avoid systematic errors at low energies
+        complex integral  = gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, low, mid,  _settings._cauchy_integrator_depth, 1.E-9, NULL) 
+                          + gauss_kronrod<double,N_GAUSS_CAUCHY>::integrate(fdx, mid, high, _settings._cauchy_integrator_depth, 1.E-9, NULL);
+        complex logarithm = disc_s * log(1.-(s+I*eps)/low);
+        
+        return (integral-logarithm)/PI;
     };
 }; // namespace iterateKT
