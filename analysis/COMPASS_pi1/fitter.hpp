@@ -157,7 +157,7 @@ namespace iterateKT { namespace COMPASS
             {
                 std::vector<complex> new_pars;
                 // g -> g * t exp{b(t-t_0)}
-                for (int j = 0; j < 2; j++) new_pars.push_back(pars[j]*t_bins[i]*exp(pars[2+j]*(t_bins[i]-t_bins[0])));
+                for (int j = 0; j < 2; j++) new_pars.push_back(pars[j]*csqrt(t_bins[i])*exp(pars[2+j]*(t_bins[i]-t_bins[0])));
                 to_fit->set_option(option::set_tbin, i);
                 to_fit->set_parameters(new_pars);                
             };  

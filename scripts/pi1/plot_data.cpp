@@ -26,18 +26,17 @@ void plot_data()
     // Operating options
 
     // Data file
-    std::string data_file = "tBin_0/dalitz_m3piBin_22_tBin_0.json";
-    
-    // Bounds for the axes
-    std::array<double,2> xy_bounds = {0, 1.7}, z_bounds = {-1200, 1200};
+    uint m3piBin = 22;
+    std::string file = "tBin_0.json";
+
     // Labels for the axes
     std::string xlabel = "#sigma_{b} [GeV^{2}]", ylabel =  "#sigma_{c} [GeV^{2}]";
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
-    auto  reim_data = COMPASS::parse_JSON_ReIm(data_file);
-    auto  abs_data  = COMPASS::parse_JSON(data_file);
+    auto  reim_data = COMPASS::parse_JSON_ReIm(m3piBin, file);
+    auto  abs_data  = COMPASS::parse_JSON(m3piBin, file);
     
     // Need a kinematics instance to draw the dalitz boundary
     kinematics kin = new_kinematics(abs_data._extras["m3pi"], M_PION);
@@ -53,21 +52,18 @@ void plot_data()
     rep.set_data(reim_data[0]);
     rep.set_title("Real Part");
     rep.set_labels(xlabel, ylabel);
-    rep.set_ranges(xy_bounds, xy_bounds);
 
     plot2D imp = kin->new_dalitz_plot(plotter);
     imp.set_Nbins(reim_data[1]._extras["Nbins"]);
     imp.set_data(reim_data[1]);
     imp.set_title("Imaginary Part");
     imp.set_labels(xlabel, ylabel);
-    imp.set_ranges(xy_bounds, xy_bounds);
 
     plot2D abp = kin->new_dalitz_plot(plotter);
     abp.set_Nbins(abs_data._extras["Nbins"]);
     abp.set_data(abs_data);
     abp.set_title("Absolute Value");
     abp.set_labels(xlabel, ylabel);
-    abp.set_ranges(xy_bounds, xy_bounds, {-EPS, 530});
       
     // Combine them all in one file
     plotter.combine({3,1}, {rep, imp, abp}, "data.pdf");

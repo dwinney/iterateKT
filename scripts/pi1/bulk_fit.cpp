@@ -34,7 +34,7 @@ void bulk_fit()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 11, max = 49; 
+    int min = 11, max = 36; 
     double tolerance = 0.01;
 
     // Path to precalculated isoabrs
@@ -114,7 +114,7 @@ void bulk_fit()
     
     // -----------------------------------------------------------------------
     // Print fit results to out_file
-    COMPASS::export_parameters({min, max}, initial_vals, 
+    COMPASS::export_parameters({min, max}, fitter.pars(), 
                                "average χ² per Dalitz: "+iterateKT::to_string(fitter.fcn()), 
                                out_pars_file);
 };
