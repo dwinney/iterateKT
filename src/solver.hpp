@@ -141,7 +141,7 @@ namespace iterateKT
 
         // output the saved kinematics
         inline kinematics get_kinematics(){ return _kinematics; };
-      
+
         // -----------------------------------------------------------------------
         protected: 
         

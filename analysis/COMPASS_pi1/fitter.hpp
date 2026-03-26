@@ -50,8 +50,8 @@ namespace iterateKT { namespace COMPASS
                 for (int i = 0; i < data._N; i++)
                 {
                     double from_data  = data._z[i];
-                    double s = data._x[i], t = data._y[i], u = to_fit->get_kinematics()->Sigma() - s - t;
-                    iterateKT::complex from_model = to_fit->evaluate(s, t, u);  
+                    double s = data._x[i], t = data._y[i];
+                    iterateKT::complex from_model = to_fit->evaluate_in_dalitz(s, t);  
 
                     if (is_zero(data._dz[i])) continue;
 
@@ -189,8 +189,8 @@ namespace iterateKT { namespace COMPASS
                 for (int j = 0; j < 4; j++)
                 {
                     to_fit->set_option(option::set_tbin, j);
-                    complex cont = pars[2*i]  *t_bins[j]*exp(b_cont*(t_bins[j]-t_bins[0]));
-                    complex deck = pars[2*i+1]*t_bins[j]*exp(b_deck*(t_bins[j]-t_bins[0]));
+                    complex cont = pars[2*i]  *csqrt(t_bins[j])*exp(b_cont*(t_bins[j]-t_bins[0]));
+                    complex deck = pars[2*i+1]*csqrt(t_bins[j])*exp(b_deck*(t_bins[j]-t_bins[0]));
                     to_fit->set_parameters({cont, deck});
                 };
             };

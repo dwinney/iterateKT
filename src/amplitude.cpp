@@ -48,6 +48,37 @@ namespace iterateKT
         return result;
     };
 
+    complex raw_amplitude::evaluate_precomputed(double s, double t, double u)
+    {
+        complex result = 0;
+
+        // S_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_s(f->get_id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(s);
+        };
+
+        // T_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_t(f->get_id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(t);
+        };
+
+        // U_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_u(f->get_id(), s, t, u);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(u);
+        };
+
+        return result;
+    };
+
     // -----------------------------------------------------------------------
     // Calculate partial widths and the integrated width
 

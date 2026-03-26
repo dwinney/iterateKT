@@ -199,6 +199,7 @@ namespace iterateKT
         inline uint N_pars(){ return _current->N_pars(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+        inline complex evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
 
         // Observables
         inline double width(){ return _current->width() ; };
@@ -219,6 +220,11 @@ namespace iterateKT
                 _tbins[i]->get_isobars()[0]->import_iteration<2>(file);
             };
         };
+
+        inline void precompute_dalitz(uint N)
+        {
+            for (auto bin : _tbins) bin->precompute_dalitz(N);
+        };  
 
         private:
 
@@ -296,6 +302,7 @@ namespace iterateKT
         inline kinematics get_kinematics(){ return _current->get_kinematics(); };
         inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
         inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+        inline complex evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
 
         // Observables
         inline double width(){ return _current->width() ; };
@@ -353,7 +360,13 @@ namespace iterateKT
             };
         };
 
-        private: 
+        inline void precompute_dalitz(uint N)
+        {
+            for (auto bin : _mbins) bin->precompute_dalitz(N);
+            return;
+        };
+
+        protected: 
 
         // Store each m3pi requires its own kinematics and amplitude
         std::vector<amplitude>  _mbins;

@@ -79,6 +79,29 @@ namespace iterateKT
         { return 32*pow(2*PI*_kinematics->M(),3)*combinatorial_factor(); }
 
         // -----------------------------------------------------------------------
+        // Methods to more easily evaluate amplitudes inside decay regions
+
+        virtual void precompute_dalitz(uint N)
+        {
+            std::array<double,2> dalitz_bounds = {get_kinematics()->sth(), get_kinematics()->pth()};
+            for (auto isobar : _isobars) isobar->precompute(dalitz_bounds, N);
+            _precomputed = true;
+        };
+
+        // Evaluate amplitude using precomputed isobars
+        virtual complex evaluate_precomputed(double s, double t, double u);
+
+        // Evaluate the amplitude in the physical amplitude
+        virtual inline complex evaluate_in_dalitz(double s, double t)
+        {
+            if (!get_kinematics()->in_decay_region(s,t)) return error("amplitude::evaluate_in_dalitz: Arguments not in decay region!", NaN<double>());
+            
+            double u = get_kinematics()->Sigma() - s - t;
+            if (_precomputed) return evaluate_precomputed(s ,t, u);
+            return evaluate(s + IEPS, t + IEPS, u + IEPS);
+        };
+
+        // -----------------------------------------------------------------------
         // Utilities
 
         // Set and get the string id 
@@ -120,6 +143,14 @@ namespace iterateKT
         virtual inline amplitude get_current(){ return nullptr; };
 
         // -----------------------------------------------------------------------
+
+        inline void precompute(std::array<double,2> range, uint N = 100)
+        {
+            for (auto isobar : _isobars) isobar->precompute(range, N);
+            _precomputed = true;
+        };
+
+        // -----------------------------------------------------------------------
         // Automate making plots of the amplitude
 
         // Make standard plots in the entire decay region
@@ -153,6 +184,9 @@ namespace iterateKT
 
         // Id string to identify the amplitude with
         std::string _name = "amplitude";
+
+        // Whether isobars have been precomputed
+        bool _precomputed = false;
     };
 }; // namespace iterateOKT
 

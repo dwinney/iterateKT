@@ -77,6 +77,18 @@ namespace iterateKT
             initialize();
         };
 
+        ~raw_isobar()
+        {
+            if (_precomputed)
+            {
+                for (int i = 0; i < _subtractions->N_basis(); i++)
+                {
+                    delete _real_part[i];
+                    delete _imag_part[i];
+                };
+            };
+        };
+
         // -----------------------------------------------------------------------
         // Mandatory virtual methods which need to be overriden
 
@@ -134,6 +146,48 @@ namespace iterateKT
         {
             complex sum = 0;
             for (int i = 0; i < _subtractions->N_basis(); i++) sum += _subtractions->get_par(i)*basis_function(i, s);
+            return sum;
+        };
+
+        // -----------------------------------------------------------------------
+        // Special evaluations if precomputing in a physical region
+
+        inline void precompute(std::array<double,2> range, uint N = 100)
+        {
+            using ROOT::Math::Interpolator;
+            using ROOT::Math::Interpolation::Type::kCSPLINE;
+
+            for (int i = 0; i < _subtractions->N_basis(); i++)
+            {
+                std::vector<double> vs, vr, vi; 
+                for (int j = 0; j < N; j++)
+                {
+                    double s = range[0] + j*(range[1]-range[0])/double(N-1);
+                    complex fx = basis_function(i, s + IEPS);
+    
+                    vs.push_back(s); vr.push_back(real(fx)); vi.push_back(imag(fx));
+                }; 
+
+                _real_part.emplace_back( new Interpolator(vs, vr, kCSPLINE) );
+                _imag_part.emplace_back( new Interpolator(vs, vi, kCSPLINE) );
+            };
+            _precomputed = true;
+        };
+
+        inline complex basis_function_precomputed(uint i, double s)
+        {
+            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NaN<double>());    
+          
+            return _real_part[i]->Eval(s)+I*_imag_part[i]->Eval(s);
+        };
+
+
+        inline complex evaluate_precomputed(double s)
+        {
+            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NaN<double>());    
+            
+            complex sum = 0;
+            for (int i = 0; i < _subtractions->N_basis(); i++) sum += _subtractions->get_par(i)*basis_function_precomputed(i, s);
             return sum;
         };
 
@@ -234,6 +288,10 @@ namespace iterateKT
         void interpolate_lhc();
         ROOT::Math::Interpolator _lhc;
         bool _lhc_interpolated = false;
+
+        // Option to precalculate isobar in a range 
+        std::vector<ROOT::Math::Interpolator*> _real_part, _imag_part;
+        bool _precomputed = false;
     };
 }; // namespace iterateKT
 

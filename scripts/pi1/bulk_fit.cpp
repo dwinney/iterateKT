@@ -34,8 +34,8 @@ void bulk_fit()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 11, max = 36; 
-    double tolerance = 0.01;
+    int min = 11, max = 49; 
+    double tolerance = 0.001;
 
     // Path to precalculated isoabrs
     std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
@@ -44,7 +44,7 @@ void bulk_fit()
 
     // Are we taking initial values from file? if so which?
     bool initial_from_file   = true;
-    std::string in_pars_file = main_dir()+"/scripts/pi1/in_fit.dat";
+    std::string in_pars_file = main_dir()+"/scripts/pi1/in_pars.dat";
     
     // Where do we export the fit parameter values
     std::string out_pars_file  = main_dir()+"/scripts/pi1/out_pars.dat";
@@ -86,6 +86,9 @@ void bulk_fit()
 
     // and import the pre-calculated isobars
     amp->import_solution(iso_path+file_prefix);
+
+    // precalculate isobars in the decay region
+    amp->precompute_dalitz(300);
 
     // -----------------------------------------------------------------------
     // Set up fitter
