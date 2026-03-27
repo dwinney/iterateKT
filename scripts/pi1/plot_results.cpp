@@ -33,12 +33,12 @@ void plot_results()
     int min = 11, max = 49; 
 
     // Path to precalculated isoabrs
-    std::string iso_path    = "/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CD";
 
     // File containing parameters
-    std::string in_pars_file   = "/scripts/pi1/in_pars.dat";
+    std::string in_pars_file   = main_dir()+"/scripts/pi1/in_pars.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -54,10 +54,10 @@ void plot_results()
     // Import fit values
 
     std::vector<complex> pars;
-    std::vector<double>  v_alpha, v_redelta, v_imdelta;
+    std::vector<double>  v_alpha, v_moddelta, v_argdelta;
     double smin, smax;
 
-    std::ifstream infile(main_dir()+in_pars_file);
+    std::ifstream infile(in_pars_file);
     if (!infile) fatal("Cannot open file " + in_pars_file + "!");
     std::string line;
 
@@ -79,9 +79,13 @@ void plot_results()
             is >> alpha >> redelta >> imdelta;
 
             // save them to plot later 
-            v_alpha.push_back(alpha / 1E3);
-            v_redelta.push_back(redelta / 1E3);
-            v_imdelta.push_back(imdelta / 1E3);
+            v_alpha.push_back(alpha);
+            
+            complex delta = redelta+I*imdelta;
+            v_moddelta.push_back(abs(delta));
+            double argd = arg(delta); 
+            if (argd > 0) argd -= 2*PI;
+            v_argdelta.push_back(argd);
             
             // but also to pass them to amplitude
             pars.push_back(alpha);
@@ -109,6 +113,7 @@ void plot_results()
 
     // Import the pre-calculated isobars
     amp->import_solution(iso_path+file_prefix);
+    amp->precompute_dalitz(300);
     // and set parameters from above
     COMPASS::fit_2D::process_parameters(pars, amp);
 
@@ -127,8 +132,8 @@ void plot_results()
             for (int i = 0; i < bin._N; i++)
             {
                 double from_data  = bin._z[i];
-                double s = bin._x[i], t = bin._y[i], u = amp->get_kinematics()->Sigma() - s - t;
-                complex from_model = amp->evaluate(s, t, u);  
+                double s = bin._x[i], t = bin._y[i];
+                complex from_model = amp->evaluate_in_dalitz(s, t);  
                 
                 if (is_zero(bin._dz[i])) continue;
                 chi2  += norm((from_data - abs(from_model)) / bin._dz[i]); 
@@ -155,7 +160,7 @@ void plot_results()
     plot p1 = plotter.new_plot();
     p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p1.set_legend(0.65, 0.725);
-    p1.set_ranges({smin, smax}, {1.5, 9.0});
+    p1.set_ranges({smin, smax}, {1, 10.0});
     p1.add_horizontal(chi2_dof, {kBlack, kDashed});
     p1.add_data(m3pi_vals, chi2s[3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV"));
     p1.add_data(m3pi_vals, chi2s[2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV"));
@@ -165,12 +170,20 @@ void plot_results()
 
     // Plot distributions of parameters
     plot p2 = plotter.new_plot();
-    p2.set_legend(0.75,0.2);
-    p2.set_labels("#it{m}_{3#pi}   [GeV]", "#it{N} / 10^{3}");
-    p2.add_horizontal(0., {kBlack, kDashed});
-    p2.add_data(m3pi_vals, v_imdelta, dot(jpacColor::Green, "Im #it{N}_{#it{d}}"));
-    p2.add_data(m3pi_vals, v_redelta, dot(jpacColor::Red,   "Re #it{N}_{#it{d}}"));
-    p2.add_data(m3pi_vals, v_alpha,   dot(jpacColor::Blue,  "#it{N}_{#it{c}}"));
-    p2.set_ranges({smin, smax}, {-9,5});
-    p2.save("pars.pdf");
+    p2.set_legend(0.75,0.7);
+    p2.set_labels("#it{m}_{3#pi}   [GeV]", "|#it{N}|");
+    p2.add_data(m3pi_vals, v_moddelta, dot(jpacColor::Red,  "|#it{N}#kern[-0.2]{_{#it{d}}|}"));
+    p2.add_data(m3pi_vals, v_alpha,    dot(jpacColor::Blue, "|#it{N}#kern[-0.2]{_{#it{c}}|}"));
+    p2.set_ranges({smin, smax}, {8E0, 2E4});
+    p2.set_logscale(false, true);
+    p2.save("modN.pdf");
+
+    // Plot distributions of parameters
+    plot p3 = plotter.new_plot();
+    p3.set_legend(0.75,0.7);
+    p3.set_labels("#it{m}_{3#pi}   [GeV]", "#phi_{#it{d}}");
+    p3.add_horizontal(-PI, {kBlack, kDashed});
+    p3.set_ranges({smin, smax}, {-4, 0});
+    p3.add_data(m3pi_vals, v_argdelta, dot(jpacColor::Green));
+    p3.save("argN.pdf");
 };

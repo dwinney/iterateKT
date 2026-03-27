@@ -79,7 +79,7 @@ namespace iterateKT
             if  (above_3bcut){ q *= -1; rho *= -1; };
 
             complex z2 = q*q / lam2;
-            complex blatt_weisskopf = 1./(1+z2);
+            complex blatt_weisskopf = 2./(1+z2);
             return z2*blatt_weisskopf*rho;
         };
 

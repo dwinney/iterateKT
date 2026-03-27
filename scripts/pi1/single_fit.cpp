@@ -18,6 +18,7 @@
 #include "constants.hpp"
 #include "plotter.hpp"
 #include "fitter.hpp"
+#include "TRandom.h"
 
 #include "amplitudes/pi1.hpp"
 #include "isobars/pi1.hpp"
@@ -32,7 +33,7 @@ void single_fit()
     // -----------------------------------------------------------------------
     // Operating options
 
-    int m3pibin    = 22;  // which m3pi bin to fit
+    int m3pibin    = 22;  // which m3pi bin to fit 
     int tbin       = 0;   // which t bin to fit
     int Niter      = 10;  // Number of KT iterations
 
@@ -61,17 +62,20 @@ void single_fit()
     amp->set_name("π₁ → 3π");
 
     // Add isobar using the above function as our driving term
-    isobar pwave   =  amp->add_isobar<P_wave>(driving_terms,  3, id::P_wave, "Deck");
+    isobar pwave   =  amp->add_isobar<P_wave>(driving_terms,  2, id::P_wave, "Deck");
 
     // Iterate Niter times
     amp->timed_iterate(Niter);
+    amp->precompute_dalitz(300);
 
     // -----------------------------------------------------------------------
     // Set up fitter
 
+    TRandom rand(0);
     // These vectors should be same size as Nsub above
     std::vector<complex> initial_guess;
-    for (auto x : driving_terms) initial_guess.push_back(1.0);
+    initial_guess.push_back(rand.Uniform(0,5));
+    for (int i = 1; i < driving_terms.size(); i++) initial_guess.push_back(rand.Uniform(-5,5)+I*rand.Uniform(-5,5));
     
     // Add data
     fitter<amplitude,COMPASS::fit_single_bin> fitter(amp, "Combined");
@@ -104,7 +108,7 @@ void single_fit()
     {
         bin_i.push_back(i);
         double s1 = data._x[i], s2 = data._y[i];
-        complex model = amp->evaluate(s1, s2, amp->get_kinematics()->Sigma() - s1 - s2);
+        complex model = amp->evaluate_in_dalitz(s1, s2);
 
         double fcn = (is_zero(data._dz[i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[i];
         pull.push_back(fcn);
