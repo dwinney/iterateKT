@@ -55,7 +55,7 @@ namespace iterateKT
         pi1(kinematics kin) : raw_amplitude(kin) {};
         
         // Spin 1 decay so (2j+1) = 3
-        inline double combinatorial_factor(){ return 3; };
+        inline double combinatorial_factor(){ return 1.; };
 
         static constexpr double _mu  = 0.13957000;
         static constexpr double _mu2 = _mu*_mu;
@@ -217,7 +217,7 @@ namespace iterateKT
             for (int i = 0; i < 4; i++)
             {
                 std::string file = path + "_t_" + to_string(-_tvals[i]) + ".dat";
-                _tbins[i]->get_isobars()[0]->import_iteration<2>(file);
+                _tbins[i]->get_isobars()[0]->import_iteration<3>(file);
             };
         };
 
@@ -247,7 +247,7 @@ namespace iterateKT
             // Set up all the amplitudes
             for (int i = 0; i < 4; i++)
             {
-                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 3, id::P_wave, "t_"+to_string(-_tvals[i]));
+                _tbins[i]->add_isobar<P_wave>({constant, constant, deck(_tvals[i])}, 3, id::P_wave, "t_"+to_string(-_tvals[i]));
                 _tbins[i]->iterate(niter);
             };
 

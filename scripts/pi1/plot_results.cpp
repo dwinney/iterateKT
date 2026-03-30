@@ -176,7 +176,16 @@ void plot_results()
     p2.add_data(m3pi_vals, v_alpha,    dot(jpacColor::Blue, "|#it{N}#kern[-0.2]{_{#it{c}}|}"));
     p2.set_ranges({smin, smax}, {8E0, 2E4});
     p2.set_logscale(false, true);
-    p2.save("modN.pdf");
+    p2.save("modN_log.pdf");
+
+    // Plot distributions of parameters
+    plot p4 = plotter.new_plot();
+    p4.set_legend(0.75,0.7);
+    p4.set_labels("#it{m}_{3#pi}   [GeV]", "|#it{N}| / 10^{3}");
+    p4.add_data(m3pi_vals, v_moddelta/1E3, dot(jpacColor::Red,  "|#it{N}#kern[-0.2]{_{#it{d}}|}"));
+    p4.add_data(m3pi_vals, v_alpha/1E3,    dot(jpacColor::Blue, "|#it{N}#kern[-0.2]{_{#it{c}}|}"));
+    p4.set_ranges({smin, smax}, {0, 4.5});
+    p4.save("modN_linear.pdf");
 
     // Plot distributions of parameters
     plot p3 = plotter.new_plot();
