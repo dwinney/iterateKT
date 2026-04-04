@@ -35,7 +35,12 @@ void bulk_fit()
 
     // Which range of m3pi bins to consider
     int min = 11, max = 49; 
-    double tolerance = 0.0001;
+
+    // Fitter's stopping tolerance
+    double tolerance = 0.001;
+
+    // If to use three basis functions or only two
+    bool minimal = false;
 
     // Path to precalculated isoabrs
     std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
@@ -64,25 +69,28 @@ void bulk_fit()
         for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));
         m3pi_vals.push_back(data.back()._extras["m3pi"]);
         labels.push_back("alpha_"+to_string(i));
-        labels.push_back("beta_"+to_string(i));
+        labels.push_back("beta_" +to_string(i));
         labels.push_back("delta_"+to_string(i));
     };
-    
+    labels.push_back("b_alpha");
+    labels.push_back("b_beta");
+    labels.push_back("b_delta");
+
     // -----------------------------------------------------------------------
     // Import initial values
         
     std::vector<complex>   initial_vals;  // starting values for fitting
-
-    if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, in_pars_file);
-    else                   initial_vals = std::vector<complex>(3*(max-min+1)+3, 1.);
+    if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, in_pars_file, minimal);
+    else                   initial_vals = std::vector<complex>((2+!minimal)*(max-min+1)+(2+!minimal), 1.);
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
     // Set up our amplitude (uniterated)
-    auto args   = std::make_tuple(m3pi_vals, COMPASS::t_bins);
-    amplitude amp  = new_amplitude<pi1_binned>(nullptr, args);
+    auto args     = std::make_tuple(m3pi_vals, COMPASS::t_bins);
+    amplitude amp = new_amplitude<pi1_binned>(nullptr, args);
     amp->set_name("π₁ → 3π");
+
     // and import the pre-calculated isobars
     amp->import_solution(iso_path+file_prefix);
 
@@ -93,7 +101,7 @@ void bulk_fit()
     // Set up fitter
 
     fitter<amplitude,COMPASS::fit_2D> fitter(amp, "Combined");
-    fitter.set_tolerance(tolerance*1E3);
+    fitter.set_tolerance(tolerance/2*1E3);
     fitter.set_print_level(4);
     fitter.set_strategy(0);
 
@@ -102,17 +110,24 @@ void bulk_fit()
 
     // Add three t-slopes in addition to three subtraction coeffs
     fitter.add_extra_parameters(3);
-    labels.push_back("b_alpha");
-    labels.push_back("b_beta");
-    labels.push_back("b_delta");
 
     fitter.set_parameter_labels(labels);
     // Fix alphas to all be real (and positive)
-    for (int i = min; i <= max; i++) fitter.fix_argument("alpha_"+to_string(i), 0.); 
+    for (int i = min; i <= max; i++)
+    {
+        fitter.fix_argument("alpha_"+to_string(i), 0.); 
+        fitter.make_real(    "beta_"+to_string(i));
+    };
     // t-slopes as well
     fitter.make_real("b_alpha"); 
     fitter.make_real("b_beta"); 
     fitter.make_real("b_delta"); 
+
+    if (minimal)
+    {
+        for (int i = min; i <= max; i++) fitter.fix_parameter("beta_"+to_string(i), 0.);
+        fitter.fix_parameter("b_beta", 0.);
+    };
 
     fitter.do_fit(initial_vals);
     

@@ -63,7 +63,7 @@ namespace iterateKT { namespace COMPASS
         };
     };
 
-    inline std::vector<complex> import_parameters(std::array<int,2> minmax, std::string in_pars_file)
+    inline std::vector<complex> import_parameters(std::array<int,2> minmax, std::string in_pars_file, bool minimal = false)
     {
         std::vector<complex> pars;
         std::ifstream infile(in_pars_file);
@@ -89,7 +89,7 @@ namespace iterateKT { namespace COMPASS
                 is >> alpha >> rebeta >> imbeta >> redelta >> imdelta;
     
                 pars.push_back(alpha);
-                pars.push_back(rebeta+I*imbeta);
+                if (!minimal) pars.push_back(rebeta+I*imbeta);
                 pars.push_back(redelta+I*imdelta);
                 nimported++;
                 continue;
@@ -98,7 +98,7 @@ namespace iterateKT { namespace COMPASS
             double b_alpha, b_beta, b_delta;
             is >> b_alpha >> b_beta >> b_delta; 
             pars.push_back(b_alpha);
-            pars.push_back(b_beta);
+            if (!minimal) pars.push_back(b_beta);
             pars.push_back(b_delta);
         };
 
@@ -182,9 +182,9 @@ namespace iterateKT { namespace COMPASS
         {
             // Calculate number of bins
             int N = (pars.size()-3)/3;
-            complex b_cont1 = pars.end()[-3]; // Third to last par
-            complex b_cont2 = pars.end()[-2]; // Second to last par
-            complex b_deck  = pars.end()[-1];  // Last par
+            complex b1 = pars.end()[-3]; // Third to last par
+            complex b2 = pars.end()[-2]; // Second to last par
+            complex b3 = pars.end()[-1]; // Last par
 
             // Cycle through m3pibins
             for (int i = 0; i < N; i++)
@@ -194,10 +194,10 @@ namespace iterateKT { namespace COMPASS
                 for (int j = 0; j < 4; j++)
                 {
                     to_fit->set_option(option::set_tbin, j);
-                    complex cont1 = pars[3*i]  *csqrt(t_bins[j])*exp(b_cont1*(t_bins[j]-t_bins[0]));
-                    complex cont2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b_cont2*(t_bins[j]-t_bins[0]));
-                    complex deck  = pars[3*i+2]*csqrt(t_bins[j])*exp(b_deck *(t_bins[j]-t_bins[0]));
-                    to_fit->set_parameters({cont1, cont2, deck});
+                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-t_bins[0]));
+                    complex N2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-t_bins[0]));
+                    complex N3 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-t_bins[0]));
+                    to_fit->set_parameters({N1, N2, N3});
                 };
             };
             return pars;

@@ -34,7 +34,7 @@ void plot_isobars()
     auto constant = [&](complex sigma){return 1.;};
     auto gen_deck = [](double m3pi)
     {
-        double t = -0.1; // GeV^2
+        double t = -0.12; // GeV^2
         return [t,m3pi](complex sigma){return pi1::deck(t, m3pi*m3pi, sigma);};  
     };
     auto gen_bubble = [](double m3pi, double lam)
@@ -93,7 +93,7 @@ void plot_isobars()
     plot p2 = plotter.new_plot();
     p2.set_curve_points(1000);
     p2.set_xrange(bounds);
-    p2.add_header("#it{t} = #minus 0.1 GeV^{2}");
+    p2.add_header("#it{t} = #minus 0.12 GeV^{2}");
     p2.set_labels("#sigma   [GeV^{2}]", "#it{F}#kern[-0.3]{_{#Delta}} (#it{t}, #it{m}_{3#pi}^{2} #; #sigma + #it{i}#epsilon)");
     p2.set_legend(0.6, 0.6);
 
@@ -118,7 +118,7 @@ void plot_isobars()
     p3.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
     p3.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
-    std::array<std::string,4> labels = {"Contact", "Bubble (#Lambda = 200 MeV)", "Bubble (#Lambda = 770 MeV)", "Deck (#it{t} = #minus 0.1 GeV^{2})"};
+    std::array<std::string,4> labels = {"Contact", "Bubble (#Lambda = 200 MeV)", "Bubble (#Lambda = 770 MeV)", "Deck (#it{t} = #minus 0.12 GeV^{2})"};
     for (int i = 0; i < 4; i++)
     {
         isobar pwave = amps[1]->get_isobar(id::P_wave);
