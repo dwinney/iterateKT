@@ -58,6 +58,7 @@ namespace iterateKT { namespace COMPASS
         std::string id = "m3π = " + to_string(m3pi,3) + ", t' = " + to_string(-t,3);
 
         auto bins      = data["bins"][bin]["bin_centers"];
+        auto widths    = data["bins"][bin]["bin_widths"];
         auto abs_M     = data["bins"][bin]["abs_M"];
         auto std_abs_M = data["bins"][bin]["std_abs_M"];
         int N          = bins.size();
@@ -66,7 +67,7 @@ namespace iterateKT { namespace COMPASS
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = new_kinematics(m3pi, M_PION);
-        std::vector<double> sig1, sig2, absM, errM;
+        std::vector<double> sig1, sig2, absM, errM, bin_area;
         for (int i = 0; i < N; i++)
         {
             for (int j = 0; j < N; j++)
@@ -84,6 +85,8 @@ namespace iterateKT { namespace COMPASS
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(     abs_M[i][j] ); 
                 errM.push_back( std_abs_M[i][j] );
+                double ds1 = widths[i], ds2 = widths[j];
+                bin_area.push_back(ds1*ds2);
             };
         };
         int N_actual = sig1.size();
@@ -98,7 +101,7 @@ namespace iterateKT { namespace COMPASS
         out._extras["t"]    = t;    
         out._extras["tbin_width"]    = (t_upper - t_lower)/2;
         out._extras["m3pibin_width"] = (m3pi_upper - m3pi_lower)/2;
-        out._x = sig1;  
+        out._x = sig1; out._dx = bin_area;  
         out._y = sig2;             
         out._z = absM; out._dz = errM;               
 
