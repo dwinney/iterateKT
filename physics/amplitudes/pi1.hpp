@@ -27,16 +27,16 @@ namespace iterateKT
     {
         settings sets;
         sets._exclusion_points        = 10;
-        sets._infinitesimal           = 1E-8;
+        sets._infinitesimal           = 1E-7;
         sets._intermediate_energy     = 2.0;
         sets._cutoff                  = 20;
-        sets._interpolation_offset    = 0.01;
-        sets._interpolation_points    = {200, 10, 100};
+        sets._interpolation_offset    = 0.001;
+        sets._interpolation_points    = {200, 8, 100};
         double xi_sth = 1E-3,  eps_sth = 1E-3;
-        double xi_pth = 3E-3,  eps_pth = 4E-3;
-        double xi_rth = 3E-1,  eps_rth = 3E-1;
+        double xi_pth = 1E-3,  eps_pth = 4E-2;
+        double xi_rth = 2E-1,  eps_rth = 6E-2;
 
-        sets._exclusion_offsets   = {5E-2, 5E-2};
+        sets._exclusion_offsets   = {7E-2, 2E-1};
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
         sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
 

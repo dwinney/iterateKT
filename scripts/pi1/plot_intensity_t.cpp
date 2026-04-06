@@ -28,11 +28,7 @@ void plot_intensity_t()
     // -----------------------------------------------------------------------
     // Operating options
 
-    // Which range of m3pi bins to consider
-    int min = 11, max = 49; 
-
-    // Which tbin to plot
-
+    // Which tbins to plot
     std::array<int,3> m3pibins = {11, 22, 32};
 
     // If we have two terms or three
@@ -64,7 +60,7 @@ void plot_intensity_t()
     // -----------------------------------------------------------------------
     // Import fit values
 
-    std::vector<complex> pars = COMPASS::import_parameters({min,max}, in_pars_file);
+    std::vector<complex> pars = COMPASS::import_parameters({11, 49}, in_pars_file);
 
     // Filter pars for indididual terms
     std::vector<complex> pars_c, pars_d;
