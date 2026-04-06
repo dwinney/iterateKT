@@ -17,11 +17,25 @@ namespace iterateKT { namespace COMPASS
     // Common central values for the 4 t-values using in all m3pi bins
     static const std::array<double,4>  t_bins = {-0.1205, -0.1675, -0.26, -0.663};
 
+    static std::vector<double> mt_bins()
+    {
+        std::vector<double> x;
+        for (auto m : t_bins) x.push_back(-m);
+        return x;
+    };
+
     // Also store the central m_bins for convenience, these are all 40 MeV in width
     static const std::array<double,39> m_bins = 
     {  0.96, 1.00, 1.04, 1.08, 1.12, 1.16, 1.20, 1.24, 1.28, 1.32, 1.36, 1.40, 1.44,
        1.48, 1.52, 1.56, 1.60, 1.64, 1.68, 1.72, 1.76, 1.80, 1.84, 1.88, 1.92, 1.96,
        2.00, 2.04, 2.08, 2.12, 2.16, 2.20, 2.24, 2.28, 2.32, 2.36, 2.40, 2.44, 2.48  };
+
+    static std::vector<double> m3pi_bins()
+    {
+        std::vector<double> x;
+        for (auto m : m_bins) x.push_back(m);
+        return x;
+    };
 
     // This fitter takes a single data set and fits to it
     struct fit_single_bin

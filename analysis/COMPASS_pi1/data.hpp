@@ -77,6 +77,9 @@ namespace iterateKT { namespace COMPASS
     
                 if (!kin->in_decay_region(s1, s2)) continue;
                 if (are_equal(s1, s2))             continue;
+
+                double z = abs_M[i][j];
+                if (is_zero(z))                    continue;
                 
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(     abs_M[i][j] ); 
@@ -93,6 +96,8 @@ namespace iterateKT { namespace COMPASS
         out._extras["Nbins"] = N; 
         out._extras["m3pi"] = m3pi; 
         out._extras["t"]    = t;    
+        out._extras["tbin_width"]    = (t_upper - t_lower)/2;
+        out._extras["m3pibin_width"] = (m3pi_upper - m3pi_lower)/2;
         out._x = sig1;  
         out._y = sig2;             
         out._z = absM; out._dz = errM;               
