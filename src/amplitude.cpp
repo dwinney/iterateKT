@@ -85,16 +85,14 @@ namespace iterateKT
     // Doubly differential 
     double raw_amplitude::differential_width(double s, double t)
     {
-        double u = _kinematics->Sigma() - s - t;
-
-        bool in_physical_region = (real(_kinematics->kibble(s, t, u)) >= 0);
+        bool in_physical_region = get_kinematics()->in_decay_region(s,t);
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
                          "Evaluating outside decay region!", NaN<double>());
         };
 
-        return norm(evaluate(s, t, u))/prefactors();
+        return norm(evaluate_in_dalitz(s, t))/prefactors();
     };
 
     // Singly differential 
@@ -111,8 +109,7 @@ namespace iterateKT
 
         auto fdx = [&](double t)
         {
-            double u = _kinematics->Sigma() - s - t;
-            return norm(evaluate(s, t, u))/prefactors();
+            return norm(evaluate_in_dalitz(s, t))/prefactors();
         };
 
         // Limits are purely real in the decay region
