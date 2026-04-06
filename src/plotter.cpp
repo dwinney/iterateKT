@@ -245,8 +245,6 @@ namespace iterateKT
             // Settings for the first entry
             if (plot == begin(plots))
             {
-                plot->add_logo(true, {0.94, 0.85}, 1.4);
-
                 gPad->SetTopMargin(0.05);
                 gPad->SetBottomMargin(0);
                 

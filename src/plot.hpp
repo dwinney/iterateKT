@@ -107,6 +107,7 @@ namespace iterateKT
 
         // Convert a data_set object to a plot_entry
         void add_data(std::array<std::vector<double>,2> x, std::array<std::vector<double>,2> y, entry_style style);
+        void add_data(std::array<std::vector<double>,2> x, std::vector<double> y, entry_style style);
         void add_data(std::vector<double> x, std::array<std::vector<double>,2> y, entry_style style);
         void add_data(std::vector<double> x, std::vector<double> y, entry_style style);
 

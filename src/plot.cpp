@@ -167,6 +167,20 @@ namespace iterateKT
 
         _entries.push_front(plot_entry(graph, style, true));
     };
+    
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::vector<double> vy, entry_style style)
+    {
+        double *x, *y, *dx;
+        x  = &(vx[0][0]);        y  = &(vy[0]);
+        dx = &(vx[1][0]);
+        TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, nullptr);
+
+        _Ndata++;
+        _Nlegend++;
+
+        _entries.push_front(plot_entry(graph, style, true));
+    };
+
 
     void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
