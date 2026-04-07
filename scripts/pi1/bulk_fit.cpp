@@ -116,7 +116,7 @@ void bulk_fit()
     for (int i = min; i <= max; i++)
     {
         fitter.fix_argument("alpha_"+to_string(i), 0.); 
-        fitter.make_real(    "beta_"+to_string(i));
+        fitter.fix_argument("beta_" +to_string(i), 0.);
     };
     // t-slopes as well
     fitter.make_real("b_alpha"); 
