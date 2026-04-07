@@ -171,7 +171,8 @@ namespace iterateKT
         inline void set_labels(std::string x, std::string y){ _xlabel = x; _ylabel = y;};
         
         // Set if the x and/or y axes is in logscale
-        inline void set_logscale(bool x, bool y){ _xlog = x; _ylog = y; };
+        inline void set_logscale(bool x, bool y){ _xlog = x;     _ylog = y; };
+        inline void set_logscale(bool y)        { _xlog = false; _ylog = y; };
 
         // Set custom bounds for both axes
         inline void set_xrange( std::array<double,2> x){ _xbounds = x; _customxrange = true; }
@@ -217,6 +218,8 @@ namespace iterateKT
             new_shaded._style = style[1];
             _shaded.push_back(new_shaded);
         };
+
+        inline void set_max_digits(uint x){ _max_digits = x; };
 
         // -----------------------------------------------------------------------
         
@@ -306,6 +309,8 @@ namespace iterateKT
         // Custom bounds for the different axes. 
         bool _customxrange = false, _customyrange = false;
         std::array<double,2> _xbounds, _ybounds;
+
+        uint _max_digits = 3;
 
         // -----------------------------------------------------------------------
         // LEGEND SET UP

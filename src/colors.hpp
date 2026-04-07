@@ -118,6 +118,20 @@ namespace iterateKT
         marker._draw_opt = "P";
         return marker;
     };
+
+    inline entry_style open_dot(jpacColor color, std::string id = "")
+    {
+        auto x = dot(color, id);
+        x._style = 24;
+        return x;
+    };
+
+    inline entry_style open_square(jpacColor color, std::string id = "")
+    {
+        auto x = dot(color, id);
+        x._style = 25;
+        return x;
+    };
 };
 
 
