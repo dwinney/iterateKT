@@ -32,7 +32,7 @@ void plot_intensity_m3pi()
     int min = 11, max = 49; 
 
     // Which tbin to plot
-    uint tbin = 2;
+    uint tbin = 0;
 
     // If we have two terms or three
     bool minimal = false;
@@ -65,6 +65,7 @@ void plot_intensity_m3pi()
     // Set up our amplitude (uniterated)
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(m3pis, COMPASS::t_bins));
     amp->import_solution(iso_path+file_prefix);
+    amp->precompute_dalitz(300);
     COMPASS::fit_2D::process_parameters(pars, amp);
 
     // -----------------------------------------------------------------------
@@ -73,15 +74,15 @@ void plot_intensity_m3pi()
     std::vector<double> ws, ews;
     for (auto bin : data)
     {
-        double ew = 0, bin_width = 0.04;
-        for (auto M : bin._z)  ew += norm(M*bin_width);
-        ews.push_back(ew);
+        double ew = 0;
+        for (int i = 0; i < bin._z.size(); i++) ew += norm(bin._z[i])*bin._dx[i];
+        ews.push_back(ew/1E4);
 
         amp->set_option(option::set_tbin,         bin._extras["t_bin"]);
         amp->set_option(option::set_mbin_COMPASS, bin._extras["m3pi_bin"]);
 
-        double w = amp->width();
-        ws.push_back(w);
+        double w = amp->width()/2;
+        ws.push_back(w/1E4);
         print(bin._extras["m3pi_bin"], w, ew);
     };
 
@@ -96,7 +97,7 @@ void plot_intensity_m3pi()
     p1.add_header("#minus #it{t} = " + to_string(-COMPASS::t_bins[tbin], 2) + " GeV^{2}");
     p1.add_curve(m3pis,  ws,  solid(jpacColor::Blue, "Model"));
     p1.add_data (m3pis, ews,  dot(jpacColor::DarkGrey, "Data"));
-    p1.set_labels("#it{m}_{3#pi}  [GeV]", "Integrated Intensity [a. u.]");
+    p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}  [a.u]");
     p1.save("widths.pdf");
    
 };

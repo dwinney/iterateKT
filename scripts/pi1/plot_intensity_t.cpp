@@ -29,7 +29,7 @@ void plot_intensity_t()
     // Operating options
 
     // Which tbins to plot
-    std::array<int,3> m3pibins = {11, 22, 32};
+    std::array<int,3> m3pibins = {12, 22, 36};
 
     // If we have two terms or three
     bool minimal = true;
@@ -109,7 +109,7 @@ void plot_intensity_t()
         for (auto bin : data[j])
         {
             double ew = 0, bin_width = 0.04;
-            for (auto M : bin._z)  ew += norm(M*0.04);
+            for (int i = 0; i < bin._z.size(); i++) ew += norm(bin._z[i])*bin._dx[i];
             ews[j].push_back(ew);
             
             amp->set_option(option::set_tbin,            bin._extras["t_bin"]);

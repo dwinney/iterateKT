@@ -109,13 +109,13 @@ namespace iterateKT
 
         auto fdx = [&](double t)
         {
-            return norm(evaluate_in_dalitz(s, t))/prefactors();
+            return differential_width(s, t);
         };
 
         // Limits are purely real in the decay region
         double min = real(_kinematics->t_minus(s));
         double max = real(_kinematics->t_plus(s));
-        return gauss_kronrod<double,31>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // Fully integrated width
@@ -130,7 +130,7 @@ namespace iterateKT
 
         double min = _kinematics->sth();
         double max = _kinematics->pth();
-        return gauss_kronrod<double,31>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // -----------------------------------------------------------------------
