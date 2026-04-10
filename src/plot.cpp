@@ -111,8 +111,8 @@ namespace iterateKT
             yhigh = mg->GetYaxis()->GetXmax();
         };
 
-        double xmin = mg->GetXaxis()->GetXmin();
-        double xmax = mg->GetXaxis()->GetXmax();
+        xlow  = mg->GetXaxis()->GetXmin();
+        xhigh = mg->GetXaxis()->GetXmax();
         
         for (auto vline : _vlines)
         {
@@ -134,8 +134,8 @@ namespace iterateKT
 
         for (auto shade : _shaded)
         {
-            double bmin = (shade._xmin < xmin) ? xmin : shade._xmin;
-            double bmax = (shade._xmax > xmax) ? xmax : shade._xmax;
+            double bmin = (shade._xmin < xlow) ?  xlow  : shade._xmin;
+            double bmax = (shade._xmax > xhigh) ? xhigh : shade._xmax;
 
             TBox *b = new TBox(bmin, ylow, bmax, yhigh); 
             b->SetFillColorAlpha(shade._color, 0.1); 
