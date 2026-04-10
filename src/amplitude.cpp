@@ -55,7 +55,7 @@ namespace iterateKT
         // S_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = prefactor_s(f->get_id(), s, t, u);
+            complex term = prefactor_s(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
             if (is_zero(term)) continue;
             result += term * f->evaluate_precomputed(s);
         };
@@ -63,7 +63,7 @@ namespace iterateKT
         // T_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = prefactor_t(f->get_id(), s, t, u);
+            complex term = prefactor_t(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
             if (is_zero(term)) continue;
             result += term * f->evaluate_precomputed(t);
         };
@@ -71,7 +71,7 @@ namespace iterateKT
         // U_CHANNEL
         for (auto f : _isobars)
         {
-            complex term = prefactor_u(f->get_id(), s, t, u);
+            complex term = prefactor_u(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
             if (is_zero(term)) continue;
             result += term * f->evaluate_precomputed(u);
         };
@@ -100,7 +100,7 @@ namespace iterateKT
     {
         using namespace boost::math::quadrature;
 
-        bool in_physical_region = (s >= _kinematics->sth() || s <= _kinematics->pth());
+        bool in_physical_region = (s >= get_kinematics()->sth() || s <= get_kinematics()->pth());
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
@@ -113,8 +113,8 @@ namespace iterateKT
         };
 
         // Limits are purely real in the decay region
-        double min = real(_kinematics->t_minus(s));
-        double max = real(_kinematics->t_plus(s));
+        double min = real(get_kinematics()->t_minus(s));
+        double max = real(get_kinematics()->t_plus(s));
         return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
@@ -123,13 +123,10 @@ namespace iterateKT
     {
         using namespace boost::math::quadrature;
 
-        auto fdx = [&](double s)
-        {
-            return differential_width(s);
-        };
+        auto fdx = [&](double s){ return differential_width(s); };
 
-        double min = _kinematics->sth();
-        double max = _kinematics->pth();
+        double min = get_kinematics()->sth();
+        double max = get_kinematics()->pth();
         return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
@@ -140,17 +137,17 @@ namespace iterateKT
     // compatible right away with plotter.combine
     std::vector<plot2D> raw_amplitude::plot_ReIm(plotter & pltr, std::string units, int N)
     {
-        double smin  = _kinematics->sth();
-        double smax  = _kinematics->pth();
-        double sigma = _kinematics->Sigma();
+        double smin  = get_kinematics()->sth();
+        double smax  = get_kinematics()->pth();
+        double sigma = get_kinematics()->Sigma();
 
         std::vector<double> s, t, re, im; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
 
-            double tmin = real(_kinematics->t_minus(si));
-            double tmax = real(_kinematics->t_plus (si));
+            double tmin = real(get_kinematics()->t_minus(si));
+            double tmax = real(get_kinematics()->t_plus (si));
             for (int j = 0; j < N; j++)
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
@@ -172,13 +169,13 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p_re = _kinematics->new_dalitz_plot(pltr);
+        plot2D p_re = get_kinematics()->new_dalitz_plot(pltr);
         p_re.set_data({s,t,re});
         p_re.set_title("Re#kern[0.2]{(}#it{A})");
         p_re.set_labels(xlabel, ylabel);
 
 
-        plot2D p_im = _kinematics->new_dalitz_plot(pltr);
+        plot2D p_im = get_kinematics()->new_dalitz_plot(pltr);
         p_im.set_data({s,t,im});
         p_im.set_title("Im#kern[0.2]{(}#it{A})");
         p_im.set_labels(xlabel, ylabel);
@@ -189,17 +186,17 @@ namespace iterateKT
     // Plot |A|
     plot2D raw_amplitude::plot_dalitz(plotter & pltr, std::string units, int N)
     {
-        double smin  = _kinematics->sth();
-        double smax  = _kinematics->pth();
-        double sigma = _kinematics->Sigma();
+        double smin  = get_kinematics()->sth();
+        double smax  = get_kinematics()->pth();
+        double sigma = get_kinematics()->Sigma();
 
         std::vector<double> s, t, absA; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
 
-            double tmin = real(_kinematics->t_minus(si));
-            double tmax = real(_kinematics->t_plus (si));
+            double tmin = real(get_kinematics()->t_minus(si));
+            double tmax = real(get_kinematics()->t_plus (si));
             for (int j = 0; j < N; j++)
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
@@ -220,7 +217,7 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p = _kinematics->new_dalitz_plot(pltr);
+        plot2D p = get_kinematics()->new_dalitz_plot(pltr);
         p.set_data({s,t,absA});
         p.set_labels(xlabel, ylabel);
 
@@ -242,7 +239,7 @@ namespace iterateKT
         double N  = norm(evaluate(s0,s0,s0));
 
         // Rename our function for readibility
-        auto F  = [this,N,s0](double s, double t){ return norm(evaluate(s,t,_kinematics->Sigma()-s-t))/N; };
+        auto F  = [this,N,s0](double s, double t){ return norm(evaluate(s,t,get_kinematics()->Sigma()-s-t))/N; };
         auto Fs = [this,F,s0](double s){ return F(s,s0); };
         auto Ft = [this,F,s0](double t){ return F(s0,t); };
 

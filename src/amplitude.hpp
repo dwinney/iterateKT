@@ -76,7 +76,7 @@ namespace iterateKT
 
         // (inverse of) prefactors for the differential width
         virtual inline double prefactors()
-        { return 32*pow(2*PI*_kinematics->M(),3)*combinatorial_factor(); }
+        { return 32*pow(2*PI*get_kinematics()->M(),3)*combinatorial_factor(); }
 
         // -----------------------------------------------------------------------
         // Methods to more easily evaluate amplitudes inside decay regions
