@@ -42,9 +42,6 @@ void plot_intensity_m3pi()
     // and the prefix given to each file
     std::string file_prefix = "CCD";
 
-    // File containing parameters
-    std::string in_pars_file   = (minimal) ? main_dir()+"/scripts/pi1/minimal.dat" : main_dir()+"/scripts/pi1/nonminimal.dat";
-
     // -----------------------------------------------------------------------
     // Data set up
 
@@ -55,7 +52,8 @@ void plot_intensity_m3pi()
     // -----------------------------------------------------------------------
     // Import fit values
 
-    std::vector<complex> pars = COMPASS::import_parameters({min,max}, in_pars_file);
+    std::vector<complex> minimal_pars    = COMPASS::import_parameters({min,max}, main_dir()+"/scripts/pi1/pars/minimal.dat");
+    std::vector<complex> nonminimal_pars = COMPASS::import_parameters({min,max}, main_dir()+"/scripts/pi1/pars/nonminimal.dat");
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -66,24 +64,26 @@ void plot_intensity_m3pi()
     amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(m3pis, COMPASS::t_bins));
     amp->import_solution(iso_path+file_prefix);
     amp->precompute_dalitz(300);
-    COMPASS::fit_2D::process_parameters(pars, amp);
-
+    
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
-
-    std::vector<double> ws, ews;
+    
+    std::vector<double> mws, ews, nws, mws_c, nws_c;
     for (auto bin : data)
     {
-        double ew = 0;
+        
+        double ew = 0, mw = 0, nw = 0;
         for (int i = 0; i < bin._z.size(); i++) ew += norm(bin._z[i])*bin._dx[i];
         ews.push_back(ew/1E4);
-
+        
+        COMPASS::fit_2D::process_parameters(minimal_pars, amp);
         amp->set_option(option::set_tbin,         bin._extras["t_bin"]);
         amp->set_option(option::set_mbin_COMPASS, bin._extras["m3pi_bin"]);
-
-        double w = amp->width()/2;
-        ws.push_back(w/1E4);
-        print(bin._extras["m3pi_bin"], w, ew);
+        mws.push_back(amp->width()/1E4);
+        COMPASS::fit_2D::process_parameters(nonminimal_pars, amp);
+        amp->set_option(option::set_tbin,         bin._extras["t_bin"]);
+        amp->set_option(option::set_mbin_COMPASS, bin._extras["m3pi_bin"]);
+        nws.push_back(amp->width()/1E4);
     };
 
     // -----------------------------------------------------------------------
@@ -95,7 +95,8 @@ void plot_intensity_m3pi()
     plot p1 = plotter.new_plot();
     p1.set_legend(0.65, 0.7);
     p1.add_header("#minus #it{t} = " + to_string(-COMPASS::t_bins[tbin], 2) + " GeV^{2}");
-    p1.add_curve(m3pis,  ws,  solid(jpacColor::Blue, "Model"));
+    p1.add_curve(m3pis, mws,  solid(jpacColor::Blue,  "Minimal"));
+    p1.add_curve(m3pis, nws,  solid(jpacColor::Red, "Non-minimal"));
     p1.add_data (m3pis, ews,  dot(jpacColor::DarkGrey, "Data"));
     p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}  [a.u]");
     p1.save("widths.pdf");
