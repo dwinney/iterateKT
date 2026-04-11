@@ -67,7 +67,7 @@ namespace iterateKT { namespace COMPASS
         // Need to filter out any data outside of the physical kinematic region
     
         kinematics kin = new_kinematics(m3pi, M_PION);
-        std::vector<double> sig1, sig2, absM, errM, bin_area;
+        std::vector<double> sig1, sig2, absM, errM, correct_bin_area, wrong_bin_area;
         for (int i = 0; i < N; i++)
         {
             for (int j = 0; j < N; j++)
@@ -86,10 +86,21 @@ namespace iterateKT { namespace COMPASS
                 absM.push_back(     abs_M[i][j] ); 
                 errM.push_back( std_abs_M[i][j] );
                 double ds1 = widths[i], ds2 = widths[j];
-                bin_area.push_back(ds1*ds2);
+
+                correct_bin_area.push_back(ds1*ds2*4*sqrt(s1*s2));
+                wrong_bin_area.push_back(ds1*ds2);
             };
         };
         int N_actual = sig1.size();
+
+        // Normalization of the data files is wrong here we fix it
+        double wrong_norm = 0, correct_norm = 0;
+        for (int i = 0; i < absM.size(); i++)
+        {
+            correct_norm += norm(absM[i])*wrong_bin_area[i];
+            wrong_norm   += norm(absM[i])*correct_bin_area[i];
+        };
+        double norm = sqrt(correct_norm / wrong_norm);
 
         // ---------------------------------------------------------------------------
         //  Organize everything
@@ -101,9 +112,9 @@ namespace iterateKT { namespace COMPASS
         out._extras["t"]    = t;    
         out._extras["tbin_width"]    = (t_upper - t_lower)/2;
         out._extras["m3pibin_width"] = (m3pi_upper - m3pi_lower)/2;
-        out._x = sig1; out._dx = bin_area;  
+        out._x = sig1; out._dx = correct_bin_area;  
         out._y = sig2;             
-        out._z = absM; out._dz = errM;               
+        out._z = norm*absM; out._dz = norm*errM;               
 
         return out;
     };
@@ -179,7 +190,7 @@ namespace iterateKT { namespace COMPASS
         // Import everything into the data_sets
         out_real._N  = N_actual;          out_imag._N = N_actual;
         out_real._id = id;                out_imag._id = id; 
-        out_real._type = kReal;      out_imag._type = kImag;
+        out_real._type = kReal;           out_imag._type = kImag;
         out_real._extras["Nbins"] = N;    out_imag._extras["Nbins"] = N; 
         out_real._extras["m3pi"]  = m3pi; out_imag._extras["m3pi"]  = m3pi; 
         out_real._extras["t"]     = t;    out_imag._extras["t"]     = t; 

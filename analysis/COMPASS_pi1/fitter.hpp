@@ -208,9 +208,9 @@ namespace iterateKT { namespace COMPASS
                 for (int j = 0; j < 4; j++)
                 {
                     to_fit->set_option(option::set_tbin, j);
-                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-t_bins[0]));
-                    complex N2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-t_bins[0]));
-                    complex N3 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-t_bins[0]));
+                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-COMPASS::t_bins[0]));
+                    complex N2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-COMPASS::t_bins[0]));
+                    complex N3 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-COMPASS::t_bins[0]));
                     to_fit->set_parameters({N1, N2, N3});
                 };
             };
