@@ -200,6 +200,8 @@ namespace iterateKT { namespace COMPASS
             complex b2 = pars.end()[-2]; // Second to last par
             complex b3 = pars.end()[-1]; // Last par
 
+            double t0 = -0.1205;
+
             // Cycle through m3pibins
             for (int i = 0; i < N; i++)
             {
@@ -208,9 +210,9 @@ namespace iterateKT { namespace COMPASS
                 for (int j = 0; j < 4; j++)
                 {
                     to_fit->set_option(option::set_tbin, j);
-                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-COMPASS::t_bins[0]));
-                    complex N2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-COMPASS::t_bins[0]));
-                    complex N3 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-COMPASS::t_bins[0]));
+                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-t0));
+                    complex N2 = pars[3*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-t0));
+                    complex N3 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-t0));
                     to_fit->set_parameters({N1, N2, N3});
                 };
             };
