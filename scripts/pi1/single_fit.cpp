@@ -104,7 +104,7 @@ void single_fit()
     // Finally calculatet the chi2 per bin
     std::vector<double> pull, bin_i;
     double avg_pull = 0;
-    for (int i = 0; i < data._N; i++)
+    for (int i = 0; i < data._z.size(); i++)
     {
         bin_i.push_back(i);
         double s1 = data._x[i], s2 = data._y[i];

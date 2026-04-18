@@ -19,7 +19,7 @@
 #include "COMPASS_pi1/fitter.hpp"
 #include "COMPASS_pi1/data.hpp"
 
-void plot_intensity_m3pi()
+void plot_width_m3pi()
 {
     using namespace iterateKT;
     using iterateKT::complex;
@@ -33,11 +33,16 @@ void plot_intensity_m3pi()
 
     // Which tbin to plot
     std::array<uint,2> tbins = {0, 3};
+    // IF to plot minimal or nonminimal
+    bool minimal = true;
     
     // Path to precalculated isoabrs
-    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CCD";
+    // path to par file
+    std::string par_file    = (minimal) ? main_dir()+"/analysis/COMPASS_pi1/pars/minimal.dat"
+                                        : main_dir()+"/analysis/COMPASS_pi1/pars/nonminimal.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -52,15 +57,17 @@ void plot_intensity_m3pi()
     // -----------------------------------------------------------------------
     // Import fit values
 
-    std::vector<complex> minimal_pars    = COMPASS::import_parameters({min,max}, main_dir()+"/scripts/pi1/pars/minimal.dat");
+    std::vector<complex> minimal_pars    = COMPASS::import_parameters({min,max}, par_file);
     std::vector<complex> minimal_pars_c, minimal_pars_d;
     for (int i = 0; i < (minimal_pars.size()-3)/3; i++)
     {
+        // Contact only
         minimal_pars_c.push_back( minimal_pars[3*i]   );
         minimal_pars_c.push_back( 0. );
         minimal_pars_c.push_back( 0. );
+        // Deck only
         minimal_pars_d.push_back( 0. );
-        minimal_pars_d.push_back( 0. );
+        minimal_pars_d.push_back( minimal_pars[3*i+1]  );
         minimal_pars_d.push_back( minimal_pars[3*i+2]   );
     };
     for (int n = 0; n < 3; n++)
@@ -88,7 +95,6 @@ void plot_intensity_m3pi()
     {
         for (auto bin : data[j])
         {
-            
             double ew = 0, mw = 0, nw = 0;
             for (int i = 0; i < bin._z.size(); i++) ew += norm(bin._z[i])*bin._dx[i];
             ews[j].push_back(ew/1E4);
@@ -113,29 +119,31 @@ void plot_intensity_m3pi()
 
     plotter plotter;
 
-    auto red   = square(jpacColor::Red,    "Contact Only");
+    auto blue  = square(jpacColor::Blue,   "Full");
+    blue._draw_opt = "L";
+    auto red   = square(jpacColor::Red,    "Contact only");
     red._draw_opt = "PL";
-    auto green = square(jpacColor::Green,  "Deck Only");
+    auto green = square(jpacColor::Green,  "Deck only");
     green._draw_opt = "PL";
 
     // Plot widths as a function of m3pi
     plot p1 = plotter.new_plot();
-    p1.set_legend(0.65, 0.7);
+    p1.set_legend(0.65, 0.65);
     p1.add_header("#minus #it{t} = " + to_string(-COMPASS::t_bins[0], 2) + " GeV^{2}");
-    p1.add_curve(m3pis, mws[0],    solid(jpacColor::Blue,   "Full")); 
-    p1.add_data (m3pis, ews[0],    dot(jpacColor::DarkGrey, "Data"));
     p1.add_data(m3pis, mws_d[0],  green);
     p1.add_data(m3pis, mws_c[0],  red);
-    p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}  [a.u.]");
+    p1.add_data(m3pis, mws[0],    blue); 
+    p1.add_data(m3pis, ews[0],    dot(jpacColor::DarkGrey, "Data"));
+    p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}    [a.u.]");
 
     plot p2 = plotter.new_plot();
-    p2.set_legend(0.65, 0.7);
+    p2.set_legend(0.65, 0.65);
     p2.add_header("#minus #it{t} = " + to_string(-COMPASS::t_bins[3], 2) + " GeV^{2}");
-    p2.add_curve(m3pis, mws[1],    solid(jpacColor::Blue,   "Full"));
-    p2.add_data (m3pis, ews[1],    dot(jpacColor::DarkGrey, "Data"));
-    p2.add_data(m3pis, mws_d[1],   green);
+    p2.add_data(m3pis, mws_d[1],  green);
     p2.add_data(m3pis, mws_c[1],   red);
-    p2.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}  [a.u.]");
+    p2.add_data(m3pis, mws[1],    blue);
+    p2.add_data(m3pis, ews[1],    dot(jpacColor::DarkGrey, "Data"));
+    p2.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}    [a.u.]");
 
     plotter.combine({2,1}, {p1, p2}, "intensity_m3pi.pdf");
 };

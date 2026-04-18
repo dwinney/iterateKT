@@ -40,10 +40,10 @@ void bulk_fit()
     double tolerance = 0.001;
 
     // If to use three basis functions or only two
-    bool minimal = false;
+    bool minimal = true;
 
     // Path to precalculated isoabrs
-    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CCD";
 

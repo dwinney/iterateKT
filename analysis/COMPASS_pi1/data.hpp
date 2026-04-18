@@ -80,7 +80,6 @@ namespace iterateKT { namespace COMPASS
                 if (are_equal(s1, s2))             continue;
 
                 double z = abs_M[i][j];
-                if (is_zero(z))                    continue;
                 
                 sig1.push_back(s1); sig2.push_back(s2);
                 absM.push_back(     abs_M[i][j] ); 

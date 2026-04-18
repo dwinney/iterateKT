@@ -33,12 +33,12 @@ void plot_chi2s()
     int min = 11, max = 49; 
 
     // Path to precalculated isoabrs
-    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CCD";
 
     // File containing parameters
-    std::string file_path   = main_dir()+"/scripts/pi1/pars/";
+    std::string file_path   = main_dir()+"/analysis/COMPASS_pi1/pars/";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -76,7 +76,7 @@ void plot_chi2s()
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
     
-    std::array<std::string,2> header = {"Minimal fit:", "Nonminimal fit:"};
+    std::array<std::string,2> header = {"Minimal fit:", "Non-minimal fit:"};
     std::array<std::array<std::vector<double>,4>,2> chi2s;
     std::array<double,2> chi2_dof;
     line();
@@ -128,7 +128,7 @@ void plot_chi2s()
     plot p1 = plotter.new_plot();
     p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p1.set_legend(0.65, 0.725);
-    p1.set_ranges({smin, smax}, {1, 10});
+    p1.set_ranges({0.9,2.6}, {0, 22});
     p1.add_horizontal(chi2_dof[0], {kBlack, kDashed});
     p1.add_data(m3pi_vals, chi2s[0][3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV^{2}"));
     p1.add_data(m3pi_vals, chi2s[0][2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV^{2}"));
@@ -140,7 +140,7 @@ void plot_chi2s()
     plot p2 = plotter.new_plot();
     p2.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p2.set_legend(0.65, 0.725);
-    p2.set_ranges({smin, smax}, {1, 10});
+    p2.set_ranges({0.9,2.6}, {0, 22});
     p2.add_horizontal(chi2_dof[1], {kBlack, kDashed});
     p2.add_data(m3pi_vals, chi2s[1][3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV^{2}"));
     p2.add_data(m3pi_vals, chi2s[1][2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV^{2}"));

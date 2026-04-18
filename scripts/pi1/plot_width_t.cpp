@@ -19,7 +19,7 @@
 #include "COMPASS_pi1/fitter.hpp"
 #include "COMPASS_pi1/data.hpp"
 
-void plot_intensity_t()
+void plot_width_t()
 {
     using namespace iterateKT;
     using iterateKT::complex;
@@ -29,18 +29,15 @@ void plot_intensity_t()
     // Operating options
 
     // Which tbins to plot
-    std::array<int,3> m3pibins = {12, 22, 36};
-
-    // If we have two terms or three
-    bool minimal = true;
+    std::array<int,3> m3pibins = {12, 22, 32};
 
     // Path to precalculated isoabrs
-    std::string iso_path    = main_dir()+"/scripts/pi1/basis_functions/";
+    std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
     // and the prefix given to each file
     std::string file_prefix = "CCD";
 
     // File containing parameters
-    std::string in_pars_file   = main_dir()+"/scripts/pi1/pars/minimal.dat";
+    std::string in_pars_file   = main_dir()+"/analysis/COMPASS_pi1/pars/minimal.dat";
 
     // -----------------------------------------------------------------------
     // Data set up
@@ -86,19 +83,17 @@ void plot_intensity_t()
     // Set up amplitude and iterative solution
 
     // Set up our amplitude (uniterated)
-    std::array<double,4> ts = {-0.1, -0.15, -0.2, -0.25};
-    std::vector<double> vts = {-0.1, -0.15, -0.2, -0.25};
-    amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), ts));
+    amplitude amp  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), COMPASS::t_bins));
     amp->import_solution(iso_path+file_prefix);
     COMPASS::fit_2D::process_parameters(pars, amp);
 
     // Contact only
-    amplitude c_only = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), ts));
+    amplitude c_only = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), COMPASS::t_bins));
     c_only->import_solution(iso_path+file_prefix);
     COMPASS::fit_2D::process_parameters(pars_c, c_only);
 
     // Deck only
-    amplitude d_only  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), ts));
+    amplitude d_only  = new_amplitude<pi1_binned>(nullptr, std::make_tuple(COMPASS::m3pi_bins(), COMPASS::t_bins));
     d_only->import_solution(iso_path+file_prefix);
     COMPASS::fit_2D::process_parameters(pars_d, d_only);
 
@@ -116,18 +111,14 @@ void plot_intensity_t()
             c_only->set_option(option::set_mbin_COMPASS, bin._extras["m3pi_bin"]);
             d_only->set_option(option::set_tbin,         bin._extras["t_bin"]);
             d_only->set_option(option::set_mbin_COMPASS, bin._extras["m3pi_bin"]);
-            double ew = 0, tw = 0, twc = 0, twd = 0;
-            for (int i = 0; i < bin._z.size(); i++)
-            { 
-                ew += norm(bin._z[i])*bin._dx[i];
-                tw += amp->differential_width(bin._x[i], bin._y[i])*bin._dx[i];
-                twc += c_only->differential_width(bin._x[i], bin._y[i])*bin._dx[i];
-                twd += d_only->differential_width(bin._x[i], bin._y[i])*bin._dx[i];
-            };
+
+            double ew = 0;
+            for (int i = 0; i < bin._z.size(); i++) ew += norm(bin._z[i])*bin._dx[i];
             ews[j].push_back(ew);
-            ws[j].push_back(tw);
-            wcs[j].push_back(twc);
-            wds[j].push_back(twd);
+
+            ws[j].push_back(amp->width());
+            wcs[j].push_back(c_only->width());
+            wds[j].push_back(d_only->width());
         };
     };
 
@@ -142,9 +133,9 @@ void plot_intensity_t()
     p1.set_logscale(false, true);
     p1.add_header("#it{m}_{3#pi} = " + to_string(COMPASS::m_bins[m3pibins[0]-11]) + " GeV");
     p1.set_labels("#minus #it{t}  [GeV^{2}]", "Integrated Intensity  [a.u.]");
-    p1.add_curve( vts,  ws[0],             solid(jpacColor::Blue,   "Full"));
-    p1.add_curve( vts,  wcs[0],            solid(jpacColor::Red,    "Contact only"));
-    p1.add_curve( vts,  wds[0],            solid(jpacColor::Green,  "Deck Only"));
+    p1.add_curve( ets,  ws[0],             solid(jpacColor::Blue,   "Full"));
+    p1.add_curve( ets,  wcs[0],            solid(jpacColor::Red,    "Contact only"));
+    p1.add_curve( ets,  wds[0],            solid(jpacColor::Green,  "Deck Only"));
     p1.add_data ({ets, twidths},  ews[0],  dot(jpacColor::DarkGrey, "Data"));
 
     plot p2 = plotter.new_plot();
@@ -152,9 +143,9 @@ void plot_intensity_t()
     p2.set_logscale(false, true);
     p2.add_header("#it{m}_{3#pi} = " + to_string(COMPASS::m_bins[m3pibins[1]-11]) + " GeV");
     p2.set_labels("#minus #it{t}  [GeV^{2}]", "Integrated Intensity  [a.u.]");
-    p2.add_curve( vts,  ws[1],             solid(jpacColor::Blue));
-    p2.add_curve( vts,  wcs[1],            solid(jpacColor::Red));
-    p2.add_curve( vts,  wds[1],            solid(jpacColor::Green));
+    p2.add_curve( ets,  ws[1],             solid(jpacColor::Blue));
+    p2.add_curve( ets,  wcs[1],            solid(jpacColor::Red));
+    p2.add_curve( ets,  wds[1],            solid(jpacColor::Green));
     p2.add_data ({ets, twidths},  ews[1],  dot(jpacColor::DarkGrey));
 
     plot p3 = plotter.new_plot();
@@ -162,9 +153,9 @@ void plot_intensity_t()
     p3.set_logscale(false, true);
     p3.add_header("#it{m}_{3#pi} = " + to_string(COMPASS::m_bins[m3pibins[2]-11]) + " GeV");
     p3.set_labels("#minus #it{t}  [GeV^{2}]", "Integrated Intensity  [a.u.]");
-    p3.add_curve( vts,  ws[2],             solid(jpacColor::Blue));
-    p3.add_curve( vts,  wcs[2],            solid(jpacColor::Red));
-    p3.add_curve( vts,  wds[2],            solid(jpacColor::Green));
+    p3.add_curve( ets,  ws[2],             solid(jpacColor::Blue));
+    p3.add_curve( ets,  wcs[2],            solid(jpacColor::Red));
+    p3.add_curve( ets,  wds[2],            solid(jpacColor::Green));
     p3.add_data ({ets, twidths},  ews[2],  dot(jpacColor::DarkGrey));
 
     plotter.stack({p1,p2,p3}, "widths.pdf");   
