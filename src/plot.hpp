@@ -167,6 +167,9 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // OPTION SETTERS
 
+        // Optional histogram-style title (first segment of ROOT \"Title;X;Y\"; axis labels unchanged).
+        inline void set_plot_title(std::string t){ _plot_title = t; };
+
         // Add string labels to the axes, follows TLatex 
         inline void set_labels(std::string x, std::string y){ _xlabel = x; _ylabel = y;};
         
@@ -303,7 +306,8 @@ namespace iterateKT
         // Whether to use logscale of either axis
         bool _xlog = false, _ylog = false;
             
-        // Axis labels
+        // Axis labels and optional plot title (ROOT \"Title;X;Y\")
+        std::string _plot_title = "";
         std::string _xlabel = "", _ylabel = "";
         
         // Custom bounds for the different axes. 
