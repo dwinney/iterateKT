@@ -61,86 +61,45 @@ namespace iterateKT
         static constexpr double _mu2 = _mu*_mu;
 
         // ------------------------------------------------------------------------------
-        // Things related to the inclusion of the bubble
-
-        // P-wave projection of 2 particle phase space with BW factor
-        // M2   -> total 3pi invariant mass
-        // s    -> 2pi subsystem mass
-        // lam2 -> cutoff mass squared (mass of first ignored particle)
-        static inline complex bubble(complex M2, complex s, double lam2)
-        {
-            complex mu2 = complex(_mu2);
-            complex q   = csqrt(kallen(M2, s, mu2))/2/csqrt(M2);
-            complex rho = 2*q/csqrt(M2);
-
-            // careful if we cross above the three-body cut
-            // multiply by -1 to not change sign and stay on the same sheet
-            bool above_3bcut = (real(s) >= real(M2)+_mu2);
-            if  (above_3bcut){ q *= -1; rho *= -1; };
-
-            complex z2 = q*q / lam2;
-            complex blatt_weisskopf = 2./(1+z2);
-            return z2*blatt_weisskopf*rho;
-        };
-
-        // ------------------------------------------------------------------------------
         // Things related to the inclusion of the Deck triangle
 
-        static inline complex tau(complex t, complex M2, complex s, double z)
-        {
-            complex mu2 = complex(_mu2);
-            complex p   = csqrt(kallen(M2, t, mu2))/2/csqrt(M2);
-            complex q   = csqrt(kallen(M2, s, mu2))/2/csqrt(M2);
-            complex rho = 2*q/csqrt(M2);
-
-            // careful if we cross above the three-body cut
-            // multiply by -1 to not change sign and stay on the same sheet
-            bool above_3bcut = (real(s) >= real(M2)+_mu2);
-            if  (above_3bcut){ q *= -1; rho *= -1; };
-            return  mu2 + s - (M2+mu2-t)*(M2+s-mu2)/2/M2 + 2*p*q*z;
-        };
-
         // 3P1 projection of the vanilla OPE
-        // t    -> momentum transfer of (external) Pomeron
-        // M2   -> total 3pi invariant mass
-        // s    -> 2pi subsystem imvariant mass
-        // mex2 -> exchanged particle mass
-        static inline complex deck(complex t, complex M2, complex s, double mex2)
+        // t     -> momentum transfer of (external) Pomeron
+        // m3pi2 -> total 3pi invariant mass 
+        // sigma -> 2pi subsystem imvariant mass
+        static inline complex deck(double t, double m3pi2, complex sigma)
         {
-            // Masses and momenta
-            complex mu2 = complex(_mu2);
-            complex p   = csqrt(kallen(M2, t, mu2))/2/csqrt(M2);
-            complex q   = csqrt(kallen(M2, s, mu2))/2/csqrt(M2);
-            complex rho = 2*q/csqrt(M2);
+            double eps = imag(sigma);
+            bool almost_real = abs(eps) < 1E-5;
 
-            // careful if we cross above the three-body cut
-            // multiply by -1 to not change sign and stay on the same sheet
-            bool above_3bcut = (real(s) >= real(M2)+_mu2);
-            if  (above_3bcut){ q *= -1; rho *= -1; };
+            // Thresholds and other special points
+            double sth  =  norm(2*_mu);
+            double pth  =  norm( sqrt(m3pi2) - _mu );
+            double rth  =  norm( sqrt(m3pi2) + _mu );
+            double tbc  =  m3pi2 + _mu2;
+            double pole = (m3pi2 - _mu2)*(m3pi2 - t + _mu2)/(m3pi2 + t - _mu2);
+            double exchange_mass = _mu2;
+
+            // Momenta
+            complex p   = csqrt(kallen( m3pi2, t,     _mu2))/2/csqrt(m3pi2);
+            complex q   = csqrt(kallen( m3pi2, sigma, _mu2))/2/csqrt(m3pi2);
+            // careful if we cross above the m3pi2 + mu2 we have a vertical cut
+            bool above_tbc = real(sigma) >= tbc;
+            if  (above_tbc) q *= -1;
+            
             // Momentum tranfer at costheta = 0
-            complex t0  = tau(t, M2, s, 0); 
+            complex t0  = _mu2 + sigma - (m3pi2+_mu2-t)*(m3pi2+sigma-_mu2)/2/m3pi2; 
             // Angular argument
-            complex z   = (mex2 - t0)/2/p/q;
+            complex z   = (exchange_mass - t0)/2/p/q;
 
-            // Continution depends on the ieps used for s
-            // and not that of z
-            bool above_thr  = real(s) >= 4*_mu2;
-
-            // Legendre of 2nd kind
+            // Legendre of the second kind
             complex Q0;
-            if (above_thr) Q0 = log(-(z+1)/(z-1))/2-I*sign(imag(s))*PI/2;
-            else           Q0 = log( (z+1)/(z-1))/2;
+            Q0 = (imag(z) > 0) ? log((z+1)/(z-1))/2 : (log((1+z)/(1-z))-I*PI)/2;
+            if (eps < 0) Q0 += I*PI;
 
-            // Final discontinuity
-            return rho*q/p*((1-z*z)*Q0+z);
-        };
-
-        // without specififying an exchange mass, assume we mean pion
-        static inline complex deck(complex t, complex M2, complex s)
-        { return deck(t, M2, s, _mu2); };     
-        // adding a form factor is just the pion exchange minus the cutoff      
-        static inline complex deck_with_FF(complex t, complex M2, complex s, double lam2)
-        { return deck(t, M2, s, _mu2) - deck(t, M2, s, lam2); };
+            // Final result with spin factors
+            return ((1-z*z)*Q0+z)/p/q;
+        };    
 
         // When we want the integrated width to just be the integrated intenstiy 
         // and so we remove the flux prefactors to match COMPASS definition
