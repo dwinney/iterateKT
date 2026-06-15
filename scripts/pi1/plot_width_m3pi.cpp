@@ -134,7 +134,7 @@ void plot_width_m3pi()
     p1.add_data(m3pis, mws_c[0],  red);
     p1.add_data(m3pis, mws[0],    blue); 
     p1.add_data(m3pis, ews[0],    dot(jpacColor::DarkGrey, "Data"));
-    p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}    [a.u.]");
+    p1.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
 
     plot p2 = plotter.new_plot();
     p2.set_legend(0.65, 0.65);
@@ -143,7 +143,7 @@ void plot_width_m3pi()
     p2.add_data(m3pis, mws_c[1],   red);
     p2.add_data(m3pis, mws[1],    blue);
     p2.add_data(m3pis, ews[1],    dot(jpacColor::DarkGrey, "Data"));
-    p2.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2}) / 10^{4}    [a.u.]");
+    p2.set_labels("#it{m}_{3#pi}  [GeV]", "#Gamma(#it{t}, #it{m}_{3#pi}^{2})    [a.u.]");
 
     plotter.combine({2,1}, {p1, p2}, "intensity_m3pi.pdf");
 };

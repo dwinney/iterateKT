@@ -46,10 +46,10 @@ void plot_isobars()
 
     std::vector<amplitude> amps;
 
-    amps.emplace_back(new_amplitude<pi1>(new_kinematics(0.96, M_PION)));
-    amps.emplace_back(new_amplitude<pi1>(new_kinematics(0.96, M_PION)));
-    amps.emplace_back(new_amplitude<pi1>(new_kinematics(1.0, M_PION)));
-    amps.emplace_back(new_amplitude<pi1>(new_kinematics(1.0, M_PION)));
+    amps.emplace_back(new_amplitude<pi1>(new_kinematics(1.3, M_PION)));
+    amps.emplace_back(new_amplitude<pi1>(new_kinematics(1.6, M_PION)));
+    amps.emplace_back(new_amplitude<pi1>(new_kinematics(1.9, M_PION)));
+    amps.emplace_back(new_amplitude<pi1>(new_kinematics(2.2, M_PION)));
 
     for (auto amp : amps)
     {
@@ -65,7 +65,7 @@ void plot_isobars()
 
     plotter plotter;
 
-    std::array<double,2> bounds = {0., 1.};
+    std::array<double,2> bounds = {0., 1.5};
 
     plot p1 = plotter.new_plot();
     p1.set_curve_points(1000);

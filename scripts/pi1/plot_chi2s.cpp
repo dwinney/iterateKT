@@ -128,7 +128,7 @@ void plot_chi2s()
     plot p1 = plotter.new_plot();
     p1.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p1.set_legend(0.65, 0.725);
-    p1.set_ranges({0.9,2.6}, {0, 22});
+    p1.set_ranges({0.9,2.6}, {0, 18});
     p1.add_horizontal(chi2_dof[0], {kBlack, kDashed});
     p1.add_data(m3pi_vals, chi2s[0][3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV^{2}"));
     p1.add_data(m3pi_vals, chi2s[0][2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV^{2}"));
@@ -140,7 +140,7 @@ void plot_chi2s()
     plot p2 = plotter.new_plot();
     p2.set_labels("#it{m}_{3#pi}   [GeV]", "#chi^{2} / #it{n}_{#sigma}");
     p2.set_legend(0.65, 0.725);
-    p2.set_ranges({0.9,2.6}, {0, 22});
+    p2.set_ranges({0.9,2.6}, {0, 18});
     p2.add_horizontal(chi2_dof[1], {kBlack, kDashed});
     p2.add_data(m3pi_vals, chi2s[1][3], star(    jpacColor::Orange, "#minus #it{t} = 0.66 GeV^{2}"));
     p2.add_data(m3pi_vals, chi2s[1][2], triangle(jpacColor::Green,  "#minus #it{t} = 0.26 GeV^{2}"));
