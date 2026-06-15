@@ -34,7 +34,7 @@ namespace iterateKT
         sets._interpolation_points    = {200, 8, 100};
         double xi_sth = 1E-3,  eps_sth = 1E-3;
         double xi_pth = 1E-3,  eps_pth = 4E-2;
-        double xi_rth = 2E-1,  eps_rth = 6E-2;
+        double xi_rth = 2E-1,  eps_rth = 8E-2;
 
         sets._exclusion_offsets   = {7E-2, 2E-1};
         sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
@@ -206,7 +206,7 @@ namespace iterateKT
             // Set up all the amplitudes
             for (int i = 0; i < 4; i++)
             {
-                _tbins[i]->add_isobar<P_wave>({constant, constant, deck(_tvals[i])}, 3, id::P_wave, "t_"+to_string(-_tvals[i]));
+                _tbins[i]->add_isobar<P_wave>({constant, constant, deck(_tvals[i])}, 1, id::P_wave, "t_"+to_string(-_tvals[i]));
                 _tbins[i]->iterate(niter);
             };
 

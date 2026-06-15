@@ -33,20 +33,20 @@ void single_fit()
     // -----------------------------------------------------------------------
     // Operating options
 
-    int m3pibin    = 22;  // which m3pi bin to fit 
-    int tbin       = 0;   // which t bin to fit
-    int Niter      = 10;  // Number of KT iterations
+    int m3pibin          = 22;  // which m3pi bin to fit 
+    int tbin             = 0;   // which t bin to fit
+    int Niter            = 10;  // Number of KT iterations
+    int asymptotic_power = 1;
 
     // Import our data set first so we can know the m3pi bin
     data_set data   = COMPASS::parse_JSON(m3pibin, tbin);
     double m3pi     = data._extras["m3pi"];
     double t        = data._extras["t"];
-
+    
     // Contact piece gets just constant as driving term
     auto   constant = [&](complex sigma){return 1.;};
     auto   linear   = [&](complex sigma){return sigma;};
     auto   quad     = [&](complex sigma){return sigma*sigma;};
-    auto   bubble   = [&](complex sigma){return pi1::bubble(m3pi*m3pi, sigma, norm(0.2));};
     auto   deck     = [&](complex sigma){return pi1::deck(t, m3pi*m3pi, sigma);};
 
     std::vector<std::function<complex(complex)>> driving_terms = {constant, deck};
@@ -62,7 +62,7 @@ void single_fit()
     amp->set_name("π₁ → 3π");
 
     // Add isobar using the above function as our driving term
-    isobar pwave   =  amp->add_isobar<P_wave>(driving_terms,  2, id::P_wave, "Deck");
+    isobar pwave   =  amp->add_isobar<P_wave>(driving_terms,  asymptotic_power, id::P_wave, "Deck");
 
     // Iterate Niter times
     amp->timed_iterate(Niter);
@@ -74,13 +74,13 @@ void single_fit()
     TRandom rand(0);
     // These vectors should be same size as Nsub above
     std::vector<complex> initial_guess;
-    initial_guess.push_back(rand.Uniform(0,5));
-    for (int i = 1; i < driving_terms.size(); i++) initial_guess.push_back(rand.Uniform(-5,5)+I*rand.Uniform(-5,5));
+    initial_guess.push_back(rand.Uniform(0,100));
+    for (int i = 1; i < driving_terms.size(); i++) initial_guess.push_back(rand.Uniform(0,100)*exp(-3*I));
     
     // Add data
     fitter<amplitude,COMPASS::fit_single_bin> fitter(amp, "Combined");
     fitter.set_tolerance(0.00001E3);
-    fitter.set_print_level(3);
+    fitter.set_print_level(0);
     fitter.add_data(data);
     
     fitter.make_real("par[0]"); 
