@@ -39,7 +39,7 @@ void bulk_iterate()
     std::string export_path  = main_dir() + "/analysis/COMPASS_pi1/basis_functions/";
 
     // Prefix to label output files with
-    std::string file_prefix  = "CCD"; /* contact & Deck */
+    std::string file_prefix  = "CD"; /* contact & Deck */
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution  

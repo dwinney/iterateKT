@@ -34,18 +34,15 @@ void bulk_fit()
     // Operating options
 
     // Which range of m3pi bins to consider
-    int min = 11, max = 49; 
+    int min = 12, max = 49; 
 
     // Fitter's stopping tolerance
-    double tolerance = 0.001;
-
-    // If to use three basis functions or only two
-    bool minimal = true;
+    double tolerance = 0.01;
 
     // Path to precalculated isoabrs
     std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
     // and the prefix given to each file
-    std::string file_prefix = "CCD";
+    std::string file_prefix = "CD";
 
     // Are we taking initial values from file? if so which?
     bool initial_from_file   = true;
@@ -54,7 +51,7 @@ void bulk_fit()
     // Where do we export the fit parameter values
     std::string out_pars_file  = main_dir()+"/scripts/pi1/out_pars.dat";
     // Put a file description at the beginning
-    std::string description = "contact + contact + deck, no form factor";
+    std::string description = "contact + deck";
     
     // -----------------------------------------------------------------------
     // Data set up
@@ -69,19 +66,17 @@ void bulk_fit()
         for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));
         m3pi_vals.push_back(data.back()._extras["m3pi"]);
         labels.push_back("alpha_"+to_string(i));
-        labels.push_back("beta_" +to_string(i));
         labels.push_back("delta_"+to_string(i));
     };
     labels.push_back("b_alpha");
-    labels.push_back("b_beta");
     labels.push_back("b_delta");
 
     // -----------------------------------------------------------------------
     // Import initial values
         
     std::vector<complex>   initial_vals;  // starting values for fitting
-    if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, in_pars_file, minimal);
-    else                   initial_vals = std::vector<complex>((2+!minimal)*(max-min+1)+(2+!minimal), 1.);
+    if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, in_pars_file);
+    else                   initial_vals = std::vector<complex>(2*(max-min+1)+2, 1.);
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -109,28 +104,20 @@ void bulk_fit()
     fitter.add_data(data);
 
     // Add three t-slopes in addition to three subtraction coeffs
-    fitter.add_extra_parameters(3);
+    fitter.add_extra_parameters(2);
 
     fitter.set_parameter_labels(labels);
     // Fix alphas to all be real (and positive)
     for (int i = min; i <= max; i++)
     {
         fitter.fix_argument("alpha_"+to_string(i), 0.); 
-        fitter.fix_argument("beta_" +to_string(i), 0.);
     };
     // t-slopes as well
     fitter.make_real("b_alpha"); 
-    fitter.make_real("b_beta"); 
     fitter.make_real("b_delta"); 
-
-    if (minimal)
-    {
-        for (int i = min; i <= max; i++) fitter.fix_parameter("beta_"+to_string(i), 0.);
-        fitter.fix_parameter("b_beta", 0.);
-    };
-
-    fitter.do_fit(initial_vals);
     
+    fitter.do_fit(initial_vals);
+
     // -----------------------------------------------------------------------
     // Print fit results to out_file
     COMPASS::export_parameters({min, max}, fitter.pars(), 

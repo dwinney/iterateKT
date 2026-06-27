@@ -206,7 +206,7 @@ namespace iterateKT
             // Set up all the amplitudes
             for (int i = 0; i < 4; i++)
             {
-                _tbins[i]->add_isobar<P_wave>({constant, constant, deck(_tvals[i])}, 1, id::P_wave, "t_"+to_string(-_tvals[i]));
+                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 1, id::P_wave, "t_"+to_string(-_tvals[i]));
                 _tbins[i]->iterate(niter);
             };
 
@@ -259,9 +259,9 @@ namespace iterateKT
 
         // Most utilities should just pipe to whatever _current is pointed to 
         inline kinematics get_kinematics(){ return _current->get_kinematics(); };
-        inline void set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
-        inline complex evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
-        inline complex evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
+        inline void       set_parameters(std::vector<complex> x){ _current->set_parameters(x); };
+        inline complex    evaluate(complex s, complex t, complex u){ return _current->evaluate(s, t, u); };
+        inline complex    evaluate_in_dalitz(double s, double t){ return _current->evaluate_in_dalitz(s, t); };
 
         // Observables
         inline double width(){ return _current->width() ; };
