@@ -25,6 +25,36 @@
 namespace iterateKT
 {
     // ---------------------------------------------------------------------------
+    // cin's for operating options
+
+    template<typename T>
+    inline void ask_for_value(T & variable, std::string message)
+    {
+        std::cout << message + " ";
+        std::string input = "";
+        std::getline( std::cin, input );
+        if ( !input.empty() )   
+        {
+            std::istringstream stream(input);
+            stream >> variable;
+        };
+    };
+
+    template<typename T>
+    inline void ask_for_value(T & variable, T default_value, std::string message)
+    {
+        std::cout << message + " ";
+        std::string input = "";
+        std::getline( std::cin, input );
+        if ( !input.empty() )   
+        {
+            std::istringstream stream (input);
+            stream >> variable;
+        }
+        else std::cout << default_value << " (default)" << std::endl;
+    };
+
+    // ---------------------------------------------------------------------------
     // Angles
     
     inline double degrees(double radians){ return radians*DEG2RAD; };
