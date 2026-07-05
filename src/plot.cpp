@@ -165,7 +165,7 @@ namespace iterateKT
         _Ndata++;
         if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
     
     void plot::add_data(std::array<std::vector<double>,2> vx, std::vector<double> vy, entry_style style)
@@ -178,7 +178,7 @@ namespace iterateKT
         _Ndata++;
         if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
 
 
@@ -192,7 +192,7 @@ namespace iterateKT
         _Ndata++;
         if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
 
         void plot::add_data(std::vector<double> vx, std::vector<double> vy, entry_style style)
@@ -204,7 +204,7 @@ namespace iterateKT
         _Ndata++;
         if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
 
     // -----------------------------------------------------------------------
