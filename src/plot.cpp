@@ -163,7 +163,7 @@ namespace iterateKT
         TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, dy);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
@@ -176,7 +176,7 @@ namespace iterateKT
         TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, nullptr);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
@@ -190,7 +190,7 @@ namespace iterateKT
         TGraph *graph = new TGraphErrors(vx.size(), x, y, nullptr, dy);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
@@ -202,7 +202,7 @@ namespace iterateKT
         TGraph *graph = new TGraph(vx.size(), x, y);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
         _entries.push_front(plot_entry(graph, style, true));
     };
