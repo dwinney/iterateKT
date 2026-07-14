@@ -94,13 +94,13 @@ namespace iterateKT
         double ylow, yhigh, xlow, xhigh;
         if (_customxrange)
         {
-            mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
+            mg->GetXaxis()->SetLimits(_xbounds[0], _xbounds[1]);
             xlow = _xbounds[0]; xhigh = _xbounds[1];
         };
 
         if (_customyrange)
         {
-                        mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
+            mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
             mg->SetMinimum(_ybounds[0]);
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];

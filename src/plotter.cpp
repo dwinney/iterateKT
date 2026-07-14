@@ -289,7 +289,6 @@ namespace iterateKT
         for (auto plot : plots)
         {
             plot.reset_linewidth();
-            plot.reset_logo();
             gROOT->SetStyle("jpacStyle");
         };
     };

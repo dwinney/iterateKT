@@ -76,11 +76,15 @@ namespace iterateKT
             ex->Draw(); 
             graph->Draw(draw_options.c_str());
             outline->Draw("L SAME");    
+            if (_add_logo) add_logo();
             return;
         };
 
         ex->Draw();
         graph->Draw(draw_options.c_str());
+        if (_add_logo) add_logo();
+
+        
         return;
     };
 };

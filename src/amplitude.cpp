@@ -201,7 +201,7 @@ namespace iterateKT
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
                 
-                complex ampij = evaluate(si, tij, sigma - si - tij);
+                complex ampij = evaluate_precomputed(si, tij, sigma - si - tij);
 
                 s.push_back(si); t.push_back(tij);
                 absA.push_back(  abs(ampij) );

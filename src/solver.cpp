@@ -39,7 +39,7 @@ namespace iterateKT
     {
         // Iterate
         divider();
-        print("Solving KT with " + to_string(_subtractions->N_basis()) + " subtractions and " + to_string(N) + " iterations:");
+        print("Solving KT with " + to_string(_subtractions->N_basis()) + " basis functions and " + to_string(N) + " iterations:");
         line();
         timer timer; 
         timer.start();

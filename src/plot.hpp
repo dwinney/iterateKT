@@ -28,6 +28,7 @@
 #include <TLatex.h>
 #include <TLine.h>
 #include <TStyle.h>
+#include <TImage.h>
 
 #include "data_set.hpp"
 #include "colors.hpp"
@@ -190,14 +191,7 @@ namespace iterateKT
             _addheader = true; 
         };
 
-        inline void add_logo(bool x, std::array<double, 2> coords = {0.93, 0.885}, double scale = 1)
-        {
-            _add_logo = x; _logo_coords = coords; _logo_scale = scale;
-        };
-        inline void reset_logo()
-        {
-            _add_logo = true; _logo_coords =  {0.93, 0.885}; _logo_scale = 1;
-        };
+        inline void add_logo(bool x){ _add_logo = x; };
 
         inline void set_legend_spacing(double x)
         {
@@ -262,27 +256,22 @@ namespace iterateKT
         // Filename of where to produce the desired plot
         std::string _filename;
 
+        // Stuff related to drawing the jpac logo
         bool _add_logo = false;
-        std::array<double,2> _logo_coords = {0.93, 0.885};
-        double _logo_scale = 1;
+        TImage *logo = TImage::Open((main_dir()+"/doc/JPAClogo.png").c_str());
         inline void add_logo()
         {
-            int red  = +jpacColor::Red;
-            int blue = +jpacColor::Blue;
-            
-            std::string JPAC = "#scale[1.3]{#font[32]{#color[" + std::to_string(blue) + "]{J}}"
-                      + "^{#scale[0.8]{#font[32]{" + "#color[" + std::to_string(blue) + "]{P}"
-                                                   + "#color[" + std::to_string(red) +  "]{A}"
-                                                   + "#color[" + std::to_string(blue) + "]{C}}}}}";
-
-            TLatex *logo = new TLatex(_logo_coords[0], _logo_coords[1], JPAC.c_str());
-
-            logo->SetNDC();
-            logo->SetTextSize(2/30. * _logo_scale);
-            logo->SetTextAlign(32);
+            double xcoord = 0.73;
+            double ycoord = 0.80;
+            TPad *l = new TPad("l","l", xcoord, ycoord , xcoord+0.24, ycoord+0.13);
+            l->SetFillStyle(4000);
+            l->Draw();
+            l->cd();
             logo->Draw();
+            _canvas->cd();
         };
 
+        // In case we wannna draw a preliminary watermark
         bool _prelim = false;
         inline void add_watermark()
         {
