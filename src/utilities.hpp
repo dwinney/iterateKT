@@ -166,12 +166,12 @@ namespace iterateKT
 
     inline bool are_equal(double a, double b)
     {
-        return ( abs(a - b) < EPS );
+        return ( std::abs(a - b) < EPS );
     }
 
     inline bool are_equal(double a, double b, double tol)
     {
-        return ( abs(a - b) < tol );
+        return ( std::abs(a - b) < tol );
     }
 
     // Same thing for comparing complex doubles
@@ -190,14 +190,14 @@ namespace iterateKT
     template<typename T>
     inline bool is_zero(T a)
     {
-        return (abs(a) < EPS);
+        return ( std::abs(a) < EPS);
     };
 
     // Aliases for special cases of the above
     template<typename T>
     inline bool is_zero(T a, double tol)
     {
-        return (abs(a) < tol);
+        return ( std::abs(a) < tol);
     };
 
     inline bool is_odd(int a)

@@ -71,10 +71,10 @@ namespace iterateKT
             complex pm = _kinematics->momentum_final(m_rho3*m_rho3);
 
             double r = 2; // GeV-1
-            double z = norm(r*ps), z0 = norm(r*pm);
-            double blatt_weisskopf = sqrt(z0*norm(z0-15) + 9*norm(2*z0-5))/sqrt(z*norm(z-15)+9*norm(2*z-5));
+            double z = std::norm(r*ps), z0 = std::norm(r*pm);
+            double blatt_weisskopf = sqrt(z0*std::norm(z0-15) + 9*std::norm(2*z0-5))/sqrt(z*std::norm(z-15)+9*std::norm(2*z-5));
 
-            double gamma =  gam_rho3*m_rho3/sqrt(s)*pow(real(ps/pm),7)*norm(blatt_weisskopf);
+            double gamma =  gam_rho3*m_rho3/sqrt(s)*pow(real(ps/pm),7)*std::norm(blatt_weisskopf);
 
             complex BW = m_rho3*m_rho3/(m_rho3*m_rho3 - s - I*m_rho3*gamma);
 

@@ -27,9 +27,9 @@ namespace iterateKT
         int region = (real(s) >= pth()) + (real(s) > rth());
         switch (region)
         {
-            case 0: return +  abs(kappa);
-            case 1: return +I*abs(kappa);
-            case 2: return -  abs(kappa);
+            case 0: return +  std::abs(kappa);
+            case 1: return +I*std::abs(kappa);
+            case 2: return -  std::abs(kappa);
         };
         return NaN<complex>();
     };
@@ -121,7 +121,7 @@ namespace iterateKT
         if (s > rth() || s < pth()) return error("kinematics::phi_plus", 
                                                    "Outside egg region!", NaN<double>());
         double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m()/2;
-        if (!are_equal(abs(cosine), 1)) return TMath::ACos(cosine);
+        if (!are_equal(std::abs(cosine), 1)) return TMath::ACos(cosine);
         return (cosine > 0) ? 0 : PI;
     };
     double raw_kinematics::phi_minus(double s)

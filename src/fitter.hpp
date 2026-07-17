@@ -151,14 +151,14 @@ namespace iterateKT
 
         inline void fix_parameter(parameter & par, complex val)
         {
-            fix_modulus(par, abs(val)); fix_argument(par, arg(val));
+            fix_modulus(par, std::abs(val)); fix_argument(par, arg(val));
         };
 
         inline void fix_parameter(std::string label, complex val)
         {
             int index = find_parameter(label); 
             if (index < 0) return;
-            fix_modulus(_pars[index], abs(val)); fix_argument(_pars[index], arg(val));
+            fix_modulus(_pars[index], std::abs(val)); fix_argument(_pars[index], arg(val));
         };
 
         inline void make_real(parameter & par)
@@ -316,8 +316,8 @@ namespace iterateKT
                 if (!par._real && !par._mod_fixed)
                 {
                     // Set up the starting guess
-                    par._mod = abs(starting_guess[i]);
-                    _minuit->SetVariable(j,   "|" + par._label + "|",    abs(starting_guess[i]), par._step);
+                    par._mod = std::abs(starting_guess[i]);
+                    _minuit->SetVariable(j,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
                     _minuit->SetVariableLowerLimit(j, 0.);    // mod is positive definite
                     j++; move_up = true;
                 }
@@ -494,7 +494,7 @@ namespace iterateKT
                 if (!par._arg_fixed){arg = pars[i]; arg_err = to_string(errs[i]); i++;};
 
                 // Check arg if its between [-pi, pi]
-                if (abs(arg) > PI) arg -= sign(arg)*2*PI;
+                if (std::abs(arg) > PI) arg -= sign(arg)*2*PI;
 
                 if (par._real) cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod << setw(18) << mod_err << endl;
                 else

@@ -97,7 +97,7 @@ namespace iterateKT
     void raw_isobar::interpolate_lhc()
     {
         std::vector<double> lhc;
-        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/abs(omnes(s+_ieps)) );
+        for (auto s : _s_list) lhc.push_back( sin(this->phase_shift(s))/std::abs(omnes(s+_ieps)) );
         _lhc.SetData(_s_list, lhc); 
         _lhc_interpolated = true;
     };

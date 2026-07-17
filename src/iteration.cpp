@@ -106,7 +106,7 @@ namespace iterateKT
         else             { s_exp = _rth; coeffs = (s > _rth) ? _above_rth_expansion[i] : _below_rth_expansion[i]; };
 
         complex expansion = 0;
-        for (int i = 0; i < coeffs.size(); i++) expansion += coeffs[i] * pow(abs(s-s_exp), i);
+        for (int j = 0; j < coeffs.size(); j++) expansion += coeffs[j] * pow(std::abs(s-s_exp), j);
         return expansion / nus;
     };
 
@@ -157,9 +157,9 @@ namespace iterateKT
         complex fp   = _re[i]->Deriv(s_exp)  + I*_im[i]->Deriv(s_exp);
         complex fpp  = _re[i]->Deriv2(s_exp) + I*_im[i]->Deriv2(s_exp);
 
-        complex a = (as[0]*f+as[1]*e*fp+as[2]*e*e*fpp)/(as[3]*pow(abs(e), _n/2.   ));
-        complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(abs(e), _n/2.+1.));
-        complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(abs(e), _n/2.+2.));
+        complex a = (as[0]*f+as[1]*e*fp+as[2]*e*e*fpp)/(as[3]*pow(std::abs(e), _n/2.   ));
+        complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(std::abs(e), _n/2.+1.));
+        complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(std::abs(e), _n/2.+2.));
 
         return {a, b, c};
     };
@@ -242,7 +242,7 @@ namespace iterateKT
         complex fp    = central_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
         complex fpp   = central_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
        
-        double  e = abs(epsilon);
+        double  e = std::abs(epsilon);
         complex a = f0;
         complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (_l+1)/2.);
         complex c = (cs[0]*(f-f0)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e, (_l+2)/2.);
@@ -260,7 +260,7 @@ namespace iterateKT
         if (is_zero(sc) || _zeroth) return 0.;
         
         // If we're sufficiently far from pth we can just integrate without issue
-        bool no_problem = (real(sc) < _sth || abs(imag(sc)) > _settings._infinitesimal);
+        bool no_problem = (real(sc) < _sth || std::abs(imag(sc)) > _settings._infinitesimal);
         if  (no_problem) return disperse_with_pth(i, sc, {_sth, _settings._cutoff});
 
         // If we're too close to the real line, we evalaute with ieps perscriptions

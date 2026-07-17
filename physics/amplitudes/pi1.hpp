@@ -70,12 +70,12 @@ namespace iterateKT
         static inline complex deck(double t, double m3pi2, complex sigma)
         {
             double eps = imag(sigma);
-            bool almost_real = abs(eps) < 1E-5;
+            bool almost_real = std::abs(eps) < 1E-5;
 
             // Thresholds and other special points
-            double sth  =  norm(2*_mu);
-            double pth  =  norm( sqrt(m3pi2) - _mu );
-            double rth  =  norm( sqrt(m3pi2) + _mu );
+            double sth  =  std::norm(2*_mu);
+            double pth  =  std::norm( sqrt(m3pi2) - _mu );
+            double rth  =  std::norm( sqrt(m3pi2) + _mu );
             double tbc  =  m3pi2 + _mu2;
             double pole = (m3pi2 - _mu2)*(m3pi2 - t + _mu2)/(m3pi2 + t - _mu2);
             double exchange_mass = _mu2;

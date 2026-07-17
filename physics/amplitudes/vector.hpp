@@ -26,7 +26,7 @@ namespace iterateKT
     inline settings default_settings()
     {
         settings sets;
-        sets._infinitesimal           = 1E-8;
+        sets._infinitesimal           = 1E-7;
         sets._intermediate_energy     = 1.5;
         sets._cutoff                  = 20;
         sets._interpolation_offset    = 0.1;
