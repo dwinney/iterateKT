@@ -17,7 +17,6 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "GKPY.hpp"
 
 #include"isobars/vector.hpp"
 

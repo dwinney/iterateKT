@@ -50,6 +50,8 @@ namespace iterateKT
 
     complex raw_amplitude::evaluate_precomputed(double s, double t, double u)
     {
+        if (!_precomputed) return evaluate(s+IEPS, t+IEPS, u+IEPS);
+
         complex result = 0;
 
         // S_CHANNEL
