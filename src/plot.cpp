@@ -50,8 +50,8 @@ namespace iterateKT
 
         TMultiGraph * mg = new TMultiGraph("mg", "mg");
 
-        // Set up the axes by grabbing them from the first entry
-        std::string labels = ";" + _xlabel + ";" + _ylabel;
+        // Set up the axes by grabbing them from the first entry (optional leading title segment)
+        std::string labels = (_plot_title.empty() ? std::string("") : _plot_title) + ";" + _xlabel + ";" + _ylabel;
         mg->SetTitle(labels.c_str());
 
         // Draw the first entry

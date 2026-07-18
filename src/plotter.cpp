@@ -111,6 +111,9 @@ namespace iterateKT
         
         canvas->Divide(xdim, ydim, 1E-11, 1E-11);
 
+        // Leave room for per-pad histogram titles (ROOT clips titles if TopMargin is too small).
+        const double pad_top_margin = 0.13;
+
         // // If we have a lot of plots, adjust the linewidth so its readible
         // // This formula is entirely made up but results are aesthetically fine
         double scale = pow(0.85, std::max(xdim,ydim));
@@ -125,7 +128,7 @@ namespace iterateKT
             // Apply global settings to the pad
             gPad->UseCurrentStyle();
             gPad->SetFixedAspectRatio();
-            gPad->SetTopMargin(0.05);
+            gPad->SetTopMargin(pad_top_margin);
             gPad->SetRightMargin(0.03);
             gPad->SetLeftMargin(0.16);
             gPad->SetBottomMargin(0.12);
