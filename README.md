@@ -18,7 +18,7 @@ Note that convergence of the KT equations is not guaranteed (and the code provid
 
 Compilation of the base library requires:
 - [CMake](https://cmake.org/) ($\geq$ v3.30)
-- [ROOT](https://root.cern.ch/) (tested with v6.24-6.30 compiled with [g++/gcc](https://gcc.gnu.org/releases.html) v11.4) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
+- [ROOT](https://root.cern.ch/) ($\geq$ v6.40) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
 - [Boost](https://www.boost.org/) ($\geq$ v1.68)
 
 Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
@@ -47,7 +47,7 @@ The classes of interest are:
 - [`isobar`](./src/isobar.hpp) is the main physics object as it reconstructs two-particle subsystems in terms of basis functions after arbitrary iterations of the KT equations.
 - [`amplitude`](./src/amplitude.hpp) acts as a container class which specifies how different isobars contribute to a specific process and how to combine them to a full amplitude in terms of all Mandelstam variables.
 
-A typical script may look like this (see specific examples [here](./scripts/)):
+A typical script may look like this (see specific examples [here](./scripts/) including those to reproduce the results of [[1](https://arxiv.org/abs/2607.14300)]):
 ```c++
 // Specify decay masses
 kinematics kin = new_kinematics(m_decay, m_final_state);
@@ -110,7 +110,8 @@ Many utilities are available to effectively fit amplitudes to data and plot the 
 See documentation in [`fitter.hpp`](./src/fitter.hpp) and [`plotter.hpp`](./src/plotter.hpp) for details or the example scripts in [`/scripts`](./scripts/) and example fitting interfaces in [`/analysis`](./analysis/).
 
 # References
-+ [1] [JPAC Website](https://www.jpac-physics.org/)
++ [1] [Production effects and final-state interactions in $\pi_1\to3\pi$](https://arxiv.org/abs/2607.14300)
++ [2] [JPAC Website](https://www.jpac-physics.org/)
 
 <p align="center">
   <img width="300" src="./doc/JPAClogo.png">
