@@ -36,4 +36,8 @@ void Load()
     {
         Warning("Load()", "iterateKT library not found! Looked in: %s", lib.Data());
     }
+
+    // Add JSON library
+    TString json = gSystem->Getenv("JSON");
+    gInterpreter->AddIncludePath(json.Data());
 }

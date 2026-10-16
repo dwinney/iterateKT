@@ -103,21 +103,23 @@ namespace iterateKT { namespace COMPASS
             
             if (nimported < n+1)
             {
-                double trash, alpha, redelta, imdelta;
+                double trash, alpha, beta, redelta, imdelta;
                 // Dont care about first two columns
                 is >> trash >> trash;
                 // we do about these though
-                is >> alpha >> redelta >> imdelta;
+                is >> alpha >> beta >> redelta >> imdelta;
     
                 pars.push_back(alpha);
+                pars.push_back(beta);
                 pars.push_back(redelta+I*imdelta);
                 nimported++;
                 continue;
             };
 
-            double b_alpha, b_delta;
-            is >> b_alpha >> b_delta; 
+            double b_alpha, b_beta, b_delta;
+            is >> b_alpha >> b_beta >> b_delta; 
             pars.push_back(b_alpha);
+            pars.push_back(b_beta);
             pars.push_back(b_delta);
         };
 
@@ -134,28 +136,29 @@ namespace iterateKT { namespace COMPASS
         
         // Preamble info
         out << std::left << "# "+description << std::endl;
-        out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
-        std::array<std::string,5> headers = {"# bin", "m3pi [GeV]", "alpha", "Re delta", "Im delta"};
+        out << std::left << "# "+std::string(6*spacing-2, '-') << std::endl;
+        std::array<std::string,6> headers = {"# bin", "m3pi [GeV]", "N_c", "N'_c", "Re N_d", "Im N_d"};
         out << std::left;
         for (auto x : headers) out << std::setw(spacing) << x;
         out << endl;
-        out << std::left << "# "+std::string(5*spacing-2, '-') << std::endl;
+        out << std::left << "# "+std::string(6*spacing-2, '-') << std::endl;
         // Table of subtraction pars
         for (uint i = 0; i <= max - min; i++)
         {
             out << std::left << std::setprecision(precision);
             out << std::setw(spacing) << i + min;
             out << std::setw(spacing) << m_bins[i+min-11];
-            out << std::setw(spacing) << real(pars[2*i]);
-            out << std::setw(spacing) << real(pars[2*i+1]);
-            out << std::setw(spacing) << imag(pars[2*i+1]);
+            out << std::setw(spacing) << real(pars[3*i]);
+            out << std::setw(spacing) << real(pars[3*i+1]);
+            out << std::setw(spacing) << real(pars[3*i+2]);
+            out << std::setw(spacing) << imag(pars[3*i+2]);
             out << std::endl;
         };
         // Tack on the two t-slopes at the end
         out << std::left << "# "+std::string(3*spacing-2, '-') << std::endl;
-        out << std::left << std::setw(spacing) << "# b_alpha" << std::setw(spacing) << "b_delta" << std::endl;
+        out << std::left << std::setw(spacing) << "# c" << std::setw(spacing) << "c'" << std::setw(spacing) << "d" << std::endl;
         out << std::left << "# "+std::string(3*spacing-2, '-') << std::endl;
-        out << std::left << std::setw(spacing) << real(pars[2*(max-min)+2]) << std::setw(spacing) << real(pars[2*(max-min)+3]) << std::endl;
+        out << std::left << std::setw(spacing) << real(pars[3*(max-min)+3]) << std::setw(spacing) << real(pars[3*(max-min)+4]) << std::setw(spacing)  << real(pars[3*(max-min)+5]) << std::endl;
         out.close();
     };
 
@@ -198,10 +201,11 @@ namespace iterateKT { namespace COMPASS
         static std::vector<complex> process_parameters(std::vector<complex> pars, amplitude to_fit)
         {
             // Calculate number of bins
-            int N = (pars.size()-2)/2;
-            complex b1 = pars.end()[-2]; // Second to last par
-            complex b2 = pars.end()[-1]; // Last par
-
+            int N = (pars.size()-3)/3;
+            complex b1 = pars.end()[-3]; // Second to last par
+            complex b2 = pars.end()[-2]; // Last par
+            complex b3 = pars.end()[-1]; // Last par
+        
             double t0 = -0.1205;
 
             // Cycle through m3pibins
@@ -212,8 +216,8 @@ namespace iterateKT { namespace COMPASS
                 for (int j = 0; j < 4; j++)
                 {
                     to_fit->set_option(option::set_tbin, j);
-                    complex N1 = pars[2*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-t0));
-                    complex N2 = pars[2*i+1]*csqrt(t_bins[j])*exp(b2*(t_bins[j]-t0));
+                    complex N1 = pars[3*i]  *csqrt(t_bins[j])*exp(b1*(t_bins[j]-t0)) + pars[3*i+1]  *csqrt(t_bins[j])*exp(b2*(t_bins[j]-t0));
+                    complex N2 = pars[3*i+2]*csqrt(t_bins[j])*exp(b3*(t_bins[j]-t0));
                     to_fit->set_parameters({N1, N2});
                 };
             };

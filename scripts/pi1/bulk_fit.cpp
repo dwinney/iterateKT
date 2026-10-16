@@ -37,6 +37,9 @@ void bulk_fit()
     int min = 13, max = 49; 
     bool initial_from_file   = true;
     std::string in_pars_file = "/scripts/pi1/in_pars.dat";
+    // Fitter's stopping tolerance
+    double tolerance = 0.01;
+    bool second_contact = false;
     
     line();
     divider();
@@ -45,11 +48,11 @@ void bulk_fit()
     ask_for_value<int>(min, 13, "Minimum m3π bin?");
     ask_for_value<int>(max, 49, "Maximum m3π bin?");
     ask_for_value<std::string>(in_pars_file, "/scripts/pi1/in_pars.dat", "File with initial values?");
+    ask_for_value<double>(tolerance, 0.01, "Fitter tolerance?");
+    ask_for_value<bool>(second_contact, false, "Second contact term?");
     divider();
     line();
 
-    // Fitter's stopping tolerance
-    double tolerance = 0.001;
 
     // Path to precalculated isoabrs
     std::string iso_path    = main_dir()+"/analysis/COMPASS_pi1/basis_functions/";
@@ -75,18 +78,20 @@ void bulk_fit()
     {
         for (int j = 0; j < 4; j++) data.emplace_back(COMPASS::parse_JSON(i, j));
         m3pi_vals.push_back(data.back()._extras["m3pi"]);
-        labels.push_back("alpha_"+to_string(i));
-        labels.push_back("delta_"+to_string(i));
+        labels.push_back("Nc_"+to_string(i));
+        labels.push_back("Ncp_"+to_string(i));
+        labels.push_back("Nd_"+to_string(i));
     };
-    labels.push_back("b_alpha");
-    labels.push_back("b_delta");
+    labels.push_back("c");
+    labels.push_back("cp");
+    labels.push_back("d");
 
     // -----------------------------------------------------------------------
     // Import initial values
         
     std::vector<complex>   initial_vals;  // starting values for fitting
     if (initial_from_file) initial_vals = COMPASS::import_parameters({min, max}, main_dir()+in_pars_file);
-    else                   initial_vals = std::vector<complex>(2*(max-min+1)+2, 1.);
+    else                   initial_vals = std::vector<complex>((2+second_contact)*(max-min+1)+(2+second_contact), 1.);
 
     // -----------------------------------------------------------------------
     // Set up amplitude and iterative solution
@@ -114,17 +119,29 @@ void bulk_fit()
     fitter.add_data(data);
 
     // Add three t-slopes in addition to three subtraction coeffs
-    fitter.add_extra_parameters(2);
-
+    fitter.add_extra_parameters(max-min + 4);
     fitter.set_parameter_labels(labels);
+
     // Fix alphas to all be real (and positive)
     for (int i = min; i <= max; i++)
     {
-        fitter.fix_argument("alpha_"+to_string(i), 0.); 
+        fitter.fix_argument("Nc_"+to_string(i), 0.); 
+        fitter.fix_argument("Ncp_"+to_string(i), 0.); 
     };
     // t-slopes as well
-    fitter.make_real("b_alpha"); 
-    fitter.make_real("b_delta"); 
+    fitter.make_real("c"); 
+    fitter.make_real("cp"); 
+    fitter.make_real("d"); 
+
+    if (!second_contact)
+    {
+        // Fix alphas to all be real (and positive)
+        for (int i = min; i <= max; i++)
+        {
+            fitter.fix_parameter("Ncp_"+to_string(i), 0.); 
+        };
+        fitter.fix_parameter("cp")
+    };
     
     fitter.do_fit(initial_vals);
 
@@ -190,4 +207,33 @@ void bulk_fit()
     p1.add_data(m3pi_vals, chi2s[1], square(  jpacColor::Red,    "#minus #it{t} = 0.17 GeV^{2}"));
     p1.add_data(m3pi_vals, chi2s[0], dot(     jpacColor::Blue,   "#minus #it{t} = 0.12 GeV^{2}"));
     p1.save("chi2s.pdf");
+
+    std::vector<double> Nc, Ncp, Nd, phi;
+    auto pars = fitter.pars();
+    for (int i = 0; i < (pars.size()-3)/3; i++)
+    {
+        Nc.push_back( std::abs(pars[3*i]));
+        Ncp.push_back( std::abs(pars[3*i+1]));
+        Nd.push_back( std::abs(pars[3*i+2]));
+        double ar = std::arg(pars[3*i+2]);
+        if (ar > 0) ar -= 2*PI;
+        phi.push_back(ar);
+    };
+
+    // Plot distributions of chi2s
+    plot p2 = plotter.new_plot();
+    p2.set_labels("#it{m}_{3#pi}   [GeV]", "|#it{N}| / 10^{3}");
+    p2.set_legend(0.65, 0.725);
+    p2.add_data(m3pi_vals, Nc/1E3, dot(    jpacColor::Blue,    "Contact"));
+    p2.add_data(m3pi_vals, Nd/1E3, dot(    jpacColor::Red,     "Deck"));
+    if (second_contact) p2.add_data(m3pi_vals, Ncp/1E3, dot(    jpacColor::Orange, "Additional Contact"));
+    p2.save("pars.pdf");
+
+    // Plot distributions of chi2s
+    plot p3 = plotter.new_plot();
+    p3.set_labels("#it{m}_{3#pi}   [GeV]", "#it{#phi}_{#it{d}} - #it{#phi}_{#it{c}}");
+    p3.set_legend(0.65, 0.725);
+    p3.add_data(m3pi_vals, phi, dot(jpacColor::Green));
+    p3.save("phi.pdf");
+
 };
