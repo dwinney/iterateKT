@@ -12,12 +12,6 @@ set(CMAKE_INSTALL_BINDIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
-# macOS is stupid, use these to get it to stop renaming install files
-set(SKIP_BUILD_RPATH         TRUE)
-set(CMAKE_SKIP_RPATH         TRUE)
-set(CMAKE_SKIP_INSTALL_RPATH TRUE)
-set(INSTALL_NAME_DIR           "")
-
 ##-----------------------------------------------------------------------
 ## CERN ROOT
 
@@ -47,6 +41,7 @@ set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
 find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 if (Boost_FOUND)
     message("-- Found Boost: ${Boost_INCLUDE_DIRS}")
+    include_directories(${Boost_INCLUDE_DIRS})
 else()
     message(SEND_ERROR "-- Boost not found!")
 endif()

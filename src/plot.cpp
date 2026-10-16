@@ -88,19 +88,19 @@ namespace iterateKT
 
         mg->GetXaxis()->CenterTitle(true);
         mg->GetYaxis()->CenterTitle(true);
-        mg->GetYaxis()->SetMaxDigits(2);
+        mg->GetYaxis()->SetMaxDigits(_max_digits);
         _canvas->Modified();
 
         double ylow, yhigh, xlow, xhigh;
         if (_customxrange)
         {
-            mg->GetXaxis()->SetLimits(   _xbounds[0], _xbounds[1]);
+            mg->GetXaxis()->SetLimits(_xbounds[0], _xbounds[1]);
             xlow = _xbounds[0]; xhigh = _xbounds[1];
         };
 
         if (_customyrange)
         {
-                        mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
+            mg->GetYaxis()->SetRangeUser(_ybounds[0], _ybounds[1]);
             mg->SetMinimum(_ybounds[0]);
             mg->SetMaximum(_ybounds[1]);
             ylow = _ybounds[0]; yhigh = _ybounds[1];
@@ -111,8 +111,8 @@ namespace iterateKT
             yhigh = mg->GetYaxis()->GetXmax();
         };
 
-        double xmin = mg->GetXaxis()->GetXmin();
-        double xmax = mg->GetXaxis()->GetXmax();
+        xlow  = mg->GetXaxis()->GetXmin();
+        xhigh = mg->GetXaxis()->GetXmax();
         
         for (auto vline : _vlines)
         {
@@ -134,8 +134,8 @@ namespace iterateKT
 
         for (auto shade : _shaded)
         {
-            double bmin = (shade._xmin < xmin) ? xmin : shade._xmin;
-            double bmax = (shade._xmax > xmax) ? xmax : shade._xmax;
+            double bmin = (shade._xmin < xlow) ?  xlow  : shade._xmin;
+            double bmax = (shade._xmax > xhigh) ? xhigh : shade._xmax;
 
             TBox *b = new TBox(bmin, ylow, bmax, yhigh); 
             b->SetFillColorAlpha(shade._color, 0.1); 
@@ -155,42 +155,56 @@ namespace iterateKT
     // ---------------------------------------------------------------------------
     // Convert data_set and amplitude easily into plot_entries
 
-    void plot::add_data(std::array<std::vector<double>,2> vx, std::array<std::vector<double>,2> vy, jpacColor color)
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
         double *x, *y, *dx, *dy;
         x  = &(vx[0][0]);        y  = &(vy[0][0]);
         dx = &(vx[1][0]);       dy  = &(vy[1][0]);
         TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, dy);
 
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = color;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
+        _Ndata++;
+        if (style._add_to_legend) _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+    
+    void plot::add_data(std::array<std::vector<double>,2> vx, std::vector<double> vy, entry_style style)
+    {
+        double *x, *y, *dx;
+        x  = &(vx[0][0]);        y  = &(vy[0]);
+        dx = &(vx[1][0]);
+        TGraph *graph = new TGraphErrors(vx[0].size(), x, y, dx, nullptr);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
 
-    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, jpacColor color)
+
+    void plot::add_data(std::vector<double> vx, std::array<std::vector<double>,2> vy, entry_style style)
     {
         double *x, *y, *dy;
         x  = &(vx[0]);        y  = &(vy[0][0]);
                              dy  = &(vy[1][0]);
         TGraph *graph = new TGraphErrors(vx.size(), x, y, nullptr, dy);
 
-        entry_style style;
-        style._style = 20 + _Ndata;
-        style._color = color;
-        style._draw_opt = "P";
-        style._add_to_legend = false;
+        _Ndata++;
+        if (style._add_to_legend) _Nlegend++;
+
+        _entries.push_back(plot_entry(graph, style, true));
+    };
+
+        void plot::add_data(std::vector<double> vx, std::vector<double> vy, entry_style style)
+    {
+        double *x, *y;
+        x  = &(vx[0]);        y  = &(vy[0]);
+        TGraph *graph = new TGraph(vx.size(), x, y);
 
         _Ndata++;
-        _Nlegend++;
+        if (style._add_to_legend) _Nlegend++;
 
-        _entries.push_front(plot_entry(graph, style, true));
+        _entries.push_back(plot_entry(graph, style, true));
     };
 
     // -----------------------------------------------------------------------

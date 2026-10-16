@@ -31,6 +31,7 @@
 #include <TLine.h>
 #include <TStyle.h>
 #include <TExec.h>
+#include <TImage.h>
 
 #include "data_set.hpp"
 #include "colors.hpp"
@@ -57,7 +58,9 @@ namespace iterateKT
         inline void set_data(std::array<std::vector<double>,3> data){ clear_data(); _data = data; };
         inline void set_data(data_set data){ clear_data(); set_data({data._x, data._y, data._z}); };
 
-        
+        // Toggle adding the jpac logo
+        inline void add_logo(bool x){ _add_logo = x; };
+
         // Custom plotting region
         inline void set_region(std::array<std::vector<double>,2> region){ _custom_region = true; _region = region; };
         
@@ -90,6 +93,21 @@ namespace iterateKT
         // Canvas that the plot actually gets drawn on
         TCanvas* _canvas;
         
+        // Stuff related to drawing the jpac logo
+        bool _add_logo = false;
+        TImage *logo = TImage::Open((main_dir()+"/doc/JPAClogo.png").c_str());
+        inline void add_logo()
+        {
+            double xcoord = 0.6;
+            double ycoord = 0.75;
+            TPad *l = new TPad("l","l", xcoord, ycoord , xcoord+0.24, ycoord+0.13);
+            l->SetFillStyle(4000);
+            l->Draw();
+            l->cd();
+            logo->Draw();
+            _canvas->cd();
+        };
+
         // Save the data to plot
         std::array<std::vector<double>,3> _data;
 

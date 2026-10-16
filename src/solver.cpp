@@ -39,7 +39,7 @@ namespace iterateKT
     {
         // Iterate
         divider();
-        print("Solving KT with " + to_string(_subtractions->N_basis()) + " subtractions and " + to_string(N) + " iterations:");
+        print("Solving KT with " + to_string(_subtractions->N_basis()) + " basis functions and " + to_string(N) + " iterations:");
         line();
         timer timer; 
         timer.start();
@@ -56,6 +56,8 @@ namespace iterateKT
     };
 
     // Print to file necessary info to reconstruct isobars later
+    // Here prefix is expected to contain path 
+    // and any additional filename prefix common to all isobars
     void solver::export_solution(std::string prefix, uint precision)
     {
         uint spacing   = precision + 10;

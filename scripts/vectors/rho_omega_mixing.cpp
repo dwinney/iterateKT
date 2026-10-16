@@ -45,7 +45,9 @@ void rho_omega_mixing()
     jpsi_settings._intermediate_energy  = 15.;
     jpsi_settings._cutoff               = 40.;
     jpsi_settings._interpolation_points = {400, 10, 300};
-    jpsi_settings._angular_integrator_depth = 6;
+
+    // Sharp omega pole makes integration tricky, this adds it to special points to handle with care
+    jpsi_settings._extra_cusp           = norm(0.78);  
 
     auto constant = [](complex s){ return complex(1.); };
 
@@ -62,30 +64,10 @@ void rho_omega_mixing()
     isobar rho_0 = amplitude->add_isobar<neutral>({constant, omega_bw}, 1, id::neutral, "neutral", jpsi_settings);
 
     // -----------------------------------------------------------------------
-    bool do_next           = true;
-    std::string next_label = "1st";
-    std::vector<std::array<std::string,2>> previous_iterations = {
-        // {"1st_charged.dat", "1st_neutral.dat"},
-        // {"2nd_charged.dat", "2nd_neutral.dat"},
-        // {"3rd_charged.dat", "3rd_neutral.dat"},
-        // {"4th_charged.dat", "4th_neutral.dat"},
-    };
-    timer timer;
-    timer.start();
-    for (auto file : previous_iterations)
-    {
-        std::string path = "scripts/vectors/";
-        rho_pm->import_iteration<3>(path+file[0]);
-        rho_0 ->import_iteration<3>(path+file[1]);
-    };
-    timer.lap("Imported");
-    if (do_next)
-    {
-        amplitude->iterate();
-        timer.lap("Iterated");
-        amplitude->export_solution(next_label);
-        timer.lap("Exported");
-    }
+
+    // Calculate N iterations of KT 
+    int N = 4;
+    amplitude->timed_iterate(N);
 
     // -----------------------------------------------------------------------
 
@@ -123,7 +105,7 @@ void rho_omega_mixing()
     p6.set_labels("#sigma [GeV^{2}]", "g_{#gamma}(#sigma + #it{i}#epsilon)");
 
     std::array<std::string,5> labels = {"0th", "1st", "2nd", "3rd", "4th"};
-    for (int i = 0; i <= previous_iterations.size()+do_next; i++)
+    for (int i = 0; i <= N; i++)
     {
         p1.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 0, s+IEPS)); }, labels[i]);
         p1.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 0, s+IEPS)); });
@@ -141,9 +123,4 @@ void rho_omega_mixing()
     };
     
     plotter.combine({3,2}, {p1,p2,p3,p4,p5,p6}, "rho_omega_isobars.pdf");  
-    timer.lap("Plotted");
-
-    timer.stop();
-    timer.print_elapsed();
-
 };

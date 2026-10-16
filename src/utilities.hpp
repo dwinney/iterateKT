@@ -25,6 +25,36 @@
 namespace iterateKT
 {
     // ---------------------------------------------------------------------------
+    // cin's for operating options
+
+    template<typename T>
+    inline void ask_for_value(T & variable, std::string message)
+    {
+        std::cout << message + " ";
+        std::string input = "";
+        std::getline( std::cin, input );
+        if ( !input.empty() )   
+        {
+            std::istringstream stream(input);
+            stream >> variable;
+        };
+    };
+
+    template<typename T>
+    inline void ask_for_value(T & variable, T default_value, std::string message)
+    {
+        std::cout << message + " ";
+        std::string input = "";
+        std::getline( std::cin, input );
+        if ( !input.empty() )   
+        {
+            std::istringstream stream (input);
+            stream >> variable;
+        }
+        else std::cout << default_value << " (default)" << std::endl;
+    };
+
+    // ---------------------------------------------------------------------------
     // Angles
     
     inline double degrees(double radians){ return radians*DEG2RAD; };
@@ -136,12 +166,12 @@ namespace iterateKT
 
     inline bool are_equal(double a, double b)
     {
-        return ( abs(a - b) < EPS );
+        return ( std::abs(a - b) < EPS );
     }
 
     inline bool are_equal(double a, double b, double tol)
     {
-        return ( abs(a - b) < tol );
+        return ( std::abs(a - b) < tol );
     }
 
     // Same thing for comparing complex doubles
@@ -160,19 +190,29 @@ namespace iterateKT
     template<typename T>
     inline bool is_zero(T a)
     {
-        return (abs(a) < EPS);
+        return ( std::abs(a) < EPS);
     };
 
     // Aliases for special cases of the above
     template<typename T>
     inline bool is_zero(T a, double tol)
     {
-        return (abs(a) < tol);
+        return ( std::abs(a) < tol);
     };
 
     inline bool is_odd(int a)
     {
         return (a%2 == 1);
+    };
+
+    inline bool is_real(complex a, double tol = EPS)
+    {
+        return is_zero(imag(a), tol);
+    };
+
+    inline bool is_imaginary(complex a, double tol = EPS)
+    {
+        return is_zero(real(a), tol);
     };
 
     // ---------------------------------------------------------------------------
@@ -312,10 +352,11 @@ namespace iterateKT
     };
 
     // Print a string centered on the terminal 
+    template<uint N=PRINT_SPACING>
     inline void centered(int n, std::string words)
     {
         int x = words.length();
-        int gap_width = (n * PRINT_SPACING - x)/2;
+        int gap_width = (n * N - x)/2;
         std::cout << std::left << std::setw(gap_width) << "" << std::setw(x) << words << std::setw(gap_width) << "" << std::endl;
     };
 
@@ -387,7 +428,7 @@ namespace iterateKT
     };
 
     // Another directory that comes up often is the data folder
-    inline std::string data_dir(){ return main_dir() + "/data/"; };
+    inline std::string analysis_dir(){ return main_dir() + "/analysis/"; };
 
     // Same as above but looks for DESKTOP
     inline std::string desktop()
@@ -528,7 +569,7 @@ namespace iterateKT
     inline std::vector<double> imag(std::vector<complex> vx)
     {
         std::vector<double> out;
-        for (auto x : vx) out.push_back(real(x));
+        for (auto x : vx) out.push_back(imag(x));
         return out;
     };
 
@@ -563,19 +604,6 @@ namespace iterateKT
         return num / pow(h, n);
     };
 
-    // Mixed central derivative of a function of 2 variables d2F(x,y)/dxdy
-    template<typename T>
-    inline T mixed_partial_derivatives(std::function<T(double,double)> F, std::array<double,2> xs, double e)
-    {
-        double x = xs[0], y = xs[1];
-        T f2p2p = F(x+2*e,y+2*e), f2p2m = F(x+2*e,y-2*e), f2m2p = F(x-2*e,y+2*e), f2m2m = F(x-2*e,y-2*e);
-        T f2pp  = F(x+2*e,y+e),   f2pm  = F(x+2*e,y-e),   f2mp  = F(x-2*e,y+e),   f2mm  = F(x-2*e,y-e);
-        T fp2p  = F(x+e,y+2*e),   fm2p  = F(x-e,y+2*e),   fp2m  = F(x+e,y-2*e),   fm2m  = F(x-e,y-2*e);
-        T fpp   = F(x+e,y+e),     fpm   = F(x+e,y-e),     fmp   = F(x-e,y+e),     fmm   = F(x-e,y-e);
-        return (8*(fp2m+f2pm+f2mp+fm2p)     -  8*(fm2m+f2mm+fp2p+f2pp)
-                 -(f2p2m+f2m2p-f2m2m-f2p2p) + 64*(fmm+fpp-fpm-fmp))/144/e/e;
-    };
-
     // Forward difference
     template<typename T> 
     inline T forward_difference_derivative(uint n, std::function<T(double)> F, double x, double h = 1E-3)
@@ -590,11 +618,6 @@ namespace iterateKT
             case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
             case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
             case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
-
-            // // O(h^6)
-            // case  1 : c = {-49./20, 6., -15./2, 20./3, -15./4, 6./5, -1./6}; break;
-            // case  2 : c = {469./90, -223./10, 879./20, -949./18, 41., -201./10, 1019./180, -7./10}; break;
-            // case  3 : c = {-801./80, 349./6, -18353./120, 2391./10, -1457./6, 4891./30, -561./8, 527./30, -469./240}; break;
             default : 
             {
                 warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
@@ -621,11 +644,6 @@ namespace iterateKT
             case 2  : c = {15./4, -77./6, 107./6, -13., 61./12, -5./6}; break;
             case 3  : c = {-49./8, 29., -461./8, 62., -307./8, 13., -15./8}; break;
             case 4  : c = {28./3, -111./2, 142., -1219/6., 176., -185./2, 82./3 ,-7./2}; break;
-
-            // // These are O(h^6)
-            // case  1 : c = {-49./20, 6., -15./2, 20./3, -15./4, 6./5, -1./6}; break;
-            // case  2 : c = {469./90, -223./10, 879./20, -949./18, 41., -201./10, 1019./180, -7./10}; break;
-            // case  3 : c = {-801./80, 349./6, -18353./120, 2391./10, -1457./6, 4891./30, -561./8, 527./30, -469./240}; break;
             default : 
             {
                 warning("forward_difference_derivative", "Order n = "+to_string(n)+" derivatives not implemented!"); 
@@ -638,6 +656,51 @@ namespace iterateKT
         return pow(-1, n) * num / pow(h, n);
     };
 
+    // Mixed central derivative of a function of 2 variables d2F(x,y)/dxdy
+    template<typename T>
+    inline T mixed_central_derivatives(std::function<T(double,double)> F, std::array<double,2> xs, double e)
+    {
+        double x = xs[0], y = xs[1];
+        T f2p = central_difference_derivative<T>(1, [&](double s){ return F(s, y+2*e); },  x, e);
+        T fp  = central_difference_derivative<T>(1, [&](double s){ return F(s, y+e);   },  x, e);
+        T fm  = central_difference_derivative<T>(1, [&](double s){ return F(s, y-e);   },  x, e);
+        T f2m = central_difference_derivative<T>(1, [&](double s){ return F(s, y-2*e); },  x, e);
+
+        return (+f2m/12.-2.*fm/3.+2.*fp/3.-f2p/12.)/e;
+    };
+
+    // Mixed forward derivative of a function of 2 variables d2F(x,y)/dxdy
+    template<typename T>
+    inline T mixed_forward_derivatives(std::function<T(double,double)> F, std::array<double,2> xs, double e)
+    {
+        double x = xs[0], y = xs[1];
+        std::array<double,5> c = {-25./12, 4., -3., 4./3, -1./4};
+        T sum = 0.;
+        for (int i = 0; i < 5; i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                sum += c[i]*c[j]*F(x+i*e, y+j*e);
+            };
+        };
+        return sum/e/e;
+    };
+
+    template<typename T>
+    inline T mixed_backward_derivatives(std::function<T(double,double)> F, std::array<double,2> xs, double e)
+    {
+        double x = xs[0], y = xs[1];
+        std::array<double,5> c = {-25./12, 4., -3., 4./3, -1./4};
+        T sum = 0.;
+        for (int i = 0; i < 5; i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                sum += c[i]*c[j]*F(x-i*e, y-j*e);
+            };
+        };
+        return sum/e/e;
+    };
 };
 // ---------------------------------------------------------------------------
 

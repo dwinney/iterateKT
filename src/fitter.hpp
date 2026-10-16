@@ -60,24 +60,25 @@ namespace iterateKT
     // ---------------------------------------------------------------------------
     // Actual fitter object
     // This is templated because it requires an implementation of the chi2 function to be fit
+    // The template A should be the type of object being fit, e.g. either amplitude or form_factor
     // The template F should contain the details of the fit and the following static functions
     // fcn(amplitude, std::vector<data_set>&) [function to be minimized, e.g. chi2]
-    // 
-    template<class F>
+
+    template<class A,class F>
     class fitter
     {
         public: 
 
         // Basic constructor, only requires amplitude to be fit 
         // uses default settings for minuit
-        fitter(amplitude amp_to_fit)
+        fitter(A amp_to_fit)
         : _amplitude(amp_to_fit),
           _minuit(ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined"))
         { reset_parameters(); };
 
         // Parameterized constructor 
         // with explicit choice of minimization strategy and tolerance of minuit routines
-        fitter(amplitude amp_to_fit, std::string strategy, double tolerance = 1.E-6)
+        fitter(A amp_to_fit, std::string strategy, double tolerance = 1.E-6)
         : _amplitude(amp_to_fit), _tolerance(tolerance),
           _minuit(ROOT::Math::Factory::CreateMinimizer("Minuit2", strategy))
         { reset_parameters(); }; 
@@ -150,14 +151,14 @@ namespace iterateKT
 
         inline void fix_parameter(parameter & par, complex val)
         {
-            fix_modulus(par, abs(val)); fix_argument(par, arg(val));
+            fix_modulus(par, std::abs(val)); fix_argument(par, arg(val));
         };
 
         inline void fix_parameter(std::string label, complex val)
         {
             int index = find_parameter(label); 
             if (index < 0) return;
-            fix_modulus(_pars[index], abs(val)); fix_argument(_pars[index], arg(val));
+            fix_modulus(_pars[index], std::abs(val)); fix_argument(_pars[index], arg(val));
         };
 
         inline void make_real(parameter & par)
@@ -198,6 +199,17 @@ namespace iterateKT
             free_parameter(_pars[index]);
         };
 
+        inline void add_extra_parameter()
+        {
+            _pars.push_back(_pars.size());
+            _Nfree += 2;
+        };
+
+        inline void add_extra_parameters(uint n)
+        {
+            for (int i = 0; i < n; i++) add_extra_parameter();
+        };
+
         // Actually do the fit given a vector of size amp->N_pars() as starting values
         // Prints results to command line but also returns the best-fit chi2 value
         inline void do_fit(std::vector<complex> starting_guess, bool show_data = true)
@@ -214,15 +226,14 @@ namespace iterateKT
 
             if (show_data) { line(); data_info(); };
             parameter_info();
-
+            
             auto start = std::chrono::high_resolution_clock::now();
             std::cout << "Beginning fit..." << std::flush; 
-
             if (_print_level != 0) line();   
             _minuit->Minimize();
             if (_print_level != 0) line();   
 
-            std::cout << "Done! \n";
+            std::cout << "Done (status = " + to_string(_minuit->Status()) +")! \n";
 
             // Timing info
             auto stop     = std::chrono::high_resolution_clock::now();
@@ -232,26 +243,33 @@ namespace iterateKT
             line();
             print_results();
         };
-
+        
         // -----------------------------------------------------------------------
         // Methods related to fit options
-
+        
         // Set the maximum number of calls minuit will do
         inline void set_max_calls(int n){ _max_calls = n; };
         
         // Message level for minuit (0-4)
         inline void set_print_level(int n){ _print_level = n; };
-
+        
         // Change tolerance
         inline void set_tolerance(double tol){ _tolerance = tol; };
 
+        // Change the stategy
+        inline void set_strategy(uint x){ _strategy = x; };
+        
         // Number of degrees of freedom
-        inline int dof(){ return _N - _minuit->NFree(); };
-
+        inline int status()    { return _minuit->Status(); };
+        inline int    dof()    { return _N - _minuit->NFree(); };
+        inline double fcn()    { return _minuit->MinValue(); };
+        inline double fcn_dof(){ return _minuit->MinValue()/dof(); };
+        inline std::vector<complex> pars(){ return complex_convert(_minuit->X()); };
+        
         private:
 
         // This ptr should point to the amplitude to be fit
-        amplitude _amplitude = nullptr;
+        A _amplitude = nullptr;
 
         // -----------------------------------------------------------------------
         // Data handling
@@ -262,6 +280,7 @@ namespace iterateKT
         // -----------------------------------------------------------------------
         // MINUIT handling 
 
+        int _strategy      = 1;
         int _print_level   = 0;     // Error code for MINUIT
         int _max_calls     = 1E6;   // Max calls allowed for minimization fcn
         double _tolerance  = 1.E-6; // Minimization tolerance
@@ -279,6 +298,7 @@ namespace iterateKT
             _minuit->SetTolerance(_tolerance);
             _minuit->SetPrintLevel(_print_level);
             _minuit->SetMaxFunctionCalls(_max_calls);
+            _minuit->SetStrategy(_strategy);
 
             // Iterate over each _par but also keep track of the index in starting_guess 
             // because parameters might be fixed, these indexes dont necessarily line up
@@ -296,8 +316,8 @@ namespace iterateKT
                 if (!par._real && !par._mod_fixed)
                 {
                     // Set up the starting guess
-                    par._mod = abs(starting_guess[i]);
-                    _minuit->SetVariable(j,   "|" + par._label + "|",    abs(starting_guess[i]), par._step);
+                    par._mod = std::abs(starting_guess[i]);
+                    _minuit->SetVariable(j,   "|" + par._label + "|",    std::abs(starting_guess[i]), par._step);
                     _minuit->SetVariableLowerLimit(j, 0.);    // mod is positive definite
                     j++; move_up = true;
                 }
@@ -331,11 +351,8 @@ namespace iterateKT
             // Sometimes we want the amplitude to do something to the fitter output
             // Before we actually save them, run through amplitudes processing function
             // By default this does nothing
-            std::vector<complex> processed = _amplitude->process_fitter_parameters(pars);
+            F::process_parameters(pars, _amplitude);
     
-            // Pass parameters to the amplitude
-            _amplitude->set_parameters(processed);
-
             // Pass both this and data to fit function
             return F::fcn(_data, _amplitude); 
         };
@@ -451,7 +468,7 @@ namespace iterateKT
         {
             using std::cout; using std::left; using std::endl; using std::setw;
 
-            cout << std::setprecision(8);
+            cout << std::setprecision(12);
             cout << left;
 
             double fcn               = _minuit->MinValue();
@@ -477,7 +494,7 @@ namespace iterateKT
                 if (!par._arg_fixed){arg = pars[i]; arg_err = to_string(errs[i]); i++;};
 
                 // Check arg if its between [-pi, pi]
-                if (abs(arg) > PI) arg -= sign(arg)*2*PI;
+                if (std::abs(arg) > PI) arg -= sign(arg)*2*PI;
 
                 if (par._real) cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod << setw(18) << mod_err << endl;
                 else
@@ -490,7 +507,7 @@ namespace iterateKT
             divider(); line();
             
             // At the end update the amplitude parameters to include the fit results
-            _amplitude->set_parameters(complex_convert(_minuit->X()));
+            F::process_parameters(complex_convert(_minuit->X()), _amplitude);
         };
     };
 }; // namespace iterateKT

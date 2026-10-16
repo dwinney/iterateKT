@@ -19,6 +19,7 @@ namespace iterateKT
         using ROOT::Math::Interpolator;
 
         _sth = _kinematics->sth(); _pth = _kinematics->pth(); _rth = _kinematics->rth();
+        _skip_exclusion = (dat._s_list.back() < _pth);
 
         auto interp_type = _settings._interpolation_type;
         // Load up the interpolators from the input data
@@ -31,6 +32,13 @@ namespace iterateKT
             // derivatives multiple times
             double sth_eps = _settings._expansion_offsets[0];
             _sth_expansion.push_back(rthreshold_expansion(i, _sth, +sth_eps));
+            
+            if (_skip_exclusion)
+            {
+                _below_pth_expansion.push_back({0,0,0,0});
+                _above_pth_expansion.push_back({0,0,0,0});
+                continue;
+            };
 
             double pth_eps = _settings._expansion_offsets[1];
             _below_pth_expansion.push_back(pthreshold_expansion(i, -pth_eps));
@@ -40,6 +48,8 @@ namespace iterateKT
             _below_rth_expansion.push_back(rthreshold_expansion(i, _rth, -rth_eps));
             _above_rth_expansion.push_back(rthreshold_expansion(i, _rth, +rth_eps));
         };
+
+        if (_skip_exclusion) return;
 
         // Finally, because we have singularities at pth, evaluate below and above it
         // and interpolate in between to get a smooth curve
@@ -71,8 +81,8 @@ namespace iterateKT
     // We were fed this from the constructor so we just access the interpolation
     complex raw_iteration::ksf_inhomogeneity(unsigned int i, double s)
     {
-        if (i >= _re.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         if (s <= _sth || s >= _settings._cutoff || _zeroth) return 0.;
+        if (i >= _re.size()) fatal("raw_iteration", "Requested out of scope basis function!");
         return _re[i]->Eval(s) + I*_im[i]->Eval(s);
     };
 
@@ -96,7 +106,7 @@ namespace iterateKT
         else             { s_exp = _rth; coeffs = (s > _rth) ? _above_rth_expansion[i] : _below_rth_expansion[i]; };
 
         complex expansion = 0;
-        for (int i = 0; i < coeffs.size(); i++) expansion += coeffs[i] * pow(abs(s-s_exp), i);
+        for (int j = 0; j < coeffs.size(); j++) expansion += coeffs[j] * pow(std::abs(s-s_exp), j);
         return expansion / nus;
     };
 
@@ -147,9 +157,9 @@ namespace iterateKT
         complex fp   = _re[i]->Deriv(s_exp)  + I*_im[i]->Deriv(s_exp);
         complex fpp  = _re[i]->Deriv2(s_exp) + I*_im[i]->Deriv2(s_exp);
 
-        complex a = (as[0]*f+as[1]*e*fp+as[2]*e*e*fpp)/(as[3]*pow(abs(e), _n/2.   ));
-        complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(abs(e), _n/2.+1.));
-        complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(abs(e), _n/2.+2.));
+        complex a = (as[0]*f+as[1]*e*fp+as[2]*e*e*fpp)/(as[3]*pow(std::abs(e), _n/2.   ));
+        complex b = (bs[0]*f+bs[1]*e*fp+bs[2]*e*e*fpp)/(bs[3]*pow(std::abs(e), _n/2.+1.));
+        complex c = (cs[0]*f+cs[1]*e*fp+cs[2]*e*e*fpp)/(cs[3]*pow(std::abs(e), _n/2.+2.));
 
         return {a, b, c};
     };
@@ -232,7 +242,7 @@ namespace iterateKT
         complex fp    = central_difference_derivative<complex>(1, F, _pth+epsilon, _settings._derivative_h);
         complex fpp   = central_difference_derivative<complex>(2, F, _pth+epsilon, _settings._derivative_h);
        
-        double  e = abs(epsilon);
+        double  e = std::abs(epsilon);
         complex a = f0;
         complex b = (bs[0]*(f-f0)+bs[1]*e*fp+bs[2]*e*e*fpp)/pow(e, (_l+1)/2.);
         complex c = (cs[0]*(f-f0)+cs[1]*e*fp+cs[2]*e*e*fpp)/pow(e, (_l+2)/2.);
@@ -250,11 +260,12 @@ namespace iterateKT
         if (is_zero(sc) || _zeroth) return 0.;
         
         // If we're sufficiently far from pth we can just integrate without issue
-        bool no_problem = (real(sc) < _sth || abs(imag(sc)) > _settings._infinitesimal);
+        bool no_problem = (real(sc) < _sth || std::abs(imag(sc)) > _settings._infinitesimal);
         if  (no_problem) return disperse_with_pth(i, sc, {_sth, _settings._cutoff});
 
         // If we're too close to the real line, we evalaute with ieps perscriptions
         double s = real(sc), eps = sign(imag(sc))*_settings._infinitesimal;
+        if (_skip_exclusion) return disperse_with_cauchy(i, s+I*eps, {_sth, _settings._cutoff});
 
         // Split the integrals into two pieces, one which contains the pth singularity
         // and another with the cauchy singularity

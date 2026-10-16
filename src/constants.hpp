@@ -40,6 +40,15 @@ namespace iterateKT
     // PDG Meson masses in GeV
     const double M_PION      = 0.13957000;
     const double M_KAON      = 0.49367700;
+
+    // Different masses for isospin projectionss
+    const double M_KAON_PM  = 0.493677;
+    const double M_KAON_0   = 0.497611;
+    const double M_KAON_AVG = (M_KAON_PM + M_KAON_0)/2;
+    const double M_PION_PM  = 0.13957039;
+    const double M_PION_0   = 0.1349768;
+    const double M_PION_AVG = (M_PION_PM + M_PION_0)/2;
+
     const double M_ETA       = 0.54753;
     const double M_RHO       = 0.77526;
     const double M_OMEGA     = 0.78265;

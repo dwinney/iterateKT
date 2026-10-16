@@ -101,6 +101,8 @@ namespace iterateKT
         // Whether this is the homogeneous solution with a trivial integral
         bool _zeroth = false;
 
+        bool _skip_exclusion = false;
+        
         uint _l  = 1; // Angular momentum 
         uint _n  = 3; // degree of singular kinematic factors
 

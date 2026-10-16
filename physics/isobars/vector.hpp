@@ -18,32 +18,12 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "GKPY.hpp"
 
 namespace iterateKT
 { 
     // Ids for all our isobars. 
     // If we ignore rho-omega mixing, we have only one, else we have two
     enum class id : unsigned int { P_wave, charged, neutral, F_wave };
-
-    // Choose default parameters for isobars
-    inline settings default_settings()
-    {
-        settings sets;
-        sets._infinitesimal           = 1E-8;
-        sets._intermediate_energy     = 1.5;
-        sets._cutoff                  = 20;
-        sets._interpolation_offset    = 0.1;
-        sets._interpolation_points    = {400, 10, 200};
-        double xi_sth = 1E-3,  eps_sth = 1E-3;
-        double xi_pth = 1E-3,  eps_pth = 1E-3;
-        double xi_rth = 1E-3,  eps_rth = 1E-3;
-
-        sets._exclusion_offsets   = {1E-1, 1E-1};
-        sets._matching_intervals  = {xi_sth,  xi_pth,  xi_rth };
-        sets._expansion_offsets   = {eps_sth, eps_pth, eps_rth};
-        return sets;
-    };
 
     // The P-wave is the dominant isobar
     // In terms of individual isobars this is the only one we need
@@ -58,9 +38,6 @@ namespace iterateKT
         // Because the P-wave involes a sintheta = 1-z^2, we have two power of 1/kappa
         // which lead to pseudo threshold singularities
         inline unsigned int angular_momentum(){ return 1; };
-
-        // Use GKPY phase shift, smoothly extrapolated to pi 
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
 
         // Kernels is 3*(1-z^2) but to remove kinematic singularities
         // we multiply by two powers of kappa
@@ -94,10 +71,10 @@ namespace iterateKT
             complex pm = _kinematics->momentum_final(m_rho3*m_rho3);
 
             double r = 2; // GeV-1
-            double z = norm(r*ps), z0 = norm(r*pm);
-            double blatt_weisskopf = sqrt(z0*norm(z0-15) + 9*norm(2*z0-5))/sqrt(z*norm(z-15)+9*norm(2*z-5));
+            double z = std::norm(r*ps), z0 = std::norm(r*pm);
+            double blatt_weisskopf = sqrt(z0*std::norm(z0-15) + 9*std::norm(2*z0-5))/sqrt(z*std::norm(z-15)+9*std::norm(2*z-5));
 
-            double gamma =  gam_rho3*m_rho3/sqrt(s)*pow(real(ps/pm),7)*norm(blatt_weisskopf);
+            double gamma =  gam_rho3*m_rho3/sqrt(s)*pow(real(ps/pm),7)*std::norm(blatt_weisskopf);
 
             complex BW = m_rho3*m_rho3/(m_rho3*m_rho3 - s - I*m_rho3*gamma);
 
@@ -121,8 +98,6 @@ namespace iterateKT
         
         // Constructor 
         charged(isobar_args args) : raw_isobar(args) {};
-        
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
         inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 
@@ -139,8 +114,6 @@ namespace iterateKT
         
         // Constructor 
         neutral(isobar_args args) : raw_isobar(args) {};
-        
-        inline double phase_shift(double s){ return GKPY::phase_shift(1, 1, s); };
         inline unsigned int angular_momentum(){ return 1; };
         inline complex ksf_kernel(id iso_id, complex s, complex t)
         { 

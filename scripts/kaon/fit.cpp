@@ -1,4 +1,4 @@
-// Fit KT amplitudes for K→3π decay data
+// Do a fit of K+ -> π+ π+ π- decay width and dalitz plot parameters
 //
 // ------------------------------------------------------------------------------
 // Author:       Daniel Winney (2025)
@@ -7,90 +7,139 @@
 // Email:        daniel.winney@gmail.com
 // ------------------------------------------------------------------------------
 
-#include "kinematics.hpp"
-#include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
-#include "constants.hpp"
-#include "plotter.hpp"
 #include "fitter.hpp"
 
-#include "isobars/kaon.hpp"
+#include "charged_kaon/data.hpp"
 #include "amplitudes/kaon.hpp"
-#include "K_3pi/data.hpp"
+#include "isobars/pseudoscalar.hpp"
+#include "TRandom.h"
 
 void fit()
 {
     using namespace iterateKT;
     using iterateKT::complex;
+
+    std::string method = "Simplex";
+    double tolerance   = 1E-6;
+    uint print_level   = 4;
+    uint strategy      = 1;
+
+    // Either choose N and leave initial_guess empty
+    // (do N fits to do with randomized initial guesses)
+    uint N             = 10;
+    std::vector<complex> initial_guess = {};
+    // or specify intitial_guess and do a single fit (ignore N)
+    // std::vector<complex> initial_guess = {-0.726863775, -0.739814627, -4.89801606};
+
+    // -----------------------------------------------------------------------
     
-    // --------------------------------------------------------------------------
-    // Set up the amplitude from previously calculated isobars
+    // // Set up general kinematics so everything knows masses
+    // // Assume masses are given in terms of pion mass
+    // kinematics kin = new_kinematics(M_KAON_PM, M_PION_PM);
 
-    // Amplitude itself is given by the isospin limit
-    kinematics kin = new_kinematics(M_KAON_AVG, M_PION_PM);
-    amplitude  amp = new_amplitude<K_3pi>(kin, "K -> 3π");
+    // // Set up our amplitude 
+    // amplitude amp = new_amplitude<charged_kaon>(kin);
+    // amp->set_name("K⁺ → π⁺π⁺π⁻");
 
-    // Empty array of subtraction indices for isobars with no polynomial
-    std::vector<uint> empty = {};
+    // settings sets = default_settings();
+    // sets._cauchy_integrator_depth  = 5;
+    // sets._pseudo_integrator_depth  = 5;
+    
+    // // Add all the isobars, note the order they are added will be the order
+    // // the basis functions are generated
+    // std::vector<uint> empty = {}; // Pass empty to isobars with no sub polynomials
+    // isobar F0 = amp->add_isobar<I1_S0>(       2, id::I1_S0, "F0", sets); 
+    // isobar F1 = amp->add_isobar<I1_P1>(       1, id::I1_P1, "F1", sets); 
+    // isobar F2 = amp->add_isobar<I1_S2>(empty, 1, id::I1_S2, "F2", sets);
+    // isobar H1 = amp->add_isobar<I2_P1>(       1, id::I2_P1, "H1", sets); 
+    // isobar H2 = amp->add_isobar<I2_S2>(empty, 1, id::I2_S2, "H2", sets);
 
-    // Isobars for ΔI = 1/2 amplitude
-    isobar M0 = amp->add_isobar<I1_S0>({0, 1, 2}, 2, id::dI1_I1_S0, "M0");
-    isobar M1 = amp->add_isobar<I1_P1>({1},       1, id::dI1_I1_P1, "M1");
-    isobar M2 = amp->add_isobar<I1_S2>(empty,     2, id::dI1_I1_S2, "M2"); 
-    isobar G1 = amp->add_isobar<I0_P1>({1},       1, id::dI1_I0_P1, "G1");
+    // // Path to precalculated isobar files
+    // std::string path   = "/scripts/kaon/basis_functions/basis_";
+    // // Import everything 
+    // for (auto iso : amp->get_isobars()) iso->import_iteration<6>(path+iso->name()+".dat");
 
-    // and for the ΔI = 3/2 
-    isobar N0 = amp->add_isobar<I1_S0>({0, 1, 2}, 2, id::dI3_I1_S0, "N0");
-    isobar N1 = amp->add_isobar<I1_P1>({1},       1, id::dI3_I1_P1, "N1");
-    isobar N2 = amp->add_isobar<I1_S2>(empty,     2, id::dI3_I1_S2, "N2"); 
-    isobar H1 = amp->add_isobar<I2_P1>({0, 1},    1, id::dI3_I2_P1, "H1");
-    isobar H2 = amp->add_isobar<I2_S2>(empty,     2, id::dI3_I2_S2, "H2");
+    // -----------------------------------------------------------------------
+    // Set up data
+    
+    using kaon::experiment;
 
-    // Path to precalculated isobar files
-    std::string path   = "/scripts/kaon/basis_functions/";
-    std::string prefix = "K_3pi_";
-    // Import everything 
-    for (auto iso : amp->get_isobars()) iso->import_iteration<11>(path+prefix+iso->name()+".dat");
-
-    // --------------------------------------------------------------------------
+    data_set charged = kaon::daltiz_expansion(experiment::Charged_NA48_2007);
+    data_set neutral = kaon::dalitz_expansion(experiment::Neutral_PDG_AVG);
+    
+    // -----------------------------------------------------------------------
     // Set up fitter
 
-    fitter<kaon::fit> fitter(amp);
+    // fitter<kaon::fit> fitter(amp, method, tolerance);
+    // fitter.set_print_level(print_level);
+    // fitter.set_strategy(strategy);
 
-    // Fit tends to be slow so its nice to have print level != 0 to see some progress
-    fitter.set_print_level(4);
-    fitter.set_tolerance(1);
+    // // Add data from above
+    // fitter.add_data(dPtoPPM);
+    // fitter.add_data(dPtoZZP);
+
+    // // Set up parameters (all real)
+    // std::vector<std::string> labels = {"alpha", "beta", "gamma", "zeta"};
+    // fitter.set_parameter_labels(labels);
+    // for (auto par : labels) fitter.make_real(par);
+    // fitter.fix_parameter("zeta", 1);
+
+    // TRandom * guesser = new TRandom(0);
+    // double best_chi2 = -1; int status;
+    // std::vector<iterateKT::complex> best_pars;
+
+    // if (initial_guess.size() == 0)
+    // {
+    //     for (int n = 0; n < N; n++)
+    //     {
+    //         initial_guess.clear();
+    //         for (int i = 0; i < labels.size()-1; i++) initial_guess.push_back(guesser->Uniform(-1, 1));
+    //         fitter.do_fit(initial_guess);
+    //         if (best_chi2 == -1 || fitter.fcn() <= best_chi2)
+    //         {
+    //             status    = fitter.status();
+    //             best_chi2 = fitter.fcn();
+    //             best_pars = fitter.pars();
+    //         };
+    //     };
+    // }
+    // else
+    // {
+    //     fitter.do_fit(initial_guess);
+    //     status    = fitter.status();
+    //     best_chi2 = fitter.fcn();
+    //     best_pars = fitter.pars();
+    // };
+
+    // auto processed_pars = kaon::fit::process_fitter_parameters(best_pars, amp);
+    // amp->set_parameters(processed_pars);
+    // line();
+    // divider<20>(2);
+    // print("Status ", status);
+    // print("Best chi2 ", best_chi2);
+    // divider<20>(2);
+    // print<15,20>("alpha", processed_pars[0]);
+    // print<15,20>("beta",  processed_pars[1]);
+    // print<15,20>("gamma", processed_pars[2]);
+    // print<15,20>("zeta",  processed_pars[3]);
+    // divider<20>(2);
+    // line();
+        
+    // amp->set_option(option::P_ppm);
+    // auto   cdpars = amp->get_dalitz_parameters(kaon::fit::derivative_h);
+    // divider<20>(4); 
+    // print<15,20>("", "Fit value", "Exp. value", "chi2");
+    // divider<20>(4); centered<20>(4, "K+ -> pi+ pi+ pi-"); divider<20>(4);
+    // print<15,20>("g",     cdpars[0], cg,   norm((cdpars[0]-cg)/cdg));
+    // print<15,20>("h",     cdpars[1], ch,   norm((cdpars[1]-ch)/cdh));
+    // print<15,20>("k",     cdpars[3], ck,   norm((cdpars[3]-ck)/cdk));
     
-    // Parameter labels and starting guess
-    std::vector<std::string> labels = {"alpha_1", "beta_1", "gamma_1", "zeta_1", "eta",
-                                       "alpha_3", "beta_3", "gamma_3", "zeta_3", "mu", "nu"};
-    fitter.set_parameter_labels(labels);
-
-    // Add data
-    fitter.add_data(kaon::get_dalitz_data(option::P_ppm));
-    fitter.add_data(kaon::get_dalitz_data(option::P_zzp));
-    fitter.add_data(kaon::get_dalitz_data(option::L_pmz));
-    fitter.add_data(kaon::get_dalitz_data(option::L_zzz));
-    fitter.add_data(kaon::get_lambda_data());
-
-    // We only fit real parts so force only fitting real parts
-    for (auto par : labels) fitter.make_real(par);
-    // Also fix eta which isnt fit
-    fitter.fix_parameter("eta", 0.);
-    
-    std::vector<complex> pars = {
-        2.8147348,   // alpha_1
-        -6418.4101,  // beta_1
-        6080.5513,   // gamma_1
-        -11550.85,   // zeta_1
-        // 0.,          // eta
-        -53.094403,  // alpha_3
-        399.23876,   // beta_3
-        -900.79741,  // gamma_3
-        1071.8038,   // zeta_3
-        -64.398136,  // mu
-        4602.7463    // nu
-    };
-    fitter.do_fit(pars);
+    // amp->set_option(option::P_zzp);
+    // auto   ndpars = amp->get_dalitz_parameters(kaon::fit::derivative_h);
+    // divider<20>(4); centered<20>(4, "K+ -> pi0 pi0 pi+"); divider<20>(4);
+    // print<15,20>("g",     ndpars[0], ng,   norm((ndpars[0]-ng)/ndg));
+    // print<15,20>("h",     ndpars[1], nh,   norm((ndpars[1]-nh)/ndh));
+    // print<15,20>("k",     ndpars[3], nk,   norm((ndpars[3]-nk)/ndk));
+    // divider<20>(4); line();
 };

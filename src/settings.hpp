@@ -11,6 +11,9 @@
 #define SETTINGS_HPP
 
 #include "utilities.hpp"
+#include "phase_shift.hpp"
+#include "basis.hpp"
+#include <tuple>
 #include <Math/Interpolator.h>
 
 namespace iterateKT
@@ -18,7 +21,27 @@ namespace iterateKT
     struct settings
     {
         settings(){};
-        
+
+        // Save a factor of (id, phaseshift) pairs
+        // This will tell the isobar class how to initialize 
+        std::vector<std::tuple<id,phase_args>> _phase_shifts;
+
+        // Look through the saved vector above and find the relevant one
+        inline phase_args get_phase(id x)
+        {
+            for (auto y : _phase_shifts) if (x == std::get<0>(y)) return std::get<1>(y);
+            return phase_args();
+        };
+
+        // Often (e.g. pi pi S-wave) theres an extra cusp which slows down integration
+        double _extra_cusp = 0;
+
+        // We use variable iterations to improve convergence by articially surpressing KT effects
+        // At each next iteration we decrease the surpression linearly until we arrive back 
+        // at the original KT equations
+        double _iteration_rate_intercept  = 1.0;
+        double _iteration_rate_slope      = 0.;
+
         // Number of subdivisions for adaptive integrator 
         // These are only looked at if the appropriate flag above is true
         double _omnes_cutoff     = std::numeric_limits<double>::infinity();

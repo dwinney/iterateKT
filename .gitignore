@@ -50,4 +50,4 @@ kaon/basis_functions
 *.txt
 
 # hide non-public data
-data/COMPASS/raw_files
+analysis/COMPASS_pi1/raw_files

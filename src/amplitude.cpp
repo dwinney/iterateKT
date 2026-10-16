@@ -48,22 +48,53 @@ namespace iterateKT
         return result;
     };
 
+    complex raw_amplitude::evaluate_precomputed(double s, double t, double u)
+    {
+        if (!_precomputed) return evaluate(s+IEPS, t+IEPS, u+IEPS);
+
+        complex result = 0;
+
+        // S_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_s(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(s);
+        };
+
+        // T_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_t(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(t);
+        };
+
+        // U_CHANNEL
+        for (auto f : _isobars)
+        {
+            complex term = prefactor_u(f->get_id(), s+IEPS, t+IEPS, u+IEPS);
+            if (is_zero(term)) continue;
+            result += term * f->evaluate_precomputed(u);
+        };
+
+        return result;
+    };
+
     // -----------------------------------------------------------------------
     // Calculate partial widths and the integrated width
 
     // Doubly differential 
     double raw_amplitude::differential_width(double s, double t)
     {
-        double u = _kinematics->Sigma() - s - t;
-
-        bool in_physical_region = (real(_kinematics->kibble(s, t, u)) >= 0);
+        bool in_physical_region = get_kinematics()->in_decay_region(s,t);
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
                          "Evaluating outside decay region!", NaN<double>());
         };
 
-        return norm(evaluate(s, t, u))/prefactors();
+        return norm(evaluate_in_dalitz(s, t))/prefactors();
     };
 
     // Singly differential 
@@ -71,7 +102,7 @@ namespace iterateKT
     {
         using namespace boost::math::quadrature;
 
-        bool in_physical_region = (s >= _kinematics->sth() || s <= _kinematics->pth());
+        bool in_physical_region = (s >= get_kinematics()->sth() || s <= get_kinematics()->pth());
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
@@ -80,14 +111,13 @@ namespace iterateKT
 
         auto fdx = [&](double t)
         {
-            double u = _kinematics->Sigma() - s - t;
-            return norm(evaluate(s, t, u))/prefactors();
+            return differential_width(s, t);
         };
 
         // Limits are purely real in the decay region
-        double min = real(_kinematics->t_minus(s));
-        double max = real(_kinematics->t_plus(s));
-        return gauss_kronrod<double,15>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        double min = real(get_kinematics()->t_minus(s));
+        double max = real(get_kinematics()->t_plus(s));
+        return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // Fully integrated width
@@ -95,14 +125,11 @@ namespace iterateKT
     {
         using namespace boost::math::quadrature;
 
-        auto fdx = [&](double s)
-        {
-            return differential_width(s);
-        };
+        auto fdx = [&](double s){ return differential_width(s); };
 
-        double min = _kinematics->sth();
-        double max = _kinematics->pth();
-        return gauss_kronrod<double,15>::integrate(fdx, min, max, 0, 1.E-9, NULL);
+        double min = get_kinematics()->sth();
+        double max = get_kinematics()->pth();
+        return gauss_kronrod<double,61>::integrate(fdx, min, max, 0, 1.E-9, NULL);
     };
 
     // -----------------------------------------------------------------------
@@ -112,17 +139,17 @@ namespace iterateKT
     // compatible right away with plotter.combine
     std::vector<plot2D> raw_amplitude::plot_ReIm(plotter & pltr, std::string units, int N)
     {
-        double smin  = _kinematics->sth();
-        double smax  = _kinematics->pth();
-        double sigma = _kinematics->Sigma();
+        double smin  = get_kinematics()->sth();
+        double smax  = get_kinematics()->pth();
+        double sigma = get_kinematics()->Sigma();
 
         std::vector<double> s, t, re, im; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
 
-            double tmin = real(_kinematics->t_minus(si));
-            double tmax = real(_kinematics->t_plus (si));
+            double tmin = real(get_kinematics()->t_minus(si));
+            double tmax = real(get_kinematics()->t_plus (si));
             for (int j = 0; j < N; j++)
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
@@ -144,13 +171,13 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p_re = _kinematics->new_dalitz_plot(pltr);
+        plot2D p_re = get_kinematics()->new_dalitz_plot(pltr);
         p_re.set_data({s,t,re});
         p_re.set_title("Re#kern[0.2]{(}#it{A})");
         p_re.set_labels(xlabel, ylabel);
 
 
-        plot2D p_im = _kinematics->new_dalitz_plot(pltr);
+        plot2D p_im = get_kinematics()->new_dalitz_plot(pltr);
         p_im.set_data({s,t,im});
         p_im.set_title("Im#kern[0.2]{(}#it{A})");
         p_im.set_labels(xlabel, ylabel);
@@ -161,25 +188,25 @@ namespace iterateKT
     // Plot |A|
     plot2D raw_amplitude::plot_dalitz(plotter & pltr, std::string units, int N)
     {
-        double smin  = _kinematics->sth();
-        double smax  = _kinematics->pth();
-        double sigma = _kinematics->Sigma();
+        double smin  = get_kinematics()->sth();
+        double smax  = get_kinematics()->pth();
+        double sigma = get_kinematics()->Sigma();
 
         std::vector<double> s, t, absA; 
         for (int i = 0; i < N; i++)
         {
             double si = smin+(smax-smin)*i/double(N-1);
 
-            double tmin = real(_kinematics->t_minus(si));
-            double tmax = real(_kinematics->t_plus (si));
+            double tmin = real(get_kinematics()->t_minus(si));
+            double tmax = real(get_kinematics()->t_plus (si));
             for (int j = 0; j < N; j++)
             {
                 double tij = tmin+(tmax-tmin)*j/double(N-1);
                 
-                complex ampij = evaluate(si, tij);
+                complex ampij = evaluate_precomputed(si, tij, sigma - si - tij);
 
                 s.push_back(si); t.push_back(tij);
-                absA.push_back(  abs(ampij) );
+                absA.push_back(  std::abs(ampij) );
             };
         };
 
@@ -192,7 +219,7 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p = _kinematics->new_dalitz_plot(pltr);
+        plot2D p = get_kinematics()->new_dalitz_plot(pltr);
         p.set_data({s,t,absA});
         p.set_labels(xlabel, ylabel);
 
@@ -201,47 +228,48 @@ namespace iterateKT
 
     // -----------------------------------------------------------------------
     // Calculate Daltiz plot parameters from amplitude
-    // We use the conventions and notation of the PDG 
+    // By default we use the conventions and notation of the PDG 
     // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
     // Output in order {g, h, j, k, f}
+
+    // The optional arguments are for the center of the dalitz plot and normalization:
+    // X = (t - u)/m[0]
+    // Y = (s - r)/m[1]
     
-    std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double m2)
+    std::array<double,5> raw_amplitude::get_dalitz_parameters(double e, double s0, std::array<double,2> m)
     {
-        double s0 = _kinematics->s0(); 
-        double N  = norm(evaluate(s0,s0));
+        double N  = std::norm(evaluate(s0,s0,s0));
 
         // Rename our function for readibility
-        auto F  = [this,N,s0](double s, double u){ return norm(evaluate(s,3*s0-s-u))/N; };
+        auto F  = [this,N,s0](double s, double t){ return std::norm(evaluate(s,t,get_kinematics()->Sigma()-s-t))/N; };
         auto Fs = [this,F,s0](double s){ return F(s,s0); };
-        auto Fu = [this,F,s0](double u){ return F(s0,u); };
+        auto Ft = [this,F,s0](double t){ return F(s0,t); };
 
-        
-        double dFds, dFdu, d2Fd2s, d2Fd2u, d2Fdsdu;
+        double dFds, dFdt, d2Fd2s, d2Fd2t, d2Fdsdt;
         
         // We just use a (4-point) central finite difference 
         // since these are assumed to be well behaved and fairly smooth
-        // derivatives of our F in terms of s and u
+        // derivatives of our F in terms of s and t
         dFds    = central_difference_derivative<double>(1, Fs, s0, e);
-        dFdu    = central_difference_derivative<double>(1, Fu, s0, e);
+        dFdt    = central_difference_derivative<double>(1, Ft, s0, e);
 
         // 2nd Derivatives
         d2Fd2s  = central_difference_derivative<double>(2, Fs, s0, e);
-        d2Fd2u  = central_difference_derivative<double>(2, Fu, s0, e);
-        d2Fdsdu = mixed_partial_derivatives<double>(F, {s0, s0}, e);
+        d2Fd2t  = central_difference_derivative<double>(2, Ft, s0, e);
+        d2Fdsdt = mixed_central_derivatives<double>(F, {s0, s0}, e);
 
-        // derivatives of s and u with respect to X and Y
-        // X = (t - s) /m2
-        // Y = (u - x)/m2
-        // dsdX = dsdY = -dudY/2 = c 
-        double c = -m2/2; 
+        // derivatives of s and t with respect to X and Y
+        // dsdX = 0,  dtdX = cx
+        // -2*dsdY =  dtdY = cy
+        double cx = +m[0]/2, cy = -m[1]/2; 
 
         // derivatives of F in terms of X and Y
         double dFdX, dFdY, d2Fd2X, d2Fd2Y, d2FdXdY;
-        dFdX    = c* dFds;
-        dFdY    = c*(dFds-2*dFdu);
-        d2Fd2X  = c*c* d2Fd2s;
-        d2FdXdY = c*c*(d2Fd2s - 2*d2Fdsdu);
-        d2Fd2Y  = c*c*(d2Fd2s - 4*d2Fdsdu + 4*d2Fd2u); 
+        dFdX    = cx* dFdt;
+        dFdY    = cy*(dFdt-2*dFds);
+        d2Fd2X  = cx*cx* d2Fd2t;
+        d2FdXdY = cx*cy*(d2Fd2t - 2*d2Fdsdt);
+        d2Fd2Y  = cy*cy*(d2Fd2t - 4*d2Fdsdt + 4*d2Fd2s); 
         
         // Assmble our outputs
         double g, h, j, f, k;

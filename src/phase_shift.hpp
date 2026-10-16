@@ -18,7 +18,7 @@
 namespace iterateKT
 {
     // Short-cut for passing arguments in a single structure
-    using phase_args = std::tuple<std::string,double,int>; 
+    using phase_args = std::tuple<std::string,double,int,double,double>; 
 
     class phase_shift
     {
@@ -27,16 +27,13 @@ namespace iterateKT
         phase_shift(): _error(true) {};
 
         // constructor takes in the file name, matching energy, and integrer of pi 
-        phase_shift(std::string file, double lam2, uint k) : _error(false), _match(lam2), _k(k)
-        {
-            interpolate(file);
-        };
+        phase_shift(std::string file, double lam2, uint k, double tau, double a) 
+        : _error(false), _match(lam2), _k(k), _tau(tau), _a(a)
+        { interpolate(file); };
 
-        phase_shift(phase_args info): _error(false), _match(std::get<1>(info)), 
-                                                         _k(std::get<2>(info))
-        {
-            interpolate(std::get<0>(info));
-        };
+        phase_shift(phase_args info): _error(false),         _match(std::get<1>(info)), 
+                                      _k(std::get<2>(info)), _tau  (std::get<3>(info)), _a(std::get<4>(info))
+        { interpolate(std::get<0>(info)); };
         
         inline double operator()(double s)
         {
@@ -46,39 +43,39 @@ namespace iterateKT
             return asymptotic(s);
         };
 
+        inline void set_info(phase_args info)
+        {
+            _error = false; 
+            interpolate(std::get<0>(info));
+            _match = std::get<1>(info);
+            _k     = std::get<2>(info);
+            _tau   = std::get<3>(info);
+            _a     = std::get<4>(info);
+        };
+
         private:
 
-        bool    _error = true;
-        uint    _k;    // Multiple of pi to extrapolate at infinity
-        double _match; // Cutoff
-        double _sth, _a = 0., _b = 0.;
+        bool   _error = true;
+        uint   _k;           // Multiple of pi to extrapolate at infinity
+        double _match, _sth; // Cutoff and threshold
+        double _tau, _a;     // Decay rate and power in the asymptotic matching
         ROOT::Math::Interpolator _delta; 
 
         inline void interpolate(std::string file)
         {   
             // Assume data is in two columns
-            auto data = import_data<2>("/physics/phase_shifts/"+file);
+            auto data = import_data<2>(file);
             check<2>(data, file);
-
             _sth = data[0][0]; 
-            if (data[0].back() < _match || _match < _sth) warning("phase_shift", "Cutoff outside interpolation range!");
-
-            // Interpolate
             _delta.SetData(data[0], data[1]);
-
-            // Calculate parameters for the matching
-            double d = _delta.Eval(_match), dp = _delta.Deriv(_match);
-
-            if (_k == 0) return;
-
-            _a = pow(_k*PI-d, 2)/_match/dp;
-            _b =    (_k*PI-d)   /_match/dp - 1;
-            if (_b < -1) warning("phase_shift", "Asymptotic matching exhibits pole!");
         };
 
         inline double asymptotic(double s)
         {
-            return _k*PI - _a/(_b+s/_match);
+            // This can be any function so long as it 
+            // and its first derivative vanish at s = _match;
+            double b = pow(_tau*(s-_match),_a);
+            return _delta.Eval(_match)*exp(-b)+(1-exp(-b))*_k*PI;
         };
     };
 };

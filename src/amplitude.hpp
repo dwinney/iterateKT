@@ -35,9 +35,17 @@ namespace iterateKT
 
     // This function serves as our "constructor"
     template<class A=raw_amplitude>
-    inline amplitude new_amplitude(kinematics kin, std::string id = "amplitude")
+    inline amplitude new_amplitude(kinematics kin)
     {
-        auto x = std::make_shared<A>(kin, id);
+        auto x = std::make_shared<A>(kin);
+        return std::static_pointer_cast<raw_amplitude>(x);
+    };
+
+    // This function serves as our "constructor" with some extra needed arg
+    template<class A=raw_amplitude, typename B>
+    inline amplitude new_amplitude(kinematics kin, B extra_args)
+    {
+        auto x = std::make_shared<A>(kin, extra_args);
         return std::static_pointer_cast<raw_amplitude>(x);
     };
 
@@ -48,15 +56,10 @@ namespace iterateKT
 
         // Define only the masses here. 
         // The amplitude structure from quantum numbers will come later
-        raw_amplitude(kinematics xkin, std::string id) : solver(xkin), _name(id)
-        {};
+        raw_amplitude(kinematics xkin) : solver(xkin) {};
    
         // Evaluate the full amplitude.
         virtual complex evaluate(complex s, complex t, complex u);
-
-        // If we only have two mandelstams and both are real
-        // output u from the on-shell condition
-        inline  complex evaluate(double s, double t){ return evaluate(s, t, _kinematics->Sigma() - s - t); };
 
         // Factor to divide by in width calculation
         virtual double  combinatorial_factor(){ return 1; };
@@ -66,14 +69,37 @@ namespace iterateKT
         virtual complex prefactor_t(id iso_id, complex s, complex t, complex u){ return 0.; };
         virtual complex prefactor_u(id iso_id, complex s, complex t, complex u){ return 0.; };
 
-        // Calculate widths in the physical decay region
-        double differential_width(double s, double t);
-        double differential_width(double s);
-        double width();
+        // Calculate widths in the physical (symmetric) decay region
+        virtual double differential_width(double s, double t);
+        virtual double differential_width(double s);
+        virtual double width();
 
         // (inverse of) prefactors for the differential width
-        inline double prefactors()
-        { return 32*pow(2*PI*_kinematics->M(),3)*combinatorial_factor(); }
+        virtual inline double prefactors()
+        { return 32*pow(2*PI*get_kinematics()->M(),3)*combinatorial_factor(); }
+
+        // -----------------------------------------------------------------------
+        // Methods to more easily evaluate amplitudes inside decay regions
+
+        virtual void precompute_dalitz(uint N)
+        {
+            std::array<double,2> dalitz_bounds = {get_kinematics()->sth(), get_kinematics()->pth()};
+            for (auto isobar : _isobars) isobar->precompute(dalitz_bounds, N);
+            _precomputed = true;
+        };
+
+        // Evaluate amplitude using precomputed isobars
+        virtual complex evaluate_precomputed(double s, double t, double u);
+
+        // Evaluate the amplitude in the physical amplitude
+        virtual inline complex evaluate_in_dalitz(double s, double t)
+        {
+            if (!get_kinematics()->in_decay_region(s,t)) return error("amplitude::evaluate_in_dalitz: Arguments not in decay region!", NaN<double>());
+            
+            double u = get_kinematics()->Sigma() - s - t;
+            if (_precomputed) return evaluate_precomputed(s ,t, u);
+            return evaluate(s + IEPS, t + IEPS, u + IEPS);
+        };
 
         // -----------------------------------------------------------------------
         // Utilities
@@ -84,9 +110,10 @@ namespace iterateKT
 
         // Pass an option flag and so something. By default we dont do anything 
         // Can be overloaded to do whatever you want 
-        virtual inline void set_option(option opt){ return; }; 
+        virtual inline void set_option(option opt)          { return; }; 
+        virtual inline void set_option(option opt, double x){ return; }; 
 
-        inline void set_parameters( std::vector<complex> pars)
+        virtual inline void set_parameters( std::vector<complex> pars)
         {
             if (pars.size() != _subtractions->N_basis())
             {
@@ -96,17 +123,32 @@ namespace iterateKT
             _subtractions->_values = pars;
         };
 
-        // Sometimes we want to do an intermediate step with the pars being passed around by a fitter
-        // If this is the case overload this function otherwise it does nothing by default
-        virtual inline std::vector<complex> process_fitter_parameters(std::vector<complex> pars)
-        { return pars; };
-
         // Number of free parameters (used by fitters)
-        inline uint N_pars(){ return _subtractions->N_basis(); };
+        virtual inline uint N_pars(){ return _subtractions->N_basis(); };
 
         // Get a vector of the currently saved subtraction parameters
-        inline std::vector<complex> get_pars()       { return _subtractions->_values; };
-        inline std::vector<complex> get_parameters() { return get_pars(); };
+        virtual inline std::vector<complex> get_pars()       { return _subtractions->_values; };
+        virtual inline std::vector<complex> get_parameters() { return get_pars(); };
+
+        // Return a pointer to the interally saved kinematics instance
+        virtual inline kinematics get_kinematics() { return _kinematics;}
+
+        // Importing solutions from file are typically trickier than exporting
+        // So we kep this as an overrideable function which does nothing by defualt
+        // the importing procedure should be written by user
+        virtual inline void import_solution(std::string path){ return; };
+
+        // Some amplitudes contain pointers to other amplitudes this can be specified to allowed one to access
+        // the currently pointed to subamplitude. By default this will return nullptr
+        virtual inline amplitude get_current(){ return nullptr; };
+
+        // -----------------------------------------------------------------------
+
+        inline void precompute(std::array<double,2> range, uint N = 100)
+        {
+            for (auto isobar : _isobars) isobar->precompute(range, N);
+            _precomputed = true;
+        };
 
         // -----------------------------------------------------------------------
         // Automate making plots of the amplitude
@@ -121,17 +163,30 @@ namespace iterateKT
 
         // -----------------------------------------------------------------------
         // Calculate Daltiz plot parameters from amplitude
-        // We use the conventions and notation of the PDG for Kaon decays
+        // By default we use the conventions and notation of the PDG 
         // see ``Dalitz Plot Parameters for K -> 3pi decays" in RPP
-
         // Output in order {g, h, j, k, f}
-        std::array<double,5> get_dalitz_parameters(double eps = 1E-5, double m2 = M_PION*M_PION);
+
+        // The optional arguments are for the center of the dalitz plot and normalization:
+        // X = (t - s )/m[0]
+        // Y = (u - s0)/m[1]
+
+        std::array<double,5> get_dalitz_parameters(double eps, double s0, std::array<double,2> ms);
+
+        // Use the s0 from _kinematics
+        std::array<double,5> get_dalitz_parameters(double eps = 1E-5, std::array<double,2> ms = {M_PION*M_PION, M_PION*M_PION})
+        {
+            return get_dalitz_parameters(eps, _kinematics->s0(), ms);
+        };
 
         // -----------------------------------------------------------------------
         private:
 
         // Id string to identify the amplitude with
         std::string _name = "amplitude";
+
+        // Whether isobars have been precomputed
+        bool _precomputed = false;
     };
 }; // namespace iterateOKT
 

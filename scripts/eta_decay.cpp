@@ -20,7 +20,8 @@
 #include "plotter.hpp"
 #include "solver.hpp"
 
-#include "isobars/eta.hpp"
+#include "amplitudes/eta.hpp"
+#include "isobars/pseudoscalar.hpp"
 
 void eta_decay()
 {
@@ -38,12 +39,12 @@ void eta_decay()
     // Add all the isobars, note the order they are added will be the order
     // the basis functions are generated
     std::vector<uint> empty = {}; // Pass empty to isobars with no sub polynomials
-    isobar F0 = solver.add_isobar<dI1_S0>(2,        id::dI1_S0); 
-    isobar F1 = solver.add_isobar<dI1_P1>(1,        id::dI1_P1); 
-    isobar F2 = solver.add_isobar<dI1_S2>(empty, 1, id::dI1_S2);
-    isobar G1 = solver.add_isobar<dI0_P1>(1,        id::dI0_P1);
-    isobar H1 = solver.add_isobar<dI2_P1>(1,        id::dI2_P1); 
-    isobar H2 = solver.add_isobar<dI2_S2>(empty, 1, id::dI2_S2);
+    isobar F0 = solver.add_isobar<I1_S0>(2,        id::I1_S0); 
+    isobar F1 = solver.add_isobar<I1_P1>(1,        id::I1_P1); 
+    isobar F2 = solver.add_isobar<I1_S2>(empty, 1, id::I1_S2);
+    isobar G1 = solver.add_isobar<I0_P1>(1,        id::I0_P1);
+    isobar H1 = solver.add_isobar<I2_P1>(1,        id::I2_P1); 
+    isobar H2 = solver.add_isobar<I2_S2>(empty, 1, id::I2_S2);
 
     // Iterate N times
     int N = 5;

@@ -20,7 +20,7 @@ void Load()
     // Headers
     TString core    = main_dir + "/src"; 
     TString physics = main_dir + "/physics";
-    TString data    = main_dir + "/data";
+    TString data    = main_dir + "/analysis";
 
     if (!gSystem->AccessPathName(lib.Data()))
     {
@@ -36,4 +36,8 @@ void Load()
     {
         Warning("Load()", "iterateKT library not found! Looked in: %s", lib.Data());
     }
+
+    // Add JSON library
+    TString json = gSystem->Getenv("JSON");
+    gInterpreter->AddIncludePath(json.Data());
 }
