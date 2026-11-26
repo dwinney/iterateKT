@@ -18,8 +18,10 @@
 #include "utilities.hpp"
 #include "kinematics.hpp"
 #include "settings.hpp"
-#include "timer.hpp"
-#include"isobars/pi1.hpp"
+#include "jpacUtils/timer.hpp"
+#include "isobars/pi1.hpp"
+
+using namespace jpacUtils;
 
 namespace iterateKT
 { 
@@ -131,7 +133,7 @@ namespace iterateKT
             for (int i = 0; i < 4; i++) 
             { 
                 _tbins.emplace_back(new_amplitude<pi1>(xkin));
-                _tbins[i]->set_name("tbin_" + to_string(i));
+                _tbins[i]->set_name("tbin_" + std::to_string(i));
             };
             initialize(0);
         };
@@ -142,7 +144,7 @@ namespace iterateKT
             for (int i = 0; i < 4; i++) 
             { 
                 _tbins.emplace_back(new_amplitude<pi1>(xkin));
-                _tbins[i]->set_name("tbin_" + to_string(i));
+                _tbins[i]->set_name("tbin_" + std::to_string(i));
             };
             initialize(std::get<1>(args));
         };
@@ -175,7 +177,7 @@ namespace iterateKT
         {
             for (int i = 0; i < 4; i++)
             {
-                std::string file = path + "_t_" + to_string(-_tvals[i]) + ".dat";
+                std::string file = path + "_t_" + jpacUtils::to_string(-_tvals[i]) + ".dat";
                 _tbins[i]->get_isobars()[0]->import_iteration<3>(file);
             };
         };
@@ -206,7 +208,7 @@ namespace iterateKT
             // Set up all the amplitudes
             for (int i = 0; i < 4; i++)
             {
-                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 1, id::P_wave, "t_"+to_string(-_tvals[i]));
+                _tbins[i]->add_isobar<P_wave>({constant, deck(_tvals[i])}, 1, id::P_wave, "t_"+ jpacUtils::to_string(-_tvals[i]));
                 _tbins[i]->iterate(niter);
             };
 
@@ -235,7 +237,7 @@ namespace iterateKT
             for (auto m3pi : m_vals) 
             { 
                 _mbins.emplace_back(new_amplitude<pi1_across_tbins>(new_kinematics(m3pi, M_PION), std::make_tuple(t_vals, nint)));
-                timer.lap("initialized amplitude with m3pi = "+to_string(m3pi));
+                timer.lap("initialized amplitude with m3pi = "+jpacUtils::to_string(m3pi));
             };
             timer.stop(); 
             timer.print_elapsed();
@@ -303,7 +305,7 @@ namespace iterateKT
             for (auto bin : _mbins)
             {
                 double m = bin->get_kinematics()->M();
-                std::string file = path + "_m_" + to_string(m);
+                std::string file = path + "_m_" + std::to_string(m);
                 bin->export_solution(file, precision);
             }
         };
@@ -314,7 +316,7 @@ namespace iterateKT
             for (auto bin : _mbins)
             {
                 double m = bin->get_kinematics()->M();
-                std::string new_path = path + "_m_" + to_string(m);
+                std::string new_path = path + "_m_" + std::to_string(m);
                 bin->import_solution(new_path);
             };
         };

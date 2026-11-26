@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.30)
 cmake_policy(VERSION 3.30)
 
-project (iteratedKT)
+project (iterateKT)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
@@ -46,6 +46,18 @@ else()
     message(SEND_ERROR "-- Boost not found!")
 endif()
 
+##-----------------------------------------------------------------------
+## We need explicit link to jpacPlotter to visualize Dalitz plots
+
+if (NOT DEFINED ENV{JPACUTILS})
+    message(WARNING "-- JPACUTILS environment variable not set!")
+endif()
+
+message("-- Environment variable JPACPUTILS set! ($ENV{JPACUTILS})")
+find_library(JPACUTILS REQUIRED
+                NAMES libJPACUTILS JPACUTILS jpacUtils
+                HINTS "$ENV{JPACUTILS}/lib")
+include_directories($ENV{JPACUTILS})
 
 ##-----------------------------------------------------------------------
 # Build core library 

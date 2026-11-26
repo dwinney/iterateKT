@@ -145,7 +145,7 @@ namespace iterateKT
     };  
 
     // -----------------------------------------------------------------------
-    plot2D raw_kinematics::new_dalitz_plot(plotter & pltr, int N)
+    jpacUtils::plot2D raw_kinematics::new_dalitz_plot(jpacUtils::plotter & pltr, int N)
     {
         std::array<std::vector<double>,2> dalitz_boundary;
         // Go clockwise around the dalitz region, first tmax
@@ -165,7 +165,7 @@ namespace iterateKT
             dalitz_boundary[0].push_back(s); dalitz_boundary[1].push_back(t);
         };
 
-        plot2D p = pltr.new_plot2D();
+        jpacUtils::plot2D p = pltr.new_plot2D();
         p.set_region(dalitz_boundary);
         return p;
     };

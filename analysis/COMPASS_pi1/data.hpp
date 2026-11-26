@@ -19,10 +19,11 @@
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "utilities.hpp"
-#include "data_set.hpp"
+#include "jpacUtils/data.hpp"
 #include "TRandom.h"
 
 using json = nlohmann::json;
+using namespace jpacUtils;
 
 namespace iterateKT { namespace COMPASS
 {
@@ -111,9 +112,9 @@ namespace iterateKT { namespace COMPASS
         out._extras["t"]    = t;    
         out._extras["tbin_width"]    = (t_upper - t_lower)/2;
         out._extras["m3pibin_width"] = (m3pi_upper - m3pi_lower)/2;
-        out._x = sig1; out._dx = correct_bin_area;  
+        out._x = sig1; out._dx[0] = correct_bin_area;  
         out._y = sig2;             
-        out._z = norm*absM; out._dz = norm*errM;               
+        out._z = norm*absM; out._dz[0] = norm*errM;               
 
         return out;
     };

@@ -15,18 +15,18 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "timer.hpp"
+#include "jpacUtils/timer.hpp"
+#include "jpacUtils/plotter.hpp"
 
 #include "isobars/vector.hpp"
 #include "amplitudes/vector.hpp"
 
-#include "plotter.hpp"
 
 void rho_omega_mixing()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
     using iterateKT::complex;
 
     // Set up general kinematics so everything knows masses
@@ -107,19 +107,19 @@ void rho_omega_mixing()
     std::array<std::string,5> labels = {"0th", "1st", "2nd", "3rd", "4th"};
     for (int i = 0; i <= N; i++)
     {
-        p1.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 0, s+IEPS)); }, labels[i]);
-        p1.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 0, s+IEPS)); });
-        p2.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 1, s+IEPS)); }, labels[i]);
-        p2.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 1, s+IEPS)); });
-        p3.add_curve( bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 2, s+IEPS)); }, labels[i]);
-        p3.add_dashed(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 2, s+IEPS)); });
+        p1.add_curve(bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 0, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p1.add_curve(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 0, s+IEPS)); }, dashed(JPACCOLORS[i]));
+        p2.add_curve(bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 1, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p2.add_curve(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 1, s+IEPS)); }, dashed(JPACCOLORS[i]));
+        p3.add_curve(bounds, [&](double s) { return std::real(rho_pm->basis_function(i, 2, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p3.add_curve(bounds, [&](double s) { return std::imag(rho_pm->basis_function(i, 2, s+IEPS)); }, dashed(JPACCOLORS[i]));
         
-        p4.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 0, s+IEPS)); }, labels[i]);
-        p4.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 0, s+IEPS)); });
-        p5.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 1, s+IEPS)); }, labels[i]);
-        p5.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 1, s+IEPS)); });
-        p6.add_curve( bounds, [&](double s) { return std::real(rho_0->basis_function(i, 2, s+IEPS)); }, labels[i]);
-        p6.add_dashed(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 2, s+IEPS)); });
+        p4.add_curve(bounds, [&](double s) { return std::real(rho_0->basis_function(i, 0, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p4.add_curve(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 0, s+IEPS)); }, dashed(JPACCOLORS[i]));
+        p5.add_curve(bounds, [&](double s) { return std::real(rho_0->basis_function(i, 1, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p5.add_curve(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 1, s+IEPS)); }, dashed(JPACCOLORS[i]));
+        p6.add_curve(bounds, [&](double s) { return std::real(rho_0->basis_function(i, 2, s+IEPS)); }, solid(JPACCOLORS[i], labels[i]));
+        p6.add_curve(bounds, [&](double s) { return std::imag(rho_0->basis_function(i, 2, s+IEPS)); }, dashed(JPACCOLORS[i]));
     };
     
     plotter.combine({3,2}, {p1,p2,p3,p4,p5,p6}, "rho_omega_isobars.pdf");  

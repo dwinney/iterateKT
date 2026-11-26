@@ -13,10 +13,9 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "timer.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/timer.hpp"
+#include "jpacUtils/plotter.hpp"
 
 #include "isobars/vector.hpp"
 #include "amplitudes/vector.hpp"
@@ -25,7 +24,7 @@
 void jpsi_decay()
 {
     using namespace iterateKT;
-    using iterateKT::complex;
+    using namespace jpacUtils;
 
     // Set up general kinematics so everything knows masses
     // Use masses in units of GeV
@@ -69,8 +68,8 @@ void jpsi_decay()
     p2.set_curve_points(1000);
     p2.set_ranges(bounds, {-5, 12});
     p2.set_labels("#sqrt{#it{s}} [GeV]", "#Omega_{3}(#it{s})");
-    p2.add_curve( bounds, [&](double w) { return real(fwave->omnes(w*w+IEPS)); }, "Real");
-    p2.add_curve( bounds, [&](double w) { return imag(fwave->omnes(w*w+IEPS)); }, "Imag");
+    p2.add_curve( bounds, [&](double w) { return real(fwave->omnes(w*w+IEPS)); }, solid(jpacColor::Blue, "Real"));
+    p2.add_curve( bounds, [&](double w) { return imag(fwave->omnes(w*w+IEPS)); }, solid(jpacColor::Red, "Imag"));
 
     plotter.combine({2,1}, {p1,p2}, "fwave.pdf");
     
@@ -85,19 +84,19 @@ void jpsi_decay()
         p1.set_legend(0.8, 0.7);
         p1.set_curve_points(1000);
         p1.set_labels("#sqrt{#it{s}} [GeV]", "Re "+label+"(#it{s} + #it{i}#epsilon)");
-        p1.add_curve( bounds, rP(1,j), "1^{st}");
-        p1.add_curve( bounds, rP(3,j), "3^{rd}");
-        p1.add_curve( bounds, rP(6,j), "6^{th}");
-        p1.add_curve( bounds, rP(9,j), "9^{th}");
+        p1.add_curve( bounds, rP(1,j), solid(jpacColor::Blue,  "1^{st}"));
+        p1.add_curve( bounds, rP(3,j), solid(jpacColor::Red,   "3^{rd}"));
+        p1.add_curve( bounds, rP(6,j), solid(jpacColor::Green, "6^{th}"));
+        p1.add_curve( bounds, rP(9,j), solid(jpacColor::Orange,"9^{th}"));
 
         plot p2 = plotter.new_plot();
         p2.set_legend(0.8, 0.7);
         p2.set_curve_points(1000);
         p2.set_labels("#sqrt{#it{s}} [GeV]", "Im "+label+"(#it{s} + #it{i}#epsilon)");
-        p2.add_curve( bounds, iP(1,j), "1^{st}");
-        p2.add_curve( bounds, iP(3,j), "3^{rd}");
-        p2.add_curve( bounds, iP(6,j), "6^{th}");
-        p2.add_curve( bounds, iP(9,j), "9^{th}");
+        p2.add_curve( bounds, iP(1,j), solid(jpacColor::Blue,  "1^{st}"));
+        p2.add_curve( bounds, iP(3,j), solid(jpacColor::Red,   "3^{rd}"));
+        p2.add_curve( bounds, iP(6,j), solid(jpacColor::Green, "6^{th}"));
+        p2.add_curve( bounds, iP(9,j), solid(jpacColor::Orange,"9^{th}"));
 
         return std::array<plot,2>{p1,p2};
     };

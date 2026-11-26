@@ -17,8 +17,10 @@
 #include <Math/Interpolator.h>
 #include <TMath.h>
 #include "utilities.hpp"
-#include "plotter.hpp"
-#include "plot2D.hpp" 
+#include "jpacUtils/plotter.hpp"
+#include "jpacUtils/plot2D.hpp" 
+
+using namespace jpacUtils;
 
 namespace iterateKT
 {
@@ -113,7 +115,7 @@ namespace iterateKT
         // Plotting utility for decay region
 
         // Set up a plot2D in the physical decay region
-        plot2D new_dalitz_plot(plotter & pltr, int N = 300);
+        jpacUtils::plot2D new_dalitz_plot(jpacUtils::plotter & pltr, int N = 300);
 
         // -----------------------------------------------------------------------
         private: 

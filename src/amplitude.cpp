@@ -137,7 +137,7 @@ namespace iterateKT
 
     // Instead of outputting an array, we output a vector to make it 
     // compatible right away with plotter.combine
-    std::vector<plot2D> raw_amplitude::plot_ReIm(plotter & pltr, std::string units, int N)
+    std::vector<jpacUtils::plot2D> raw_amplitude::plot_ReIm(jpacUtils::plotter & pltr, std::string units, int N)
     {
         double smin  = get_kinematics()->sth();
         double smax  = get_kinematics()->pth();
@@ -171,13 +171,13 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p_re = get_kinematics()->new_dalitz_plot(pltr);
+        jpacUtils::plot2D p_re = get_kinematics()->new_dalitz_plot(pltr);
         p_re.set_data({s,t,re});
         p_re.set_title("Re#kern[0.2]{(}#it{A})");
         p_re.set_labels(xlabel, ylabel);
 
 
-        plot2D p_im = get_kinematics()->new_dalitz_plot(pltr);
+        jpacUtils::plot2D p_im = get_kinematics()->new_dalitz_plot(pltr);
         p_im.set_data({s,t,im});
         p_im.set_title("Im#kern[0.2]{(}#it{A})");
         p_im.set_labels(xlabel, ylabel);
@@ -186,7 +186,7 @@ namespace iterateKT
     };
 
     // Plot |A|
-    plot2D raw_amplitude::plot_dalitz(plotter & pltr, std::string units, int N)
+    jpacUtils::plot2D raw_amplitude::plot_dalitz(jpacUtils::plotter & pltr, std::string units, int N)
     {
         double smin  = get_kinematics()->sth();
         double smax  = get_kinematics()->pth();
@@ -219,7 +219,7 @@ namespace iterateKT
             ylabel += " " + units;
         }
 
-        plot2D p = get_kinematics()->new_dalitz_plot(pltr);
+        jpacUtils::plot2D p = get_kinematics()->new_dalitz_plot(pltr);
         p.set_data({s,t,absA});
         p.set_labels(xlabel, ylabel);
 

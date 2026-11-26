@@ -19,6 +19,8 @@
 #include "Math/Functor.h"
 #include "TRandom.h"
 
+using namespace jpacUtils;
+
 namespace iterateKT
 {
     // Each free parameter of a model has associated with is a bunch of data
@@ -233,7 +235,7 @@ namespace iterateKT
             _minuit->Minimize();
             if (_print_level != 0) line();   
 
-            std::cout << "Done (status = " + to_string(_minuit->Status()) +")! \n";
+            std::cout << "Done (status = " + std::to_string(_minuit->Status()) +")! \n";
 
             // Timing info
             auto stop     = std::chrono::high_resolution_clock::now();
@@ -490,8 +492,8 @@ namespace iterateKT
             {
                 double mod = par._mod, arg = par._arg;
                 std::string mod_err = par._mod_message, arg_err = par._arg_message;
-                if (!par._mod_fixed){mod = pars[i]; mod_err = to_string(errs[i]); i++;};
-                if (!par._arg_fixed){arg = pars[i]; arg_err = to_string(errs[i]); i++;};
+                if (!par._mod_fixed){mod = pars[i]; mod_err = jpacUtils::to_string(errs[i]); i++;};
+                if (!par._arg_fixed){arg = pars[i]; arg_err = jpacUtils::to_string(errs[i]); i++;};
 
                 // Check arg if its between [-pi, pi]
                 if (std::abs(arg) > PI) arg -= sign(arg)*2*PI;
@@ -500,8 +502,8 @@ namespace iterateKT
                 else
                 {
                     cout << left << setw(8) << par._i << setw(15) << par._label  << setw(26) << mod*exp(I*arg) << endl;
-                    cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << to_string(mod)  << setw(18) << mod_err << endl; 
-                    cout << left << setw(8) << ""     << setw(15) << "  -> arg"  << setw(26) << to_string(arg)  << setw(18) << arg_err << endl; 
+                    cout << left << setw(8) << ""     << setw(15) << "  -> mod"  << setw(26) << jpacUtils::to_string(mod)  << setw(18) << mod_err << endl; 
+                    cout << left << setw(8) << ""     << setw(15) << "  -> arg"  << setw(26) << jpacUtils::to_string(arg)  << setw(18) << arg_err << endl; 
                 };
             };
             divider(); line();

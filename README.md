@@ -20,6 +20,7 @@ Compilation of the base library requires:
 - [CMake](https://cmake.org/) ($\geq$ v3.30)
 - [ROOT](https://root.cern.ch/) ($\geq$ v6.40) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
 - [Boost](https://www.boost.org/) ($\geq$ v1.68)
+- [jpacUtils](https://github.com/dwinney) with environment vairable `JPACUTILS` set to installation directory
 
 Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
 

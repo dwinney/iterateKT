@@ -14,9 +14,8 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "fitter.hpp"
 
 #include "amplitudes/pi1.hpp"
@@ -28,7 +27,7 @@ void bulk_fit()
 {
     using namespace iterateKT;
     using iterateKT::complex;
-    using iterateKT::to_string;
+    using jpacUtils::to_string;
 
     // -----------------------------------------------------------------------
     // Operating options
@@ -140,7 +139,7 @@ void bulk_fit()
         {
             fitter.fix_parameter("Ncp_"+to_string(i), 0.); 
         };
-        fitter.fix_parameter("cp")
+        fitter.fix_parameter("cp", 1.);
     };
     
     fitter.do_fit(initial_vals);
@@ -173,8 +172,8 @@ void bulk_fit()
                 double s = bin._x[i], t = bin._y[i];
                 complex from_model = amp->evaluate_in_dalitz(s, t);  
                 
-                if (is_zero(bin._dz[i])) continue;
-                chi2  += norm((from_data - abs(from_model)) / bin._dz[i]); 
+                if (is_zero(bin._dz[0][i])) continue;
+                chi2  += norm((from_data - abs(from_model)) / bin._dz[0][i]); 
             };
             chi2s[j].push_back(chi2/bin._N);
             total_N    += bin._N;

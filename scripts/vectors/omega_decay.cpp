@@ -13,18 +13,18 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "timer.hpp"
+#include "jpacUtils/timer.hpp"
+#include "jpacUtils/plotter.hpp"
 
 #include "isobars/vector.hpp"
 #include "amplitudes/vector.hpp"
 
-#include "plotter.hpp"
 
 void omega_decay()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
     using iterateKT::complex;
 
     // Set up general kinematics so everything knows masses
@@ -64,8 +64,8 @@ void omega_decay()
     p1.add_vertical(rth);
     p1.shade_region({sth, pth});
     p1.add_horizontal(0);
-    p1.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, "#Omega_{1}^{1}");
-    p1.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
+    p1.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega_{1}^{1}"));
+    p1.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
     plot p2 = plotter.new_plot();
     p2.set_legend(0.25, 0.7);
@@ -75,17 +75,17 @@ void omega_decay()
     p2.add_vertical(rth);
     p2.shade_region({sth, pth});
     p2.add_horizontal(0);
-    p2.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); },  "#it{s} #Omega_{1}^{1}");
-    p2.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
+    p2.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); },  solid(jpacColor::DarkGrey, "#it{s} #Omega_{1}^{1}"));
+    p2.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); },  dashed(jpacColor::DarkGrey));
 
     std::array<std::string,4> labels = {"1st", "2nd", "3rd", "4th"};
     for (int i = 1; i <= 4; i++)
     {
         amplitude->iterate();
-        p1.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, labels[i-1]);
-        p1.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
-        p2.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, labels[i-1]);
-        p2.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
+        p1.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, solid(JPACCOLORS[i-1], labels[i-1]));
+        p1.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); }, dashed(JPACCOLORS[i-1]));
+        p2.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, solid(JPACCOLORS[i-1], labels[i-1]));
+        p2.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); }, dashed(JPACCOLORS[i-1]));
         timer.lap("Iteration " + std::to_string(i));
     };
 

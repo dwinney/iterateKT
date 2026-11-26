@@ -13,11 +13,9 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "timer.hpp"
 #include "basis.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "solver.hpp"
 
 #include "amplitudes/eta.hpp"
@@ -26,6 +24,7 @@
 void eta_decay()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
 
     // -----------------------------------------------------------------------
     

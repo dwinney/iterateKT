@@ -16,28 +16,14 @@
 
 namespace iterateKT
 {
-    using complex = std::complex<double>;
-
     constexpr int N_GAUSS_CAUCHY  = 151;
     constexpr int N_GAUSS_PSEUDO  = 61;
     constexpr int N_GAUSS_OMNES   = 61;
     constexpr int N_GAUSS_ANGULAR = 31;
 
     // ---------------------------------------------------------------------------
-    // Mathematical constants 
-
-    #ifndef PI
-        const double PI   = M_PI;
-    #endif
-    #ifndef I
-        const complex I   (0., 1.);
-    #endif
-
-    const double DEG2RAD  = (M_PI / 180.);
-    const double EPS      = 1.e-8;
-    const complex IEPS    = I*EPS;
-
     // PDG Meson masses in GeV
+
     const double M_PION      = 0.13957000;
     const double M_KAON      = 0.49367700;
 
@@ -56,34 +42,6 @@ namespace iterateKT
     const double M_F2        = 1.2754;
     const double M_B1        = 1.229;
     const double M_JPSI      = 3.096;
-
-    // ------------------------------------------------------------------------------
-    // NaN's, 0, and 1 for throwing errors with custom data types
-
-    template<typename T>
-    inline T NaN()
-    {
-        return std::numeric_limits<T>::quiet_NaN();
-    };
-
-    template<>
-    inline complex NaN() 
-    {
-        return complex(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
-    };
-
-    template<typename T>
-    T zero();
-
-    template<>
-    inline complex zero() { return 0; };
-
-    template<typename T> 
-    T identity();
-
-    template<>
-    inline complex identity() { return 1; };
-
 }; // iterateKT
 
 #endif // CONSTANTS_HPP
