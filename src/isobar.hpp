@@ -178,7 +178,7 @@ namespace iterateKT
 
         inline complex basis_function_precomputed(uint i, double s)
         {
-            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NaN<double>());    
+            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NAN);    
           
             return _real_part[i]->Eval(s)+I*_imag_part[i]->Eval(s);
         };
@@ -186,7 +186,7 @@ namespace iterateKT
 
         inline complex evaluate_precomputed(double s)
         {
-            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NaN<double>());    
+            if (!_precomputed) return error("isobar::precomputed: Not yet precomputed!", NAN);    
             
             complex sum = 0;
             for (int i = 0; i < _subtractions->N_basis(); i++) sum += _subtractions->get_par(i)*basis_function_precomputed(i, s);

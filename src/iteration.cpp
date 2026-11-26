@@ -148,7 +148,7 @@ namespace iterateKT
             default : 
            {
             warning("raw_iteration::expansion_coefficients", "Invalid singularity order (n="+to_string(_n)+")!");
-            return {NaN<complex>(), NaN<complex>(), NaN<complex>()};
+            return {NAN, NAN, NAN};
            };
         };
 

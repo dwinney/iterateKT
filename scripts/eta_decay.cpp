@@ -14,10 +14,9 @@
 #include "amplitude.hpp"
 #include "utilities.hpp"
 #include "constants.hpp"
-#include "basis.hpp"
-#include "jpacUtils/plotter.hpp"
 #include "solver.hpp"
 
+#include "jpacUtils/plotter.hpp"
 #include "amplitudes/eta.hpp"
 #include "isobars/pseudoscalar.hpp"
 

@@ -53,7 +53,7 @@ if (NOT DEFINED ENV{JPACUTILS})
     message(WARNING "-- JPACUTILS environment variable not set!")
 endif()
 
-message("-- Environment variable JPACPUTILS set! ($ENV{JPACUTILS})")
+message("-- Environment variable JPACPUTILS found! ($ENV{JPACUTILS})")
 find_library(JPACUTILS REQUIRED
                 NAMES libJPACUTILS JPACUTILS jpacUtils
                 HINTS "$ENV{JPACUTILS}/lib")

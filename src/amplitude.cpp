@@ -91,7 +91,7 @@ namespace iterateKT
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
-                         "Evaluating outside decay region!", NaN<double>());
+                         "Evaluating outside decay region!", NAN);
         };
 
         return norm(evaluate_in_dalitz(s, t))/prefactors();
@@ -106,7 +106,7 @@ namespace iterateKT
         if (!in_physical_region)
         {
             return error("amplitude::differential_width", 
-                         "Evaluating outside decay region!", NaN<double>());
+                         "Evaluating outside decay region!", NAN);
         };
 
         auto fdx = [&](double t)

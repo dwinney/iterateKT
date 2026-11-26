@@ -266,7 +266,7 @@ namespace iterateKT
             default: return 0.;
         };
 
-        return NaN<complex>();
+        return NAN;
     };
 
     // Integrate along a linear segment +ieps above the real axis

@@ -31,7 +31,7 @@ namespace iterateKT
             case 1: return +I*std::abs(kappa);
             case 2: return -  std::abs(kappa);
         };
-        return NaN<complex>();
+        return NAN;
     };
 
     // Kacser with removed singularities at regular thresholds removed
@@ -54,7 +54,7 @@ namespace iterateKT
             case 2: return   sqrt(1 - Sth/s);
             case 3: return I*sqrt(1 - Sth/s);
             case 4: return I*sqrt(s - Rth)*sqrt(1 - Sth/s);
-            default : return NaN<double>();
+            default : return NAN;
         };
     };
 
@@ -119,7 +119,7 @@ namespace iterateKT
     double raw_kinematics::phi_plus(double s)
     {
         if (s > rth() || s < pth()) return error("kinematics::phi_plus", 
-                                                   "Outside egg region!", NaN<double>());
+                                                   "Outside egg region!", NAN);
         double cosine = (Sigma()-s)*sqrt(s)/(M2()-m2())/m()/2;
         if (!are_equal(std::abs(cosine), 1)) return TMath::ACos(cosine);
         return (cosine > 0) ? 0 : PI;

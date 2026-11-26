@@ -21,7 +21,7 @@ namespace iterateKT
         if (_n_subtractions != _subtractions.size())
         {
             warning("form_factor", "Subtractions not set!");
-            return NaN<double>();
+            return NAN;
         };
 
         for (int i = 0; i < _n_subtractions; i++)

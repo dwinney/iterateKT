@@ -94,7 +94,7 @@ namespace iterateKT
         // Evaluate the amplitude in the physical amplitude
         virtual inline complex evaluate_in_dalitz(double s, double t)
         {
-            if (!get_kinematics()->in_decay_region(s,t)) return error("amplitude::evaluate_in_dalitz: Arguments not in decay region!", NaN<double>());
+            if (!get_kinematics()->in_decay_region(s,t)) return error("amplitude::evaluate_in_dalitz: Arguments not in decay region!", NAN);
             
             double u = get_kinematics()->Sigma() - s - t;
             if (_precomputed) return evaluate_precomputed(s ,t, u);

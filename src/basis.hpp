@@ -39,9 +39,9 @@ namespace iterateKT
                 if (!_error_thrown)
                 {
                     _error_thrown = true;
-                    return error("Subtraction coefficients not set!", NaN<complex>());
+                    return error("Subtraction coefficients not set!", NAN);
                 };
-                return NaN<complex>();                 
+                return NAN;                 
             };
             _error_thrown = false;
             return _values[i]; 
