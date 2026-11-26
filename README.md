@@ -20,9 +20,10 @@ Compilation of the base library requires:
 - [CMake](https://cmake.org/) ($\geq$ v3.30)
 - [ROOT](https://root.cern.ch/) ($\geq$ v6.40) with [*MathMore*](https://root.cern.ch/doc/master/group__MathMore.html)
 - [Boost](https://www.boost.org/) ($\geq$ v1.68)
-- [jpacUtils](https://github.com/dwinney/jpacUtils) with environment vairable `JPACUTILS` set to installation directory
+- [jpacUtils](https://github.com/dwinney/jpacUtils) with environment variable `JPACUTILS` set to installation directory
 
-Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
+Compilation also requires the environment variable `ITERATEKT` to be set to the top-level directory in order to find auxilary files. 
+Additional libraries, such as to handle [json](https://github.com/nlohmann/json) files, may be required for specific analysis scripts. 
 
 To install, clone normally and use:
 ```bash
@@ -34,7 +35,7 @@ cmake --build . --target install
 This will create the core linkable library file and ROOT dictionary (.pcm) files in the `lib` directory. 
 Additionally a [scripting executable](./src/cling/iterateKT.cpp) which shortcuts running scripts in an interactive ROOT session will be installed in the `bin` directory.
 
-The usual CMake installation may not work if you are running macOS. To circumvent this, the shell script `macos_build.sh` is included to get things working on a Mac. 
+Please note that mileage may vary when compiling with a Mac as I cannot verify that the cmake installation works as intended in MacOS. 
 
 ##  USAGE
 The compiled executable pipes an analysis script, relevent header files, and the compiled library into ROOT's cling interpeter to run. 
@@ -105,12 +106,7 @@ From here one may calculate the double-differential decay width using `different
 ```
 where $\mathcal{N}$ is a numerical factor specificied by `combinatorial_factor()` and can be used to add constants related to indentical particles and/or averaging over initial-state helicities. Single differential or fully integrated widths may also be accessed with `differential_width(double s)` and `width()`.  
 
-# Utilities 
-
-Many utilities are available to effectively fit amplitudes to data and plot the results. 
-See documentation in [`fitter.hpp`](./src/fitter.hpp) and [`plotter.hpp`](./src/plotter.hpp) for details or the example scripts in [`/scripts`](./scripts/) and example fitting interfaces in [`/analysis`](./analysis/).
-
-# References
+## References
 + [1] [Production effects and final-state interactions in $\pi_1\to3\pi$](https://arxiv.org/abs/2607.14300)
 + [2] [JPAC Website](https://www.jpac-physics.org/)
 
