@@ -18,8 +18,8 @@
 #include "basis.hpp"
 #include "isobar.hpp"
 #include "solver.hpp"
-#include "plotter.hpp"
-#include "plot2D.hpp"
+#include "jpacUtils/plotter.hpp"
+#include "jpacUtils/plot2D.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
 namespace iterateKT
@@ -156,10 +156,10 @@ namespace iterateKT
         // Make standard plots in the entire decay region
         // output[0] = Re(A)
         // output[1] = Im(A)
-        std::vector<plot2D> plot_ReIm(plotter & pltr, std::string units = "", int N = 100);
+        std::vector<jpacUtils::plot2D> plot_ReIm(jpacUtils::plotter & pltr, std::string units = "", int N = 100);
 
         // Only plot |A|
-        plot2D plot_dalitz(plotter & pltr, std::string units = "", int N = 100);
+        jpacUtils::plot2D plot_dalitz(jpacUtils::plotter & pltr, std::string units = "", int N = 100);
 
         // -----------------------------------------------------------------------
         // Calculate Daltiz plot parameters from amplitude

@@ -24,7 +24,6 @@ void bulk_iterate()
 {
     using namespace iterateKT;
     using iterateKT::complex;
-    using iterateKT::to_string;
 
     // -----------------------------------------------------------------------
     // Operating options

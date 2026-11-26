@@ -19,10 +19,12 @@
 #include "settings.hpp"
 #include "phase_shift.hpp"
 #include "basis.hpp"
-#include "data_set.hpp"
-#include "timer.hpp"
+#include "jpacUtils/data.hpp"
+#include "jpacUtils/timer.hpp"
 #include <Math/Interpolator.h>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
+
+using namespace jpacUtils;
 
 namespace iterateKT
 {
@@ -198,7 +200,7 @@ namespace iterateKT
         template<int N>
         void import_iteration(std::string filename)
         {
-            auto imported = import_data<2*N+1>(filename, true);
+            auto imported = import_data<2*N+1>(filename);
             _s_list       = std::move(imported[0]);
 
             if (_s_list.back() < _settings._cutoff) 

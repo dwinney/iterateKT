@@ -10,10 +10,9 @@
 
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "timer.hpp"
-#include "plotter.hpp"
+#include "jpacUtils/timer.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "settings.hpp"
 
 #include "amplitudes/pi1.hpp"
@@ -22,9 +21,10 @@
 void plot_isobars()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
     using iterateKT::complex;
-    using iterateKT::to_string;
-    
+    using jpacUtils::to_string;
+
     // -----------------------------------------------------------------------
     // Operating options
 
@@ -77,11 +77,11 @@ void plot_isobars()
     p1.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
     p1.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
-    for (auto amp : amps)
+    for (int i = 0; i <  amps.size(); i++)
     {
-        isobar pwave = amp->get_isobar(id::P_wave);
-        p1.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, pwave->name());
-        p1.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); });
+        isobar pwave = amps[i]->get_isobar(id::P_wave);
+        p1.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(0, s+IEPS)); }, solid(JPACCOLORS[i], pwave->name()));
+        p1.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(0, s+IEPS)); }, dashed(JPACCOLORS[i]));
     };
     p1.save("fc_comparison.pdf");
 
@@ -95,11 +95,11 @@ void plot_isobars()
     p2.add_curve(bounds, [&](double s) { return std::real(uniterated->omnes(s+IEPS)); }, solid(jpacColor::DarkGrey, "#Omega(#sigma)"));
     p2.add_curve(bounds, [&](double s) { return std::imag(uniterated->omnes(s+IEPS)); }, dashed(jpacColor::DarkGrey));
 
-    for (auto amp : amps)
+    for (int i = 0; i <  amps.size(); i++)
     {
-        isobar pwave = amp->get_isobar(id::P_wave);
-        p2.add_curve( bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, pwave->name());
-        p2.add_dashed(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); });
+        isobar pwave = amps[i]->get_isobar(id::P_wave);
+        p2.add_curve(bounds, [&](double s) { return std::real(pwave->basis_function(1, s+IEPS)); }, solid(JPACCOLORS[i], pwave->name()));
+        p2.add_curve(bounds, [&](double s) { return std::imag(pwave->basis_function(1, s+IEPS)); }, dashed(JPACCOLORS[i]));
     };
     p2.save("fd_comparison.pdf");
 

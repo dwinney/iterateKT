@@ -74,10 +74,10 @@ namespace iterateKT { namespace COMPASS
                     double s = data._x[i], t = data._y[i];
                     iterateKT::complex from_model = to_fit->evaluate_in_dalitz(s, t);  
 
-                    if (is_zero(data._dz[i])) continue;
+                    if (is_zero(data._dz[0][i])) continue;
 
                     // Minimize average chi2 per data plot
-                    chi2  += norm((from_data - abs(from_model)) / data._dz[i]) / data._N; 
+                    chi2  += norm((from_data - abs(from_model)) / data._dz[0][i]) / data._N; 
                 };
             };
             return chi2 / data_vector.size();

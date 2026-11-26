@@ -11,9 +11,11 @@
 #define PHASE_SHIFT_HPP
 
 #include "constants.hpp"
-#include "data_set.hpp"
+#include "jpacUtils/data.hpp"
 #include <Math/Interpolator.h>
 #include <tuple>
+
+using namespace jpacUtils;
 
 namespace iterateKT
 {
@@ -64,8 +66,8 @@ namespace iterateKT
         inline void interpolate(std::string file)
         {   
             // Assume data is in two columns
-            auto data = import_data<2>(file);
-            check<2>(data, file);
+            auto data = jpacUtils::import_data<2>(file);
+            jpacUtils::check<2>(data, file);
             _sth = data[0][0]; 
             _delta.SetData(data[0], data[1]);
         };

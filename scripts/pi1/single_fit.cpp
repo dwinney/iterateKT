@@ -14,10 +14,9 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "plotter.hpp"
 #include "fitter.hpp"
+#include "jpacUtils/plotter.hpp"
 #include "TRandom.h"
 
 #include "amplitudes/pi1.hpp"
@@ -28,6 +27,7 @@
 void single_fit()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
     using iterateKT::complex;
 
     // -----------------------------------------------------------------------
@@ -110,7 +110,7 @@ void single_fit()
         double s1 = data._x[i], s2 = data._y[i];
         complex model = amp->evaluate_in_dalitz(s1, s2);
 
-        double fcn = (is_zero(data._dz[i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[i];
+        double fcn = (is_zero(data._dz[0][i])) ? 0. : (std::abs(model) - data._z[i]) / data._dz[0][i];
         pull.push_back(fcn);
         avg_pull += fcn;
     };

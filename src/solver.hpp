@@ -17,6 +17,8 @@
 #include "basis.hpp"
 #include "isobar.hpp"
 
+using namespace jpacUtils;
+
 namespace iterateKT
 {
     // Forward declare function to be specified at runtime

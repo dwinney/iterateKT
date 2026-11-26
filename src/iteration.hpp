@@ -21,6 +21,8 @@
 #include "kinematics.hpp"
 #include <boost/math/quadrature/gauss_kronrod.hpp>
 
+using namespace jpacUtils;
+
 namespace iterateKT
 {
     // Forward declare for the typedef below

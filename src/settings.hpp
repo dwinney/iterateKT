@@ -16,6 +16,8 @@
 #include <tuple>
 #include <Math/Interpolator.h>
 
+using namespace jpacUtils;
+
 namespace iterateKT
 {
     struct settings

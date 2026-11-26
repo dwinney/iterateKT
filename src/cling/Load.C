@@ -40,4 +40,15 @@ void Load()
     // Add JSON library
     TString json = gSystem->Getenv("JSON");
     gInterpreter->AddIncludePath(json.Data());
+
+    // Plotting library
+    TString plot_dir = gSystem->Getenv("JPACUTILS");
+    TString plot_lib = plot_dir+"/lib/libJPACUTILS."+lib_ext;
+    TString plot_inc = plot_dir;
+
+    if (!gSystem->AccessPathName(plot_lib.Data()))
+    {
+        gSystem->Load(plot_lib.Data());
+        gInterpreter->AddIncludePath(plot_inc.Data());
+    };
 }

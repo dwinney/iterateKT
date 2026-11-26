@@ -12,15 +12,14 @@
 
 #include "kinematics.hpp"
 #include "utilities.hpp"
-#include "colors.hpp"
 #include "constants.hpp"
-#include "plotter.hpp"
-
+#include "jpacUtils/plotter.hpp"
 #include "COMPASS_pi1/data.hpp"
 
 void plot_data()
 {
     using namespace iterateKT;
+    using namespace jpacUtils;
 
     // -----------------------------------------------------------------------
     // Operating options
